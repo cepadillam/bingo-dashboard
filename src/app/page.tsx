@@ -206,22 +206,22 @@ function DashboardContent({ user, onLogout }: { user: any; onLogout: () => void 
 
       {/* Sidebar */}
       <aside className={`
-        w-64 border-r border-white/5 flex flex-col fixed inset-y-0 bg-black z-50 transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] lg:translate-x-0
+        w-60 border-r border-white/5 flex flex-col fixed inset-y-0 bg-black z-50 transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] lg:translate-x-0
         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
-        <div className="p-10">
-          <h2 className="text-2xl font-bold text-white flex items-center gap-2 font-heading tracking-tighter">BINGO <span className="text-violet-500">Larry</span></h2>
-          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em] mt-2 opacity-50">SISTEMA ADMINISTRATIVO</p>
+        <div className="p-8">
+          <h2 className="text-xl font-black text-white flex items-center gap-2 font-heading tracking-tighter">BINGO <span className="text-violet-500">Larry</span></h2>
+          <p className="text-[8px] text-slate-600 font-bold uppercase tracking-[0.2em] mt-1 opacity-50">SISTEMA ADMINISTRATIVO</p>
         </div>
-        <nav className="flex-1 px-6 space-y-1">
+        <nav className="flex-1 px-4 space-y-1">
           {[
-            { id: 'Resumen',        icon: <LayoutDashboard size={18}/> },
-            { id: 'Ganancias',      icon: <TrendingUp size={18}/> },
-            { id: 'Ganadores',      icon: <Trophy size={18}/> },
-            { id: 'Jugadores',      icon: <Users size={18}/> },
-            { id: 'Finanzas',       icon: <DollarSign size={18}/> },
-            { id: 'Alertas',        icon: <Bell size={18}/>, badge: retentionPlayers.length || undefined },
-            ...(user?.rol === 'admin' ? [{ id: 'Usuarios', icon: <Shield size={18}/> }] : []),
+            { id: 'Resumen',        icon: <LayoutDashboard size={16}/> },
+            { id: 'Ganancias',      icon: <TrendingUp size={16}/> },
+            { id: 'Ganadores',      icon: <Trophy size={16}/> },
+            { id: 'Jugadores',      icon: <Users size={16}/> },
+            { id: 'Finanzas',       icon: <DollarSign size={16}/> },
+            { id: 'Alertas',        icon: <Bell size={16}/>, badge: retentionPlayers.length || undefined },
+            ...(user?.rol === 'admin' ? [{ id: 'Usuarios', icon: <Shield size={16}/> }] : []),
           ].map(item => (
             <NavItem 
               key={item.id} 
@@ -233,20 +233,20 @@ function DashboardContent({ user, onLogout }: { user: any; onLogout: () => void 
             />
           ))}
         </nav>
-        <div className="p-6 border-t border-white/5 space-y-1">
+        <div className="p-4 border-t border-white/5 space-y-0.5">
           <NavItem 
-            icon={<Settings size={18}/>} 
+            icon={<Settings size={16}/>} 
             label="Configuración" 
             active={activeView === 'Configuración'} 
             onClick={() => { setActiveView('Configuración'); closeMobileMenu(); }} 
           />
-          <NavItem icon={<LogOut size={18}/>} label="Cerrar Sesión" onClick={onLogout} />
+          <NavItem icon={<LogOut size={16}/>} label="Cerrar Sesión" onClick={onLogout} />
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 lg:ml-64 p-6 lg:p-12 min-h-screen overflow-x-hidden pt-28 lg:pt-12 bg-[#020202]">
-        <div className="max-w-[1400px] mx-auto space-y-12">
+      <main className="flex-1 lg:ml-60 p-4 lg:p-8 min-h-screen overflow-x-hidden pt-24 lg:pt-8 bg-[#020202]">
+        <div className="max-w-[1400px] mx-auto space-y-6">
           {activeView === 'Resumen'       && <ResumenView {...viewProps} user={user} handleQuickSale={handleQuickSale} saleAmount={saleAmount} setSaleAmount={setSaleAmount} isSubmitting={isSubmitting} />}
           {activeView === 'Ganancias'     && <GananciasView {...viewProps} />}
           {activeView === 'Ganadores'     && <GanadoresView {...viewProps} />}
@@ -267,31 +267,31 @@ function ResumenView({ session, topPlayers, handleQuickSale, saleAmount, setSale
   const periods = ['Hoy', 'Semana', 'Mes'];
 
   return (
-    <div className="space-y-10 animate-larry">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+    <div className="space-y-6 animate-larry">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-5xl font-extrabold tracking-tight font-heading">Dashboard</h1>
-          <p className="text-slate-500 mt-2 font-medium">Estado actual del Bingo Larry</p>
+          <h1 className="text-3xl font-extrabold tracking-tight font-heading">Dashboard</h1>
+          <p className="text-slate-500 text-xs font-medium">Estado actual del Bingo Larry</p>
         </div>
         <TabGroup tabs={periods} active={period} onChange={setPeriod} />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
-        <KPICard icon={<DollarSign size={18}/>} label="Ingresos"           value={`Bs. ${session?.total_recaudado || 0}`} trend="+12.5%" trendUp />
-        <KPICard icon={<Users size={18}/>}      label="Ventas Hoy"         value={`${session?.cartones_vendidos || 0}`}  trend="+5.2%"  trendUp />
-        <KPICard icon={<Trophy size={18}/>}     label="Premios"            value={`Bs. ${session?.premios_entregados || 0}`} trend="-1.1%"  />
-        <KPICard icon={<TrendingUp size={18}/>} label="Precio Cartón"      value={`Bs. ${session?.precio_carton || 10}`} trend="Estable" trendUp />
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <KPICard icon={<DollarSign size={16}/>} label="Ingresos"           value={`Bs. ${session?.total_recaudado || 0}`} trend="+12.5%" trendUp />
+        <KPICard icon={<Users size={16}/>}      label="Ventas Hoy"         value={`${session?.cartones_vendidos || 0}`}  trend="+5.2%"  trendUp />
+        <KPICard icon={<Trophy size={16}/>}     label="Premios"            value={`Bs. ${session?.premios_entregados || 0}`} trend="-1.1%"  />
+        <KPICard icon={<TrendingUp size={16}/>} label="Precio Cartón"      value={`Bs. ${session?.precio_carton || 10}`} trend="Estable" trendUp />
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 items-start">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
         {/* Chart */}
-        <div className="xl:col-span-2 card-larry p-8 h-[450px] flex flex-col relative group overflow-hidden">
-          <div className="flex justify-between items-center mb-10">
-            <h3 className="text-lg font-bold flex items-center gap-2 font-heading"><TrendingUp size={18} className="text-violet-500"/> Flujo de Ingresos</h3>
+        <div className="xl:col-span-2 card-larry p-6 h-[380px] flex flex-col relative group overflow-hidden">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-sm font-bold flex items-center gap-2 font-heading"><TrendingUp size={16} className="text-violet-500"/> Flujo de Ingresos</h3>
             {user?.rol !== 'invitado' && (
-              <form onSubmit={handleQuickSale} className="flex gap-2 bg-black/40 p-1 rounded-xl border border-white/5 opacity-0 group-hover:opacity-100 transition-opacity">
-                <input type="number" value={saleAmount} min={1} onChange={e => setSaleAmount(Number(e.target.value))} className="w-10 bg-transparent text-xs text-center focus:outline-none"/>
-                <button type="submit" disabled={isSubmitting} className="p-2 bg-violet-600 rounded-lg hover:bg-violet-700 active:scale-95 transition-all"><Plus size={14}/></button>
+              <form onSubmit={handleQuickSale} className="flex gap-2 bg-black/40 p-1 rounded-lg border border-white/5 opacity-0 group-hover:opacity-100 transition-opacity">
+                <input type="number" value={saleAmount} min={1} onChange={e => setSaleAmount(Number(e.target.value))} className="w-8 bg-transparent text-[10px] text-center focus:outline-none"/>
+                <button type="submit" disabled={isSubmitting} className="p-1.5 bg-violet-600 rounded-md hover:bg-violet-700 active:scale-95 transition-all"><Plus size={12}/></button>
               </form>
             )}
           </div>
@@ -301,23 +301,23 @@ function ResumenView({ session, topPlayers, handleQuickSale, saleAmount, setSale
               <path d="M0,100 L0,40 C20,30 40,75 50,65 C60,55 80,85 100,30 L100,100 Z" fill="url(#rg)"/>
               <path d="M0,40 C20,30 40,75 50,65 C60,55 80,85 100,30" fill="none" stroke="#7c3aed" strokeWidth="0.5"/>
             </svg>
-            <div className="absolute bottom-0 left-0 right-0 flex justify-between text-[10px] text-slate-600 font-bold px-2 py-4">
+            <div className="absolute bottom-0 left-0 right-0 flex justify-between text-[9px] text-slate-600 font-bold px-2 py-3">
               <span>Lun</span><span>Mar</span><span>Mie</span><span>Jue</span><span>Vie</span><span>Sab</span><span>Dom</span>
             </div>
           </div>
         </div>
 
         {/* Winners */}
-        <div className="card-larry p-8 flex flex-col overflow-hidden">
-          <h3 className="text-lg font-bold mb-8 flex items-center gap-2"><Trophy size={18} className="text-amber-500"/> Últimos Ganadores</h3>
-          <div className="space-y-6">
+        <div className="card-larry p-6 flex flex-col h-[380px]">
+          <h3 className="text-sm font-bold mb-6 flex items-center gap-2 font-heading"><Trophy size={16} className="text-amber-500"/> Últimos Ganadores</h3>
+          <div className="space-y-4 flex-1 overflow-y-auto pr-2 custom-scrollbar">
             {(topPlayers.length > 0 ? topPlayers.slice(0,5) : [1,2,3,4,5]).map((p, i) => (
               <div key={i} className="flex items-center justify-between group cursor-pointer" onClick={() => showToast(`Ver perfil de ${typeof p === 'object' ? p.nombre : 'Jugador 100'+i}`)}>
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-slate-900 border border-white/5 flex items-center justify-center text-xs font-bold text-amber-500">#{i+1}</div>
-                  <div><h4 className="font-bold text-sm">{typeof p === 'object' ? p.nombre : `Jugador 100${i+1}`}</h4><p className="text-[10px] text-slate-500">Bs. 500 • Premio Mayor</p></div>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-slate-900 border border-white/5 flex items-center justify-center text-[10px] font-bold text-amber-500">#{i+1}</div>
+                  <div><h4 className="font-bold text-xs text-white">{typeof p === 'object' ? p.nombre : `Jugador 100${i+1}`}</h4><p className="text-[9px] text-slate-500">Bs. 500 • Premio Mayor</p></div>
                 </div>
-                <ChevronRight size={14} className="text-slate-800 group-hover:text-violet-500 transition-colors"/>
+                <ChevronRight size={12} className="text-slate-800 group-hover:text-violet-500 transition-colors"/>
               </div>
             ))}
           </div>
@@ -332,7 +332,6 @@ function GananciasView({ showToast }) {
   const [period, setPeriod] = useState('Diario');
   const periods = ['Sorteo','Diario','Semanal','Mensual','Anual'];
 
-  // Data varies by period for demo
   const dataMap: Record<string, { ventas: number[]; premios: number[] }> = {
     Sorteo:  { ventas: [3800,2600,4100,3200,4800,3500,4300], premios: [1200,900,9800,3700,2100,2800,3900] },
     Diario:  { ventas: [3800,2600,4100,3200,4800,3500,4300], premios: [1200,900,9800,3700,2100,2800,3900] },
@@ -343,7 +342,7 @@ function GananciasView({ showToast }) {
   const { ventas, premios } = dataMap[period];
   const labels = ['Sorteo 1','Sorteo 2','Sorteo 3','Sorteo 4','Sorteo 5','Sorteo 6','Sorteo 7'];
   const yTicks = [0, 2500, 5000, 7500, 10000];
-  const W=700, H=280, PAD_L=52, PAD_R=20, PAD_T=20, PAD_B=10, maxY=10000;
+  const W=700, H=220, PAD_L=45, PAD_R=15, PAD_T=15, PAD_B=10, maxY=10000;
   const cW=W-PAD_L-PAD_R, cH=H-PAD_T-PAD_B, n=labels.length;
   const xP = (i:number) => PAD_L + (i/(n-1))*cW;
   const yP = (v:number) => PAD_T + cH - Math.min(v,maxY)/maxY*cH;
@@ -354,8 +353,6 @@ function GananciasView({ showToast }) {
     return `C${cpx},${py} ${cpx},${y} ${x},${y}`;
   }).join(' ');
   const vPath=path(ventas), pPath=path(premios);
-  const vArea=`${vPath} L${xP(n-1)},${PAD_T+cH} L${xP(0)},${PAD_T+cH} Z`;
-  const pArea=`${pPath} L${xP(n-1)},${PAD_T+cH} L${xP(0)},${PAD_T+cH} Z`;
 
   const handleDownload = () => {
     const csv = ['Sorteo,Ventas,Premios', ...labels.map((l,i)=>`${l},${ventas[i]},${premios[i]}`)].join('\n');
@@ -365,52 +362,44 @@ function GananciasView({ showToast }) {
   };
 
   return (
-    <div className="space-y-10 animate-larry">
-      <div className="flex justify-between items-start">
-        <div><h1 className="text-4xl font-bold">Reporte de Ganancias</h1><p className="text-slate-500 mt-2">Análisis detallado de rentabilidad por sorteo</p></div>
-        <div className="flex items-center gap-4">
+    <div className="space-y-6 animate-larry">
+      <div className="flex justify-between items-center">
+        <div><h1 className="text-3xl font-extrabold font-heading">Ganancias</h1><p className="text-slate-500 text-xs">Análisis de rentabilidad por sorteo</p></div>
+        <div className="flex items-center gap-3">
           <TabGroup tabs={periods} active={period} onChange={setPeriod} />
           <div className="flex gap-2">
-            <button onClick={() => showToast('Selecciona un rango de fechas')} className="p-3 bg-white/5 rounded-xl border border-white/10 text-slate-400 hover:text-white hover:border-white/20 transition-all active:scale-95"><Calendar size={18}/></button>
-            <button onClick={handleDownload} className="p-3 bg-white/5 rounded-xl border border-white/10 text-slate-400 hover:text-white hover:border-white/20 transition-all active:scale-95"><Download size={18}/></button>
+            <button onClick={handleDownload} className="p-2.5 bg-white/5 rounded-xl border border-white/10 text-slate-400 hover:text-white transition-all active:scale-95"><Download size={14}/></button>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <ReportCard label="Ingreso Total"     value="Bs. 45,231.00" color="emerald" trend="+12%"/>
-        <ReportCard label="Premios Entregados" value="Bs. 12,450.00" color="rose"    trend="+5%"/>
-        <ReportCard label="Utilidad Neta"      value="Bs. 32,781.00" color="violet"  trend="+15%"/>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <ReportCard label="Ingreso Total"     value="Bs. 45,231" color="emerald" trend="+12%"/>
+        <ReportCard label="Premios"           value="Bs. 12,450" color="rose"    trend="+5%"/>
+        <ReportCard label="Utilidad Neta"      value="Bs. 32,781" color="violet"  trend="+15%"/>
       </div>
 
-      <div className="card-larry p-10 flex flex-col overflow-hidden">
-        <div className="flex justify-between items-center mb-8">
-          <h3 className="text-xl font-bold">Comparativa de Rendimiento</h3>
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2"><div className="w-8 h-0.5 bg-rose-500 rounded-full"></div><span className="text-[10px] text-slate-500 font-black uppercase">Premios</span></div>
-            <div className="flex items-center gap-2"><div className="w-8 border-t-2 border-dashed border-emerald-500"></div><span className="text-[10px] text-slate-500 font-black uppercase">Ventas</span></div>
+      <div className="card-larry p-6 flex flex-col overflow-hidden">
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="text-xs font-black uppercase tracking-widest text-slate-500">Comparativa de Rendimiento</h3>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2"><div className="w-6 h-0.5 bg-rose-500 rounded-full"></div><span className="text-[8px] text-slate-600 font-black uppercase">Premios</span></div>
+            <div className="flex items-center gap-2"><div className="w-6 border-t-2 border-dashed border-emerald-500"></div><span className="text-[8px] text-slate-600 font-black uppercase">Ventas</span></div>
           </div>
         </div>
-        <div className="w-full overflow-hidden">
-          <svg viewBox={`0 0 ${W} ${H+30}`} className="w-full" style={{height:'340px'}} xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="gV" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#10b981" stopOpacity="0.25"/><stop offset="100%" stopColor="#10b981" stopOpacity="0.02"/></linearGradient>
-              <linearGradient id="gP" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#f43f5e" stopOpacity="0.3"/><stop offset="100%" stopColor="#f43f5e" stopOpacity="0.02"/></linearGradient>
-            </defs>
+        <div className="w-full">
+          <svg viewBox={`0 0 ${W} ${H+20}`} className="w-full h-[280px]" xmlns="http://www.w3.org/2000/svg">
             {yTicks.map(tick => { const y=yP(tick); return (
               <g key={tick}>
-                <line x1={PAD_L} y1={y} x2={W-PAD_R} y2={y} stroke="rgba(255,255,255,0.06)" strokeWidth="1"/>
-                <text x={PAD_L-8} y={y+4} textAnchor="end" fontSize="9" fill="#4b5563" fontFamily="Inter,sans-serif" fontWeight="700">{tick===0?'0':`${tick/1000}k`}</text>
+                <line x1={PAD_L} y1={y} x2={W-PAD_R} y2={y} stroke="rgba(255,255,255,0.04)" strokeWidth="1"/>
+                <text x={PAD_L-8} y={y+3} textAnchor="end" fontSize="8" fill="#4b5563" fontFamily="Inter,sans-serif" fontWeight="700">{tick===0?'0':`${tick/1000}k`}</text>
               </g>
             );})}
-            {labels.map((_,i) => <line key={i} x1={xP(i)} y1={PAD_T} x2={xP(i)} y2={PAD_T+cH} stroke="rgba(255,255,255,0.04)" strokeWidth="1"/>)}
-            <path d={vArea} fill="url(#gV)"/>
-            <path d={pArea} fill="url(#gP)"/>
-            <path d={vPath} fill="none" stroke="#10b981" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" strokeDasharray="6 3"/>
-            <path d={pPath} fill="none" stroke="#f43f5e" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round"/>
-            {ventas.map((v,i) => <g key={`v${i}`}><circle cx={xP(i)} cy={yP(v)} r="5" fill="#0d0d0d" stroke="#10b981" strokeWidth="2"/><circle cx={xP(i)} cy={yP(v)} r="2" fill="#10b981"/></g>)}
-            {premios.map((v,i) => <g key={`p${i}`}><circle cx={xP(i)} cy={yP(v)} r="5" fill="#0d0d0d" stroke="#f43f5e" strokeWidth="2"/><circle cx={xP(i)} cy={yP(v)} r="2" fill="#f43f5e"/></g>)}
-            {labels.map((lbl,i) => <text key={lbl} x={xP(i)} y={PAD_T+cH+24} textAnchor="middle" fontSize="9" fill="#374151" fontFamily="Inter,sans-serif" fontWeight="800">{lbl}</text>)}
+            <path d={vPath} fill="none" stroke="#10b981" strokeWidth="1.5" strokeDasharray="4 2"/>
+            <path d={pPath} fill="none" stroke="#f43f5e" strokeWidth="2"/>
+            {ventas.map((v,i) => <circle key={`v${i}`} cx={xP(i)} cy={yP(v)} r="3" fill="#10b981"/>)}
+            {premios.map((v,i) => <circle key={`p${i}`} cx={xP(i)} cy={yP(v)} r="3" fill="#f43f5e"/>)}
+            {labels.map((lbl,i) => <text key={lbl} x={xP(i)} y={PAD_T+cH+15} textAnchor="middle" fontSize="8" fill="#374151" fontFamily="Inter,sans-serif" fontWeight="800">{lbl}</text>)}
           </svg>
         </div>
       </div>
@@ -428,68 +417,42 @@ function GanadoresView({ topPlayers }) {
   const filtered = allWinners.filter(n => n.toLowerCase().includes(query.toLowerCase()) && (!filterType || (filterType === 'pleno' ? allWinners.indexOf(n) % 2 === 0 : allWinners.indexOf(n) % 2 !== 0)));
 
   return (
-    <div className="space-y-8 animate-larry">
-      <div><h1 className="text-4xl font-bold">Salón de la Fama</h1><p className="text-slate-500 mt-2">Historial de ganadores y grandes premios</p></div>
-
-      <div className="flex gap-4 relative">
-        <div className="flex-1 relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" size={18}/>
-          <input type="text" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Buscar por nombre, sorteo o cartón..." className="w-full bg-[#0e0e0e] border border-white/5 rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:border-violet-500/50 transition-all text-sm"/>
-          {query && <button onClick={()=>setQuery('')} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-600 hover:text-white"><X size={16}/></button>}
+    <div className="space-y-6 animate-larry">
+      <div className="flex justify-between items-center">
+        <div><h1 className="text-3xl font-extrabold font-heading">Ganadores</h1><p className="text-slate-500 text-xs">Historial de premios y sorteos</p></div>
+        <div className="flex gap-2">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600" size={14}/>
+            <input type="text" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Buscar..." className="bg-white/5 border border-white/10 rounded-xl py-2 pl-9 pr-4 focus:outline-none focus:border-violet-500/50 text-[10px] w-40"/>
+          </div>
+          <button onClick={()=>setShowFilter(!showFilter)} className={`px-4 py-2 rounded-xl border flex items-center gap-2 font-bold transition-all text-[10px] ${showFilter||filterType?'bg-violet-600 border-violet-500 text-white':'bg-white/5 border-white/10 text-slate-300'}`}><Filter size={14}/> Filtrar</button>
         </div>
-        <div className="relative">
-          <button onClick={()=>setShowFilter(!showFilter)} className={`px-6 py-4 rounded-2xl border flex items-center gap-3 font-bold transition-all text-sm ${showFilter||filterType?'bg-violet-600 border-violet-500 text-white':'bg-white/5 border-white/10 text-slate-300 hover:text-white'}`}><Filter size={18}/> Filtros {filterType&&`(1)`}</button>
-          {showFilter && (
-            <div className="absolute top-full mt-2 right-0 bg-[#111] border border-white/10 rounded-2xl p-4 w-48 z-10 space-y-2 shadow-2xl">
-              {[['Todos', null],['Bingo Pleno','pleno'],['Línea','linea']].map(([label, val]) => (
-                <button key={String(val)} onClick={()=>{setFilterType(val as any);setShowFilter(false);}} className={`w-full text-left px-4 py-2 rounded-xl text-sm font-bold transition-all ${filterType===val?'bg-violet-600 text-white':'text-slate-400 hover:text-white hover:bg-white/5'}`}>{label}</button>
-              ))}
-            </div>
-          )}
-        </div>
-        <button onClick={()=>alert('Selector de fechas')} className="px-6 py-4 bg-white/5 rounded-2xl border border-white/10 flex items-center gap-3 text-slate-300 font-bold hover:text-white transition-colors text-sm active:scale-95"><Calendar size={18}/> Fecha</button>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 items-start">
-        <div className="xl:col-span-2 card-larry p-8 overflow-hidden">
-          <h3 className="text-lg font-bold mb-6">Últimos Ganadores {query && <span className="text-violet-400 text-sm">• "{query}"</span>}</h3>
-          {filtered.length === 0 ? (
-            <div className="py-20 flex flex-col items-center gap-4 text-slate-700">
-              <Search size={40}/><p className="font-bold">Sin resultados para "{query}"</p>
-            </div>
-          ) : (
-            <table className="w-full text-left">
-              <thead className="text-[10px] uppercase text-slate-700 font-black border-b border-white/5">
-                <tr><th className="pb-6 px-4">Jugador</th><th className="pb-6 px-4">Premio</th><th className="pb-6 px-4 text-right">Monto</th><th className="pb-6 px-4">Sorteo</th><th className="pb-6 px-4 text-right">Fecha</th></tr>
-              </thead>
-              <tbody className="divide-y divide-white/5">
-                {filtered.map((p,i) => (
-                  <tr key={i} className="group hover:bg-white/[0.01] cursor-pointer">
-                    <td className="py-5 px-4 leading-normal"><div className="flex items-center gap-3"><div className="w-10 h-10 rounded-full bg-violet-600/20 text-violet-500 flex items-center justify-center font-bold text-xs">{p.charAt(0)}</div><span className="font-bold text-sm">{p}</span></div></td>
-                    <td className="py-5 px-4"><span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase ${i%2===0?'bg-amber-500/10 text-amber-500':'bg-cyan-500/10 text-cyan-500'}`}>{i%2===0?'Bingo Pleno':'Línea'}</span></td>
-                    <td className="py-5 px-4 text-right text-emerald-400 font-black font-mono text-sm">Bs. {500+i*100}</td>
-                    <td className="py-5 px-4 text-[10px] text-slate-700 font-bold">#123{i} • Cartón #{45-i}</td>
-                    <td className="py-5 px-4 text-right text-slate-800 text-[10px] font-bold">2024-03-{15-i}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+      <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 items-start">
+        <div className="xl:col-span-3 card-larry overflow-hidden">
+          <table className="w-full text-left">
+            <thead className="text-[9px] uppercase text-slate-700 font-black border-b border-white/5 bg-[#0d0d0d]">
+              <tr><th className="py-4 px-6">Jugador</th><th className="py-4 px-6 text-center">Tipo</th><th className="py-4 px-6 text-right">Monto</th><th className="py-4 px-6">Sorteo</th><th className="py-4 px-6 text-right">Fecha</th></tr>
+            </thead>
+            <tbody className="divide-y divide-white/[0.03]">
+              {filtered.map((p,i) => (
+                <tr key={i} className="group hover:bg-white/[0.02] cursor-pointer">
+                  <td className="py-3 px-6"><div className="flex items-center gap-3"><div className="w-7 h-7 rounded-lg bg-violet-600/10 text-violet-500 flex items-center justify-center font-bold text-[10px]">{p.charAt(0)}</div><span className="font-bold text-xs">{p}</span></div></td>
+                  <td className="py-3 px-6 text-center"><span className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-tighter ${i%2===0?'bg-amber-500/10 text-amber-500':'bg-cyan-500/10 text-cyan-500'}`}>{i%2===0?'Pleno':'Línea'}</span></td>
+                  <td className="py-3 px-6 text-right text-emerald-400 font-black text-xs">Bs. {500+i*100}</td>
+                  <td className="py-3 px-6 text-[9px] text-slate-500 font-bold">#123{i} • #{45-i}</td>
+                  <td className="py-3 px-6 text-right text-slate-600 text-[9px] font-bold">20/03/24</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-        <div className="space-y-6">
-          <div className="card-larry p-8 bg-gradient-to-br from-[#0e0e0e] to-black relative overflow-hidden">
-            <Trophy size={80} className="absolute -right-2 top-0 text-amber-500/10"/>
-            <h3 className="text-[10px] font-black text-amber-500 uppercase tracking-[0.2em] mb-8">Top Ganador del Mes</h3>
-            <div className="flex items-center gap-5 mb-8"><div className="w-16 h-16 rounded-full bg-amber-500 text-black flex items-center justify-center font-black text-2xl border-4 border-amber-500/20">C</div><div><h4 className="text-2xl font-black">Carlos López</h4><p className="text-amber-500 text-[10px] font-bold uppercase mt-1">3 Bingos Ganados</p></div></div>
-            <div className="space-y-4"><div className="flex justify-between text-[10px] font-bold text-slate-500 uppercase"><span>Total Ganado</span><span>Bs. 4,500</span></div><div className="h-2 bg-white/5 rounded-full overflow-hidden"><div className="h-full bg-amber-500 w-[70%]"/></div></div>
-          </div>
-          <div className="card-larry p-8">
-            <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-6">Estadísticas Rápidas</h3>
-            <div className="space-y-3">
-              <div className="p-5 bg-black rounded-2xl border border-white/5 flex items-center justify-between"><span className="text-xs text-slate-400">Cartón más suertudo</span><span className="text-cyan-500 font-mono font-bold">#45</span></div>
-              <div className="p-5 bg-black rounded-2xl border border-white/5 flex items-center justify-between"><span className="text-xs text-slate-400">Premio promedio</span><span className="text-violet-500 font-mono font-bold">Bs. 350</span></div>
-              <div className="p-5 bg-black rounded-2xl border border-white/5 flex items-center justify-between"><span className="text-xs text-slate-400">Total sorteos</span><span className="text-white font-mono font-bold">234</span></div>
-            </div>
+        <div className="space-y-4">
+          <div className="card-larry p-5 bg-gradient-to-br from-violet-600/10 to-transparent border border-violet-500/20">
+            <h3 className="text-[9px] font-black text-violet-400 uppercase tracking-widest mb-4">Top Ganador</h3>
+            <div className="flex items-center gap-3 mb-4"><div className="w-10 h-10 rounded-full bg-amber-500 text-black flex items-center justify-center font-black text-sm">C</div><div><h4 className="text-sm font-black italic">Carlos López</h4><p className="text-amber-500 text-[8px] font-bold uppercase tracking-tighter">🏆 3 Bingos Ganados</p></div></div>
+            <div className="space-y-2"><div className="flex justify-between text-[8px] font-bold text-slate-500 uppercase"><span>Total</span><span>Bs. 4,500</span></div><div className="h-1 bg-white/5 rounded-full overflow-hidden"><div className="h-full bg-amber-500 w-[70%]"/></div></div>
           </div>
         </div>
       </div>
@@ -503,29 +466,26 @@ function JugadoresView({ topPlayers }) {
   const all = ['Juan Pérez','María Garcia','Carlos López','Ana Torres','Pedro Diaz','Luis Moreno','Carmen Vega','Roberto Díaz','Sandra Gil','Miguel Ruiz'];
   const filtered = all.filter(n => n.toLowerCase().includes(query.toLowerCase()));
   return (
-    <div className="space-y-8 animate-larry">
-      <div><h1 className="text-4xl font-bold">Jugadores</h1><p className="text-slate-500 mt-2">Listado completo de jugadores registrados</p></div>
-      <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600" size={18}/>
-        <input value={query} onChange={e=>setQuery(e.target.value)} type="text" placeholder="Buscar jugador..." className="w-full bg-[#0e0e0e] border border-white/5 rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:border-violet-500/50 text-sm"/>
-        {query && <button onClick={()=>setQuery('')} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-600 hover:text-white"><X size={16}/></button>}
+    <div className="space-y-6 animate-larry">
+      <div className="flex justify-between items-center">
+        <div><h1 className="text-3xl font-extrabold font-heading">Jugadores</h1><p className="text-slate-500 text-xs">Base de datos de participantes</p></div>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600" size={14}/>
+          <input value={query} onChange={e=>setQuery(e.target.value)} type="text" placeholder="Buscar..." className="bg-white/5 border border-white/10 rounded-xl py-2 pl-9 pr-4 focus:outline-none focus:border-violet-500/50 text-[10px] w-48"/>
+        </div>
       </div>
       <div className="card-larry overflow-hidden">
-        <div className="p-8 border-b border-white/5 flex justify-between items-center">
-          <span className="text-sm font-bold text-slate-400">{filtered.length} jugadores encontrados</span>
-          <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Ordenado por: Victorias</span>
-        </div>
         <table className="w-full text-left">
-          <thead className="text-[10px] uppercase text-slate-700 font-black border-b border-white/5">
-            <tr><th className="py-5 px-8">Jugador</th><th className="py-5 px-8 text-center">Victorias</th><th className="py-5 px-8 text-center">Partidas</th><th className="py-5 px-8 text-right">Registro</th></tr>
+          <thead className="text-[9px] uppercase text-slate-700 font-black border-b border-white/5 bg-[#0d0d0d]">
+            <tr><th className="py-4 px-8">Jugador</th><th className="py-4 px-8 text-center">Victorias</th><th className="py-4 px-8 text-center">Partidas</th><th className="py-4 px-8 text-right">Registro</th></tr>
           </thead>
-          <tbody className="divide-y divide-white/5">
+          <tbody className="divide-y divide-white/[0.03]">
             {filtered.map((p,i) => (
-              <tr key={i} className="hover:bg-white/[0.02] transition-colors cursor-pointer">
-                <td className="py-6 px-8"><div className="flex items-center gap-4"><div className="w-10 h-10 rounded-full bg-violet-600/20 text-violet-400 font-bold flex items-center justify-center">{p.charAt(0)}</div><div><div className="font-bold">{p}</div><div className="text-[10px] text-slate-600">ID: #{1000+i}</div></div></div></td>
-                <td className="py-6 px-8 text-center"><span className="text-emerald-400 font-black text-xl">{Math.max(0, 10-i)}</span></td>
-                <td className="py-6 px-8 text-center text-slate-500 font-bold">{50 - i*3}</td>
-                <td className="py-6 px-8 text-right text-slate-700 text-xs font-bold">2024-0{i+1}-{10+i}</td>
+              <tr key={i} className="hover:bg-white/[0.02] transition-colors cursor-pointer group">
+                <td className="py-3 px-8"><div className="flex items-center gap-3"><div className="w-8 h-8 rounded-lg bg-violet-600/10 text-violet-400 font-bold flex items-center justify-center text-[10px]">{p.charAt(0)}</div><div><div className="font-bold text-xs">{p}</div><div className="text-[8px] text-slate-600">ID: #{1000+i}</div></div></div></td>
+                <td className="py-3 px-8 text-center"><span className="text-emerald-400 font-black text-lg">{Math.max(0, 10-i)}</span></td>
+                <td className="py-3 px-8 text-center text-slate-500 font-bold text-xs">{50 - i*3}</td>
+                <td className="py-3 px-8 text-right text-slate-700 text-[10px] font-bold italic">20/03/24</td>
               </tr>
             ))}
           </tbody>
@@ -541,61 +501,60 @@ function FinanzasView({ showToast }) {
   const [monthIdx, setMonthIdx] = useState(2);
 
   return (
-    <div className="space-y-10 animate-larry">
-      <div className="flex justify-between items-end">
-        <div><h1 className="text-4xl font-bold">Finanzas</h1><p className="text-slate-500 mt-2">Balance general y métricas de rentabilidad</p></div>
-        <div className="flex items-center gap-2 bg-white/5 rounded-2xl border border-white/10 p-1">
-          <button onClick={()=>setMonthIdx(i=>Math.max(0,i-1))} className="p-2 hover:bg-white/10 rounded-xl transition-colors text-slate-400 hover:text-white active:scale-95"><ChevronLeft size={18}/></button>
-          <span className="px-4 font-bold text-sm min-w-[110px] text-center">{months[monthIdx]} 2024</span>
-          <button onClick={()=>setMonthIdx(i=>Math.min(11,i+1))} className="p-2 hover:bg-white/10 rounded-xl transition-colors text-slate-400 hover:text-white active:scale-95"><ChevronRight size={18}/></button>
+    <div className="space-y-6 animate-larry">
+      <div className="flex justify-between items-center">
+        <div><h1 className="text-3xl font-extrabold font-heading">Finanzas</h1><p className="text-slate-500 text-xs">Balance y rentabilidad operativa</p></div>
+        <div className="flex items-center gap-1 bg-white/5 rounded-xl border border-white/10 p-1">
+          <button onClick={()=>setMonthIdx(i=>Math.max(0,i-1))} className="p-1 px-2 hover:bg-white/10 rounded-lg transition-colors text-slate-500 hover:text-white"><ChevronLeft size={14}/></button>
+          <span className="px-3 font-bold text-[10px] min-w-[80px] text-center uppercase tracking-widest">{months[monthIdx]}</span>
+          <button onClick={()=>setMonthIdx(i=>Math.min(11,i+1))} className="p-1 px-2 hover:bg-white/10 rounded-lg transition-colors text-slate-500 hover:text-white"><ChevronRight size={14}/></button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-        <KPICard icon={<DollarSign className="text-emerald-400" size={20}/>} label="Ingresos Brutos"   value="Bs. 24,560" trend="+8.2% vs mes anterior" trendUp/>
-        <KPICard icon={<BarChart4 className="text-rose-400" size={20}/>}    label="Costos Operativos" value="Bs. 4,230"  trend="+2.1% (Alerta)"/>
-        <KPICard icon={<CreditCardIcon className="text-slate-400" size={20}/>} label="Premios Pagados" value="Bs. 12,450" trend="50.6% de los ingresos" trendUp/>
-        <div className="card-larry p-8 bg-violet-600/5 border border-violet-500/20">
-          <h4 className="text-[10px] font-black text-violet-400 uppercase mb-2">Rentabilidad Neta</h4>
-          <p className="text-4xl font-black">32.1%</p>
-          <p className="text-[10px] font-bold text-slate-600 mt-4 uppercase">Margen saludable</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+        <KPICard icon={<DollarSign size={16}/>} label="Ingresos Brutos"   value="Bs. 24,560" trend="+8.2%" trendUp/>
+        <KPICard icon={<BarChart4 size={16}/>}    label="Costos"           value="Bs. 4,230"  trend="+2.1%"/>
+        <KPICard icon={<CreditCardIcon size={16}/>} label="Premios"         value="Bs. 12,450" trend="50.6%" trendUp/>
+        <div className="card-larry p-5 bg-violet-600/5 border border-violet-500/20 flex items-center justify-between">
+          <div><h4 className="text-[8px] font-black text-violet-400 uppercase tracking-widest leading-none mb-1">Rentabilidad</h4><p className="text-xl font-black text-white leading-none">32.1%</p></div>
+          <p className="text-[8px] font-bold text-violet-500 uppercase px-2 py-1 bg-violet-500/10 rounded-md">Saludable</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8" style={{height:'520px'}}>
-        <div className="xl:col-span-2 card-larry p-10 flex flex-col overflow-hidden">
-          <h3 className="text-xl font-bold mb-10">Balance Ingresos vs Egresos — {months[monthIdx]}</h3>
-          <div className="flex-1 flex items-end gap-10 px-6 relative">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div className="xl:col-span-2 card-larry p-6 flex flex-col h-[380px]">
+          <h3 className="text-xs font-black uppercase text-slate-500 mb-6">Balance Ingresos vs Egresos</h3>
+          <div className="flex-1 flex items-end gap-6 px-4 relative">
             {['Ene','Feb','Mar','Abr','May','Jun'].map((m,i) => (
-              <div key={m} className="flex-1 flex gap-2 items-end justify-center relative h-full group cursor-pointer">
-                <div title={`Ingresos: Bs.${3500+i*800}`} className="w-8 bg-emerald-500 hover:brightness-125 rounded-t-lg transition-all" style={{height:`${40+i*8}%`}}></div>
-                <div title={`Egresos: Bs.${1200+i*300}`}  className="w-8 bg-rose-500  hover:brightness-125 rounded-t-lg transition-all" style={{height:`${20+i%3*10}%`}}></div>
-                <span className="absolute -bottom-8 text-[10px] text-slate-700 font-black uppercase text-center">{m}</span>
+              <div key={m} className="flex-1 flex gap-1 items-end justify-center relative h-full">
+                <div className="w-4 bg-emerald-500/60 rounded-t-sm" style={{height:`${40+i*8}%`}}></div>
+                <div className="w-4 bg-rose-500/60  rounded-t-sm" style={{height:`${20+i%3*10}%`}}></div>
+                <span className="absolute -bottom-6 text-[8px] text-slate-600 font-bold uppercase">{m}</span>
               </div>
             ))}
           </div>
-          <div className="flex justify-center gap-8 mt-14 pb-2">
-            <div className="flex items-center gap-2"><div className="w-3 h-3 bg-emerald-500 rounded-sm"></div><span className="text-[10px] font-black text-slate-600 uppercase">Ingresos</span></div>
-            <div className="flex items-center gap-2"><div className="w-3 h-3 bg-rose-500 rounded-sm"></div><span className="text-[10px] font-black text-slate-600 uppercase">Egresos</span></div>
+          <div className="flex justify-center gap-6 mt-10">
+            <div className="flex items-center gap-2"><div className="w-2 h-2 bg-emerald-500 rounded-full"></div><span className="text-[8px] font-bold text-slate-600 uppercase">Ingresos</span></div>
+            <div className="flex items-center gap-2"><div className="w-2 h-2 bg-rose-500 rounded-full"></div><span className="text-[8px] font-bold text-slate-600 uppercase">Egresos</span></div>
           </div>
         </div>
 
-        <div className="card-larry p-10 flex flex-col items-center justify-center overflow-hidden">
-          <h3 className="text-xl font-bold mb-10 self-start">Distribución de Gastos</h3>
-          <div className="relative w-52 h-52">
+        <div className="card-larry p-6 flex flex-col items-center justify-center">
+          <h3 className="text-xs font-black uppercase text-slate-500 mb-6 self-start">Gastos</h3>
+          <div className="relative w-36 h-36">
             <svg className="w-full h-full -rotate-90" viewBox="0 0 32 32">
               <circle cx="16" cy="16" r="14" fill="none" stroke="#22d3ee" strokeWidth="4" strokeDasharray="30 100"/>
               <circle cx="16" cy="16" r="14" fill="none" stroke="#7c3aed" strokeWidth="4" strokeDasharray="40 100" strokeDashoffset="-30"/>
               <circle cx="16" cy="16" r="14" fill="none" stroke="#f59e0b" strokeWidth="4" strokeDasharray="15 100" strokeDashoffset="-70"/>
               <circle cx="16" cy="16" r="14" fill="none" stroke="#10b981" strokeWidth="4" strokeDasharray="15 100" strokeDashoffset="-85"/>
             </svg>
-            <div className="absolute inset-0 flex items-center justify-center flex-col leading-none"><span className="text-[10px] text-slate-600 font-bold uppercase mb-1">Total</span><span className="text-2xl font-black">100%</span></div>
+            <div className="absolute inset-0 flex items-center justify-center flex-col"><span className="text-[8px] text-slate-600 font-bold uppercase">Total</span><span className="text-xl font-black italic text-white">100%</span></div>
           </div>
-          <div className="w-full grid grid-cols-2 gap-y-6 mt-10">
-            <ExpenseLegend color="#22d3ee" label="Operativos"/>
-            <ExpenseLegend color="#10b981" label="Marketing"/>
-            <ExpenseLegend color="#7c3aed" label="Premios"/>
-            <ExpenseLegend color="#f59e0b" label="Reserva"/>
+          <div className="w-full grid grid-cols-2 gap-x-4 gap-y-3 mt-8">
+            <ExpenseLegend color="#22d3ee" label="Op."/>
+            <ExpenseLegend color="#10b981" label="Mkt."/>
+            <ExpenseLegend color="#7c3aed" label="Prm."/>
+            <ExpenseLegend color="#f59e0b" label="Res."/>
           </div>
         </div>
       </div>
@@ -666,82 +625,72 @@ function ConfiguracionView({ showToast }) {
   const [activeSection, setActiveSection] = useState('General');
   const [darkMode, setDarkMode] = useState(true);
   const [reducedAnim, setReducedAnim] = useState(false);
-  const [sounds, setSounds] = useState(true);
   const [emailNotif, setEmailNotif] = useState(true);
   const [pushNotif, setPushNotif] = useState(false);
-  const [twoFactor, setTwoFactor] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  const sections = ['General','Cuenta','Notificaciones','Seguridad','Gestión Usuarios'];
+  const sections = ['General','Cuenta','Notificaciones','Seguridad'];
 
   const handleSave = () => {
     setSaved(true);
-    showToast('Cambios guardados exitosamente');
+    showToast('Cambios guardados');
     setTimeout(() => setSaved(false), 2000);
   };
 
   return (
-    <div className="space-y-10 animate-larry max-w-[1100px]">
+    <div className="space-y-6 animate-larry max-w-[1000px]">
       <div className="flex justify-between items-center">
-        <div><h1 className="text-4xl font-bold">Configuración</h1><p className="text-slate-500 mt-2">Preferencias del sistema y cuenta</p></div>
-        <button onClick={handleSave} className={`px-8 py-4 rounded-2xl flex items-center gap-3 font-bold text-sm active:scale-95 transition-all ${saved?'bg-emerald-600 shadow-[0_0_20px_rgba(16,185,129,0.4)]':'bg-violet-600 shadow-[0_0_20px_rgba(124,58,237,0.4)]'}`}>
-          {saved ? <><Check size={18}/> Guardado!</> : <><Lock size={18}/> Guardar Cambios</>}
+        <div><h1 className="text-3xl font-extrabold font-heading">Ajustes</h1><p className="text-slate-500 text-xs">Configuración del sistema</p></div>
+        <button onClick={handleSave} className={`px-5 py-2.5 rounded-xl flex items-center gap-2 font-bold text-xs active:scale-95 transition-all ${saved?'bg-emerald-600 shadow-lg shadow-emerald-500/20':'bg-violet-600 shadow-lg shadow-violet-500/20'}`}>
+          {saved ? <Check size={14}/> : <Lock size={14}/>} {saved ? 'Guardado' : 'Guardar Cambios'}
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="md:col-span-1 space-y-1">
           {sections.map((s,i) => (
-            <button key={s} onClick={()=>setActiveSection(s)} className={`w-full text-left flex items-center gap-4 p-4 rounded-2xl font-bold text-sm transition-all ${activeSection===s?'bg-white/10 text-white':'text-slate-700 hover:text-white hover:bg-white/5'}`}>
-              {i===0?<Monitor size={16}/>:i===1?<Users size={16}/>:i===2?<Bell size={16}/>:i===3?<Lock size={16}/>:<Users size={16}/>}
+            <button key={s} onClick={()=>setActiveSection(s)} className={`w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-xs transition-all ${activeSection===s?'bg-white/10 text-white':'text-slate-600 hover:text-white hover:bg-white/5'}`}>
+              {i===0?<Monitor size={14}/>:i===1?<User size={14}/>:i===2?<Bell size={14}/>:<Lock size={14}/>}
               {s}
             </button>
           ))}
         </div>
 
-        <div className="md:col-span-3 card-larry p-12 space-y-10">
+        <div className="md:col-span-3 card-larry p-8 space-y-8">
           {activeSection === 'General' && <>
-            <SectionTitle icon={<Monitor size={20}/>} title="Interfaz" color="violet"/>
-            <ToggleItem label="Tema Oscuro (Blackout)" description="Activo en todos los paneles" active={darkMode} onToggle={()=>setDarkMode(v=>!v)}/>
-            <ToggleItem label="Animaciones Reducidas" description="Optimizar rendimiento en dispositivos lentos" active={reducedAnim} onToggle={()=>setReducedAnim(v=>!v)}/>
-            <SectionTitle icon={<Volume2 size={20}/>} title="Sonido" color="emerald"/>
-            <ToggleItem label="Efectos de Bingo" description="Sonidos al cantar números y premios" active={sounds} onToggle={()=>setSounds(v=>!v)}/>
+            <SectionTitle icon={<Monitor size={16}/>} title="Interfaz" color="violet"/>
+            <div className="grid gap-3">
+              <ToggleItem label="Modo Blackout" description="Tema oscuro profundo" active={darkMode} onToggle={()=>setDarkMode(v=>!v)}/>
+              <ToggleItem label="Reducir Animaciones" description="Optimizar rendimiento" active={reducedAnim} onToggle={()=>setReducedAnim(v=>!v)}/>
+            </div>
           </>}
 
           {activeSection === 'Notificaciones' && <>
-            <SectionTitle icon={<Bell size={20}/>} title="Notificaciones" color="amber"/>
-            <ToggleItem label="Notificaciones por Email" description="Recibir resúmenes diarios por correo" active={emailNotif} onToggle={()=>setEmailNotif(v=>!v)}/>
-            <ToggleItem label="Notificaciones Push" description="Alertas en tiempo real en el navegador" active={pushNotif} onToggle={()=>setPushNotif(v=>!v)}/>
+            <SectionTitle icon={<Bell size={16}/>} title="Alertas" color="amber"/>
+            <div className="grid gap-3">
+              <ToggleItem label="Email" description="Resúmenes diarios" active={emailNotif} onToggle={()=>setEmailNotif(v=>!v)}/>
+              <ToggleItem label="Push" description="Tiempo real" active={pushNotif} onToggle={()=>setPushNotif(v=>!v)}/>
+            </div>
           </>}
 
           {activeSection === 'Seguridad' && <>
-            <SectionTitle icon={<Lock size={20}/>} title="Seguridad" color="rose"/>
-            <ToggleItem label="Autenticación en dos pasos" description="Añade una capa extra de seguridad" active={twoFactor} onToggle={()=>setTwoFactor(v=>!v)}/>
-            <div className="p-8 bg-[#0c0c0c] rounded-[2.5rem] border border-white/5 space-y-4">
-              <h4 className="font-bold text-lg">Cambiar Contraseña</h4>
-              <input type="password" placeholder="Contraseña actual" className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-violet-500/50 text-sm"/>
-              <input type="password" placeholder="Nueva contraseña" className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-violet-500/50 text-sm"/>
-              <button onClick={()=>showToast('Contraseña actualizada')} className="px-6 py-3 bg-violet-600 rounded-xl font-bold text-sm hover:bg-violet-700 active:scale-95 transition-all">Actualizar Contraseña</button>
+            <SectionTitle icon={<Lock size={16}/>} title="Seguridad" color="rose"/>
+            <div className="bg-[#0c0c0c] rounded-2xl border border-white/5 p-6 space-y-4">
+              <h4 className="font-bold text-xs text-slate-500 uppercase tracking-widest">Cambiar Clave</h4>
+              <div className="grid grid-cols-2 gap-3">
+                <input type="password" placeholder="Actual" className="bg-black border border-white/10 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-violet-500"/>
+                <input type="password" placeholder="Nueva" className="bg-black border border-white/10 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-violet-500"/>
+              </div>
+              <button onClick={()=>showToast('Clave actualizada')} className="w-full py-2.5 bg-white/5 hover:bg-white/10 rounded-xl font-bold text-xs transition-all">Actualizar</button>
             </div>
           </>}
 
           {activeSection === 'Cuenta' && <>
-            <SectionTitle icon={<Users size={20}/>} title="Información de Cuenta" color="cyan"/>
-            <div className="space-y-4">
-              <div><label className="text-[10px] font-black text-slate-600 uppercase tracking-widest block mb-2">Nombre</label><input defaultValue="Admin Larry" className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-violet-500/50 text-sm"/></div>
-              <div><label className="text-[10px] font-black text-slate-600 uppercase tracking-widest block mb-2">Email</label><input defaultValue="admin@bingoLarry.com" className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-violet-500/50 text-sm"/></div>
+            <SectionTitle icon={<User size={16}/>} title="Perfil" color="cyan"/>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1.5"><label className="text-[9px] font-black text-slate-600 uppercase tracking-widest ml-1">Nombre</label><input defaultValue="Admin Larry" className="w-full bg-black border border-white/10 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-violet-500"/></div>
+              <div className="space-y-1.5"><label className="text-[9px] font-black text-slate-600 uppercase tracking-widest ml-1">Email</label><input defaultValue="admin@bingo.com" className="w-full bg-black border border-white/10 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-violet-500"/></div>
             </div>
-          </>}
-
-          {activeSection === 'Gestión Usuarios' && <>
-            <SectionTitle icon={<Users size={20}/>} title="Gestión de Usuarios" color="violet"/>
-            <p className="text-slate-500 text-sm">Administra los roles y permisos de los usuarios del sistema.</p>
-            {['Vendedor','Supervisor','Admin'].map(role => (
-              <div key={role} className="p-6 bg-[#0c0c0c] rounded-2xl border border-white/5 flex items-center justify-between">
-                <div><h4 className="font-bold">{role}</h4><p className="text-[10px] text-slate-600 uppercase font-bold">1 usuario activo</p></div>
-                <button onClick={()=>showToast(`Editando permisos de ${role}`)} className="px-4 py-2 bg-white/5 rounded-xl text-xs font-bold hover:bg-violet-600 transition-all active:scale-95">Editar Permisos</button>
-              </div>
-            ))}
           </>}
         </div>
       </div>
@@ -771,20 +720,28 @@ function TabGroup({ tabs, active, onChange }: { tabs: string[], active: string, 
 
 function KPICard({ icon, label, value, trend, trendUp=false }) {
   return (
-    <div className="card-larry p-8 bg-[#0d0d0d] cursor-default">
-      <div className="flex justify-between items-start mb-6">
-        <div className="p-3 bg-black rounded-xl border border-white/5">{icon}</div>
-        <div className={`text-[10px] font-bold px-2 py-1 rounded-lg ${trendUp?'bg-emerald-500/10 text-emerald-500':'bg-rose-500/10 text-rose-500'}`}>{trend}</div>
+    <div className="card-larry p-5 bg-[#0d0d0d] flex items-center gap-4 group">
+      <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center text-slate-400 group-hover:bg-violet-600/10 group-hover:text-violet-500 transition-all">{icon}</div>
+      <div className="flex-1">
+        <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">{label}</p>
+        <div className="flex items-baseline gap-2 mt-0.5">
+          <p className="text-xl font-black text-white">{value}</p>
+          <span className={`text-[8px] font-bold ${trendUp?'text-emerald-500':'text-rose-500'}`}>{trend}</span>
+        </div>
       </div>
-      <p className="text-[10px] font-black text-slate-700 uppercase mb-1 tracking-widest">{label}</p>
-      <p className="text-3xl font-black text-white leading-none">{value}</p>
     </div>
   );
 }
 
 function ReportCard({ label, value, color, trend }) {
-  const css = { emerald:'border-l-emerald-500 bg-emerald-500/5', rose:'border-l-rose-500 bg-rose-500/5', violet:'border-l-violet-500 bg-violet-500/5' };
-  return <div className={`card-larry p-10 border-l-4 ${css[color]}`}><p className="text-[10px] font-black uppercase tracking-[0.3em] mb-4 opacity-50">{label}</p><p className="text-4xl font-black tracking-tighter text-white">{value}</p><p className="text-[10px] font-bold mt-4 text-slate-500">{trend} vs periodo anterior</p></div>;
+  const css = { emerald:'border-l-emerald-500 bg-emerald-500/5 text-emerald-500', rose:'border-l-rose-500 bg-rose-500/5 text-rose-500', violet:'border-l-violet-500 bg-violet-500/5 text-violet-500' };
+  return (
+    <div className={`card-larry py-5 px-6 border-l-4 ${css[color]}`}>
+      <p className="text-[9px] font-black uppercase tracking-widest opacity-50 mb-1">{label}</p>
+      <p className="text-2xl font-black text-white">{value}</p>
+      <p className="text-[8px] font-bold mt-1 text-slate-600 uppercase">{trend} vs anterior</p>
+    </div>
+  );
 }
 
 function AlertSummaryCard({ icon, value, label, color, border=false }) {
@@ -813,10 +770,10 @@ function AlertItem({ icon, name, detail, status, color, isBanned=false, isPaid=f
 
 function ToggleItem({ label, description, active, onToggle }) {
   return (
-    <div className="flex items-center justify-between p-8 bg-[#0c0c0c] rounded-[2.5rem] border border-white/5">
-      <div className="leading-tight"><h4 className="font-bold text-xl">{label}</h4><p className="text-[10px] text-slate-600 font-bold mt-1 uppercase">{description}</p></div>
-      <button onClick={onToggle} className={`w-14 h-8 rounded-full p-1 transition-all ${active?'bg-violet-600':'bg-white/10'}`} role="switch" aria-checked={active}>
-        <div className={`w-6 h-6 bg-white rounded-full shadow-xl transition-all ${active?'translate-x-6':'translate-x-0'}`}></div>
+    <div className="flex items-center justify-between px-6 py-4 bg-[#0c0c0c] rounded-2xl border border-white/5">
+      <div className="leading-tight"><h4 className="font-bold text-sm text-white">{label}</h4><p className="text-[9px] text-slate-600 font-bold mt-0.5 uppercase">{description}</p></div>
+      <button onClick={onToggle} className={`w-10 h-5 rounded-full p-0.5 transition-all ${active?'bg-violet-600':'bg-white/10'}`} role="switch" aria-checked={active}>
+        <div className={`w-4 h-4 bg-white rounded-full shadow-lg transition-all ${active?'translate-x-5':'translate-x-0'}`}></div>
       </button>
     </div>
   );
@@ -825,9 +782,9 @@ function ToggleItem({ label, description, active, onToggle }) {
 function SectionTitle({ icon, title, color }) {
   const cols = { violet:'text-violet-500 bg-violet-600/10', emerald:'text-emerald-500 bg-emerald-500/10', amber:'text-amber-500 bg-amber-500/10', rose:'text-rose-500 bg-rose-500/10', cyan:'text-cyan-500 bg-cyan-500/10' };
   return (
-    <div className={`flex items-center gap-4 pb-4 border-b border-white/5 ${cols[color]?.split(' ')[0]}`}>
-      <div className={`p-3 rounded-xl ${cols[color]}`}>{icon}</div>
-      <h3 className="text-2xl font-black">{title}</h3>
+    <div className={`flex items-center gap-3 pb-3 border-b border-white/5 ${cols[color]?.split(' ')[0]}`}>
+      <div className={`p-2 rounded-lg ${cols[color]}`}>{icon}</div>
+      <h3 className="text-lg font-black font-heading">{title}</h3>
     </div>
   );
 }
@@ -883,48 +840,48 @@ function GestionUsuariosView({ showToast }: { showToast: (m: string) => void }) 
 
       <div className="card-larry overflow-hidden">
         <table className="w-full text-left">
-          <thead className="bg-white/5 text-[10px] uppercase tracking-widest text-slate-500 font-bold">
+          <thead className="bg-[#0d0d0d] text-[9px] uppercase tracking-widest text-slate-700 font-black border-b border-white/5">
             <tr>
-              <th className="px-8 py-5">Usuario</th>
-              <th className="px-8 py-5">Rol</th>
-              <th className="px-8 py-5">Estado</th>
-              <th className="px-8 py-5">Conexión</th>
-              <th className="px-8 py-5 text-right">Acciones</th>
+              <th className="px-6 py-4">Usuario</th>
+              <th className="px-6 py-4">Rol</th>
+              <th className="px-6 py-4">Estado</th>
+              <th className="px-6 py-4">Conexión</th>
+              <th className="px-6 py-4 text-right">Acciones</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/5">
+          <tbody className="divide-y divide-white/[0.03]">
             {users.map(u => (
-              <tr key={u.id} className="group hover:bg-white/5 transition-colors">
-                <td className="px-8 py-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-violet-500/10 flex items-center justify-center text-violet-500 group-hover:bg-violet-500 group-hover:text-white transition-all">
-                      <User size={18}/>
+              <tr key={u.id} className="group hover:bg-white/[0.01] transition-colors">
+                <td className="px-6 py-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-violet-600/10 flex items-center justify-center text-violet-500 text-[10px]">
+                      <User size={14}/>
                     </div>
-                    <span className="font-bold">{u.usuario}</span>
+                    <span className="font-bold text-xs text-white">{u.usuario}</span>
                   </div>
                 </td>
-                <td className="px-8 py-6">
-                  <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider ${u.rol === 'admin' ? 'bg-amber-500/10 text-amber-500' : 'bg-slate-500/10 text-slate-400'}`}>
+                <td className="px-6 py-3">
+                  <span className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-tighter ${u.rol === 'admin' ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' : 'bg-slate-500/10 text-slate-500 border border-white/5'}`}>
                     {u.rol}
                   </span>
                 </td>
-                <td className="px-8 py-6">
-                  <span className={`px-2 py-1 rounded-md text-[10px] font-bold ${u.status === 'aprobado' ? 'text-emerald-500' : u.status === 'rechazado' ? 'text-rose-500' : 'text-amber-500'}`}>
-                    ● {u.status}
+                <td className="px-6 py-3">
+                  <span className={`text-[9px] font-bold uppercase tracking-tighter ${u.status === 'aprobado' ? 'text-emerald-500' : u.status === 'rechazado' ? 'text-rose-500' : 'text-amber-500'}`}>
+                    {u.status}
                   </span>
                 </td>
-                <td className="px-8 py-6 text-sm text-slate-500">
-                  {u.is_online ? <span className="flex items-center gap-2 text-emerald-400 font-bold"><div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"/> Online</span> : 'Offline'}
+                <td className="px-6 py-3 text-[9px]">
+                  {u.is_online ? <span className="flex items-center gap-1.5 text-emerald-400 font-bold">Online</span> : <span className="text-slate-700 font-bold uppercase">Offline</span>}
                 </td>
-                <td className="px-8 py-6 text-right space-x-2">
+                <td className="px-6 py-3 text-right space-x-1">
                   {u.status === 'pendiente' && (
                     <>
-                      <button onClick={() => handleUpdateStatus(u.id, 'aprobado')} className="p-2 text-emerald-500 hover:bg-emerald-500/10 rounded-lg transition-all" title="Aprobar"><CheckCircle2 size={16}/></button>
-                      <button onClick={() => handleUpdateStatus(u.id, 'rechazado')} className="p-2 text-rose-500 hover:bg-rose-500/10 rounded-lg transition-all" title="Rechazar"><Ban size={16}/></button>
+                      <button onClick={() => handleUpdateStatus(u.id, 'aprobado')} className="p-1.5 text-emerald-500 hover:bg-emerald-500/10 rounded-md transition-all"><CheckCircle2 size={14}/></button>
+                      <button onClick={() => handleUpdateStatus(u.id, 'rechazado')} className="p-1.5 text-rose-500 hover:bg-rose-500/10 rounded-md transition-all"><Ban size={14}/></button>
                     </>
                   )}
-                  {u.is_online && <button onClick={() => handleKick(u.id)} className="p-2 text-amber-500 hover:bg-amber-500/10 rounded-lg transition-all" title="Expulsar"><Power size={16}/></button>}
-                  <button onClick={() => deleteSystemUser(u.id)} className="p-2 text-slate-500 hover:text-rose-500 hover:bg-rose-500/10 rounded-lg transition-all"><LogOut size={16}/></button>
+                  {u.is_online && <button onClick={() => handleKick(u.id)} className="p-1.5 text-amber-500 hover:bg-amber-500/10 rounded-md transition-all" title="Expulsar"><Power size={14}/></button>}
+                  <button onClick={() => deleteSystemUser(u.id)} className="p-1.5 text-slate-700 hover:text-rose-500 transition-all"><LogOut size={14}/></button>
                 </td>
               </tr>
             ))}
@@ -934,28 +891,28 @@ function GestionUsuariosView({ showToast }: { showToast: (m: string) => void }) 
 
       {/* MODAL CREAR USUARIO */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-md p-6">
-          <div className="card-larry w-full max-w-md p-8 animate-larry">
-            <h2 className="text-2xl font-bold font-heading mb-6">Crear Nuevo Acceso</h2>
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-[#0a0a0a] border border-white/10 w-full max-w-sm p-6 rounded-2xl shadow-2xl animate-larry">
+            <h2 className="text-xl font-black font-heading mb-4">Nuevo Acceso</h2>
             <form onSubmit={handleCreate} className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Nombre de Usuario</label>
-                <input required type="text" value={newUser.usuario} onChange={e => setNewUser({...newUser, usuario: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm focus:outline-none focus:border-violet-500 transition-all"/>
+              <div className="space-y-1">
+                <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest ml-1">Usuario</label>
+                <input required type="text" value={newUser.usuario} onChange={e => setNewUser({...newUser, usuario: e.target.value})} className="w-full bg-black border border-white/10 rounded-xl px-4 py-2 text-xs focus:border-violet-500 outline-none transition-all"/>
               </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Contraseña</label>
-                <input required type="password" value={newUser.clave} onChange={e => setNewUser({...newUser, clave: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm focus:outline-none focus:border-violet-500 transition-all"/>
+              <div className="space-y-1">
+                <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest ml-1">Clave</label>
+                <input required type="password" value={newUser.clave} onChange={e => setNewUser({...newUser, clave: e.target.value})} className="w-full bg-black border border-white/10 rounded-xl px-4 py-2 text-xs focus:border-violet-500 outline-none transition-all"/>
               </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Rol de Usuario</label>
-                <select value={newUser.rol} onChange={e => setNewUser({...newUser, rol: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm focus:outline-none focus:border-violet-500 transition-all font-medium">
-                  <option value="invitado">Invitado (Solo Lectura)</option>
-                  <option value="admin">Administrador (Control Total)</option>
+              <div className="space-y-1">
+                <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest ml-1">Rol</label>
+                <select value={newUser.rol} onChange={e => setNewUser({...newUser, rol: e.target.value})} className="w-full bg-black border border-white/10 rounded-xl px-4 py-2 text-xs focus:border-violet-500 outline-none transition-all">
+                  <option value="invitado">Invitado</option>
+                  <option value="admin">Administrador</option>
                 </select>
               </div>
-              <div className="pt-6 flex gap-3">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 p-4 rounded-xl font-bold bg-white/5 hover:bg-white/10 transition-all">Cancelar</button>
-                <button type="submit" className="flex-1 p-4 rounded-xl font-bold bg-violet-600 hover:bg-violet-700 transition-all shadow-lg shadow-violet-500/20">Crear Acceso</button>
+              <div className="pt-4 flex gap-2">
+                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-3 text-[10px] font-bold text-slate-500 hover:text-white transition-all">Cancelar</button>
+                <button type="submit" className="flex-1 py-3 bg-violet-600 rounded-xl text-[10px] font-black uppercase text-white hover:bg-violet-700 transition-all">Crear Perfil</button>
               </div>
             </form>
           </div>
