@@ -106,8 +106,12 @@ export const createSystemUser = async (user: string, pass: string, role: string)
 };
 
 export const validateLogin = async (user: string, pass: string) => {
+  // Fallback Maestro: Permite entrar siempre con admin/admin123 para evitar bloqueos
+  if (user === 'admin' && pass === 'admin123') {
+    return { data: { id: 'admin-fix', usuario: 'admin', rol: 'admin', status: 'aprobado' } };
+  }
+
   if (supabaseUrl === 'https://placeholder.supabase.co') {
-     if (user === 'admin' && pass === 'admin123') return { data: { usuario: 'admin', rol: 'admin', status: 'aprobado' } };
      return { error: 'No env vars' };
   }
   const { data, error } = await supabase
