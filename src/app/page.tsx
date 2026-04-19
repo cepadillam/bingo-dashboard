@@ -5,7 +5,8 @@ import {
   LayoutDashboard, TrendingUp, Trophy, Users, DollarSign, BarChart4,
   Bell, Settings, LogOut, ChevronRight, Plus, MessageCircle, Search,
   Calendar, Download, Filter, AlertCircle, Clock, Ban, CheckCircle2,
-  Lock, Volume2, Monitor, X, Check, ChevronLeft, ChevronDown, User
+  Lock, Volume2, Monitor, X, Check, ChevronLeft, ChevronDown, User,
+  Eye, EyeOff
 } from 'lucide-react';
 import { useActiveSession, useTopPlayers, useRetentionPlayers, registerSale } from './supabase-hooks';
 
@@ -23,6 +24,7 @@ function Toast({ msg, onDone }: { msg: string; onDone: () => void }) {
 function LoginPage({ onLogin }: { onLogin: () => void }) {
   const [user, setUser] = useState('');
   const [pass, setPass] = useState('');
+  const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -39,72 +41,72 @@ function LoginPage({ onLogin }: { onLogin: () => void }) {
     <div className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden bg-black font-heading">
       {/* Dynamic Background */}
       <div 
-        className="absolute inset-0 z-0 scale-110 opacity-40 blur-sm brightness-50"
+        className="absolute inset-0 z-0 scale-110 opacity-30 blur-sm brightness-50"
         style={{ 
           backgroundImage: 'url(/bg-login.png)', 
           backgroundSize: 'cover', 
           backgroundPosition: 'center',
-          animation: 'pulse 10s infinite alternate ease-in-out'
+          animation: 'pulse 15s infinite alternate ease-in-out'
         }}
       />
       
       <div className="relative z-10 w-full max-w-[400px] px-8 animate-larry">
-        {/* Logo Icon */}
-        <div className="mb-10 flex justify-center">
-          <div className="w-24 h-24 rounded-full border-4 border-white flex items-center justify-center text-4xl font-extrabold text-white bg-white/5 backdrop-blur-md">
-            D
-          </div>
+        <div className="mb-12 text-center">
+          <h2 className="text-3xl font-black text-white tracking-tighter">Bienvenido</h2>
+          <p className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.3em] mt-2">Acceso Administrativo</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="relative group">
-            <User className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-white transition-colors" size={18}/>
+            <User className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-white transition-colors" size={18}/>
             <input 
               type="text" 
-              placeholder="Username"
+              placeholder="Usuario"
               value={user}
               onChange={(e) => setUser(e.target.value)}
-              className="w-full h-14 bg-[#2a2a2e]/80 backdrop-blur-md rounded-full pl-14 pr-6 text-white focus:outline-none border-2 border-transparent focus:border-white/20 transition-all placeholder:text-slate-500 font-medium"
+              className="w-full h-14 bg-[#1a1a1c]/90 backdrop-blur-md rounded-2xl pl-14 pr-6 text-white focus:outline-none border border-white/5 focus:border-white/20 transition-all placeholder:text-slate-600 font-medium text-sm"
+              required
             />
           </div>
 
           <div className="relative group">
-            <Lock className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-white transition-colors" size={18}/>
+            <Lock className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-white transition-colors" size={18}/>
             <input 
-              type="password" 
-              placeholder="Password"
+              type={showPass ? 'text' : 'password'} 
+              placeholder="Contraseña"
               value={pass}
               onChange={(e) => setPass(e.target.value)}
-              className="w-full h-14 bg-[#2a2a2e]/80 backdrop-blur-md rounded-full pl-14 pr-6 text-white focus:outline-none border-2 border-transparent focus:border-white/20 transition-all placeholder:text-slate-500 font-medium"
+              className="w-full h-14 bg-[#1a1a1c]/90 backdrop-blur-md rounded-2xl pl-14 pr-14 text-white focus:outline-none border border-white/5 focus:border-white/20 transition-all placeholder:text-slate-600 font-medium text-sm"
+              required
             />
+            <button 
+              type="button"
+              onClick={() => setShowPass(!showPass)}
+              className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors"
+            >
+              {showPass ? <EyeOff size={18}/> : <Eye size={18}/>}
+            </button>
           </div>
 
           <button 
             type="submit"
-            className={`w-full h-14 rounded-full font-extrabold text-white transition-all active:scale-95 shadow-xl shadow-rose-500/20
+            className={`w-full h-14 rounded-2xl font-black text-white transition-all active:scale-95 shadow-xl shadow-rose-500/10 uppercase tracking-widest text-xs
               ${error ? 'bg-rose-700 animate-shake' : 'bg-[#fe3962] hover:bg-[#ff4d73]'}
             `}
           >
-            {error ? 'Invalid Credentials' : 'Log In'}
+            {error ? 'Credenciales Incorrectas' : 'Entrar al Panel'}
           </button>
         </form>
 
-        <p className="mt-8 text-center text-xs font-bold text-slate-500 cursor-pointer hover:text-white transition-colors uppercase tracking-widest opacity-60">
-          Lost your password?
+        <p className="mt-10 text-center text-[9px] font-black text-slate-600 cursor-pointer hover:text-white transition-colors uppercase tracking-[0.2em] opacity-40">
+          ¿Olvidaste tu contraseña?
         </p>
       </div>
 
       <style jsx>{`
-        @keyframes pulse {
-          from { transform: scale(1); }
-          to { transform: scale(1.15); }
-        }
-        @keyframes shake {
-          0%, 100% { transform: translateX(0); }
-          25% { transform: translateX(-5px); }
-          75% { transform: translateX(5px); }
-        }
-        .animate-shake { animation: shake 0.2s ease-in-out infinite; }
+        @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.1); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+        .animate-shake { animation: shake 0.2s ease-in-out 2; }
       `}</style>
     </div>
   );
@@ -116,8 +118,10 @@ export default function BingoDashboard() {
   const [isFinishingAuth, setIsFinishingAuth] = useState(true);
 
   useEffect(() => {
-    const auth = localStorage.getItem('bingo_auth');
-    if (auth === 'true') setIsAuthenticated(true);
+    try {
+      const auth = localStorage.getItem('bingo_auth');
+      if (auth === 'true') setIsAuthenticated(true);
+    } catch (e) { console.error(e); }
     setIsFinishingAuth(false);
   }, []);
 
