@@ -55,15 +55,15 @@ export default function BingoDashboard() {
       {toast && <Toast msg={toast} onDone={() => setToast(null)} />}
 
       {/* Mobile Header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-black/80 backdrop-blur-xl border-b border-white/5 z-30 flex items-center justify-between px-6">
-        <h2 className="text-xl font-bold text-white flex items-center gap-2 tracking-tighter">
+      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 glass-header z-30 flex items-center justify-between px-6">
+        <h2 className="text-xl font-bold text-white flex items-center gap-2 tracking-tight font-heading">
           BINGO <span className="text-violet-500">Larry</span>
         </h2>
         <button 
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           className="p-2 text-slate-400 hover:text-white transition-colors"
         >
-          {isMobileMenuOpen ? <X size={24}/> : <Monitor size={24}/>} 
+          {isMobileMenuOpen ? <X size={20}/> : <Monitor size={20}/>} 
         </button>
       </div>
 
@@ -77,14 +77,14 @@ export default function BingoDashboard() {
 
       {/* Sidebar */}
       <aside className={`
-        w-64 border-r border-white/5 flex flex-col fixed inset-y-0 bg-black z-50 transition-transform duration-300 lg:translate-x-0
+        w-64 border-r border-white/5 flex flex-col fixed inset-y-0 bg-black z-50 transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] lg:translate-x-0
         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
-        <div className="p-8">
-          <h2 className="text-xl font-bold text-white flex items-center gap-2">BINGO <span className="text-violet-500">Larry</span></h2>
-          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Admin Dashboard</p>
+        <div className="p-10">
+          <h2 className="text-2xl font-bold text-white flex items-center gap-2 font-heading tracking-tighter">BINGO <span className="text-violet-500">Larry</span></h2>
+          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em] mt-2 opacity-50">SISTEMA ADMINISTRATIVO</p>
         </div>
-        <nav className="flex-1 px-4 space-y-1">
+        <nav className="flex-1 px-6 space-y-1">
           {[
             { id: 'Resumen',        icon: <LayoutDashboard size={18}/> },
             { id: 'Ganancias',      icon: <TrendingUp size={18}/> },
@@ -103,7 +103,7 @@ export default function BingoDashboard() {
             />
           ))}
         </nav>
-        <div className="p-4 border-t border-white/5 space-y-1">
+        <div className="p-6 border-t border-white/5 space-y-1">
           <NavItem 
             icon={<Settings size={18}/>} 
             label="Configuración" 
@@ -115,14 +115,16 @@ export default function BingoDashboard() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 lg:ml-64 p-6 lg:p-10 min-h-screen overflow-x-hidden pt-24 lg:pt-10">
-        {activeView === 'Resumen'       && <ResumenView {...viewProps} handleQuickSale={handleQuickSale} saleAmount={saleAmount} setSaleAmount={setSaleAmount} isSubmitting={isSubmitting} />}
-        {activeView === 'Ganancias'     && <GananciasView {...viewProps} />}
-        {activeView === 'Ganadores'     && <GanadoresView {...viewProps} />}
-        {activeView === 'Jugadores'     && <JugadoresView {...viewProps} />}
-        {activeView === 'Finanzas'      && <FinanzasView {...viewProps} />}
-        {activeView === 'Alertas'       && <AlertasView {...viewProps} />}
-        {activeView === 'Configuración' && <ConfiguracionView showToast={showToast} />}
+      <main className="flex-1 lg:ml-64 p-6 lg:p-12 min-h-screen overflow-x-hidden pt-28 lg:pt-12 bg-[#020202]">
+        <div className="max-w-[1400px] mx-auto space-y-12">
+          {activeView === 'Resumen'       && <ResumenView {...viewProps} handleQuickSale={handleQuickSale} saleAmount={saleAmount} setSaleAmount={setSaleAmount} isSubmitting={isSubmitting} />}
+          {activeView === 'Ganancias'     && <GananciasView {...viewProps} />}
+          {activeView === 'Ganadores'     && <GanadoresView {...viewProps} />}
+          {activeView === 'Jugadores'     && <JugadoresView {...viewProps} />}
+          {activeView === 'Finanzas'      && <FinanzasView {...viewProps} />}
+          {activeView === 'Alertas'       && <AlertasView {...viewProps} />}
+          {activeView === 'Configuración' && <ConfiguracionView showToast={showToast} />}
+        </div>
       </main>
     </div>
   );
@@ -134,20 +136,20 @@ function ResumenView({ session, topPlayers, handleQuickSale, saleAmount, setSale
   const periods = ['Hoy', 'Semana', 'Mes'];
 
   return (
-    <div className="space-y-8 animate-larry">
-      <div className="flex justify-between items-end">
+    <div className="space-y-10 animate-larry">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div>
-          <h1 className="text-4xl font-bold">Resumen General</h1>
-          <p className="text-slate-500 mt-2">Vista rápida del estado del Bingo</p>
+          <h1 className="text-5xl font-extrabold tracking-tight font-heading">Dashboard</h1>
+          <p className="text-slate-500 mt-2 font-medium">Estado actual del Bingo Larry</p>
         </div>
         <TabGroup tabs={periods} active={period} onChange={setPeriod} />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-        <KPICard icon={<DollarSign size={20} className="text-slate-400"/>} label="Ingresos Totales"  value={`Bs. ${session?.total_recaudado || 0}`} trend="+5.1%"  trendUp />
-        <KPICard icon={<Users size={20} className="text-slate-400"/>}     label="Jugadores Activos" value="340"                                        trend="+5.2%"  trendUp />
-        <KPICard icon={<Trophy size={20} className="text-slate-400"/>}    label="Premios Pagados"   value={`Bs. ${session?.premios_entregados || 0}`} trend="-2.1%"  />
-        <KPICard icon={<TrendingUp size={20} className="text-slate-400"/>} label="Utilidad Neta"    value={`Bs. ${session?.ganancia_neta || 0}`}       trend="+18.4%" trendUp />
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+        <KPICard icon={<DollarSign size={18}/>} label="Ingresos"           value={`Bs. ${session?.total_recaudado || 0}`} trend="+12.5%" trendUp />
+        <KPICard icon={<Users size={18}/>}      label="Ventas Hoy"         value={`${session?.cartones_vendidos || 0}`}  trend="+5.2%"  trendUp />
+        <KPICard icon={<Trophy size={18}/>}     label="Premios"            value={`Bs. ${session?.premios_entregados || 0}`} trend="-1.1%"  />
+        <KPICard icon={<TrendingUp size={18}/>} label="Precio Cartón"      value={`Bs. ${session?.precio_carton || 10}`} trend="Estable" trendUp />
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 items-start">
