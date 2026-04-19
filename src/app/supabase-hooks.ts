@@ -74,3 +74,53 @@ export const registerSale = async (sessionId: string, currentSold: number, amoun
   if (supabaseUrl === 'https://placeholder.supabase.co') return { error: 'No env vars' };
   return await supabase.from('sesiones_bingo').update({ cartones_vendidos: currentSold + amount, precio_carton: price }).eq('id', sessionId);
 };
+
+/* ─── SYSTEM USERS & PERMISSIONS ───────────────────── */
+export const useSystemUsers = () => {
+  const [users, setUsers] = useState<any[]>([]);
+  useEffect(() => {
+    if (supabaseUrl === 'https://placeholder.supabase.co') return;
+    const fetchUsers = async () => {
+      const { data } = await supabase.from('usuarios_sistema').select('*').order('created_at', { ascending: false });
+      setUsers(data || []);
+    };
+    fetchUsers();
+    const channel = supabase.channel('realtime_system_users')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'usuarios_sistema' }, () => fetchUsers())
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+  return users;
+};
+
+export const updateSystemUser = async (userId: string, data: any) => {
+  return await supabase.from('usuarios_sistema').update(data).eq('id', userId);
+};
+
+export const deleteSystemUser = async (userId: string) => {
+  return await supabase.from('usuarios_sistema').delete().eq('id', userId);
+};
+
+export const createSystemUser = async (user: string, pass: string, role: string) => {
+  return await supabase.from('usuarios_sistema').insert([{ usuario: user, clave: pass, rol: role, status: 'aprobado' }]);
+};
+
+export const validateLogin = async (user: string, pass: string) => {
+  if (supabaseUrl === 'https://placeholder.supabase.co') {
+     if (user === 'admin' && pass === 'admin123') return { data: { usuario: 'admin', rol: 'admin', status: 'aprobado' } };
+     return { error: 'No env vars' };
+  }
+  const { data, error } = await supabase
+    .from('usuarios_sistema')
+    .select('*')
+    .eq('usuario', user)
+    .eq('clave', pass)
+    .single();
+  
+  if (data && data.status === 'aprobado') {
+    // Update online status
+    await supabase.from('usuarios_sistema').update({ is_online: true, ultimo_acceso: new Date().toISOString() }).eq('id', data.id);
+  }
+  
+  return { data, error };
+};

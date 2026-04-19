@@ -6,9 +6,12 @@ import {
   Bell, Settings, LogOut, ChevronRight, Plus, MessageCircle, Search,
   Calendar, Download, Filter, AlertCircle, Clock, Ban, CheckCircle2,
   Lock, Volume2, Monitor, X, Check, ChevronLeft, ChevronDown, User,
-  Eye, EyeOff
+  Eye, EyeOff, Shield, UserPlus, Power
 } from 'lucide-react';
-import { useActiveSession, useTopPlayers, useRetentionPlayers, registerSale } from './supabase-hooks';
+import { 
+  useActiveSession, useTopPlayers, useRetentionPlayers, registerSale, 
+  validateLogin, useSystemUsers, updateSystemUser, deleteSystemUser, createSystemUser 
+} from './supabase-hooks';
 
 /* ─── Toast Notification ─────────────────────────────── */
 function Toast({ msg, onDone }: { msg: string; onDone: () => void }) {
@@ -21,20 +24,24 @@ function Toast({ msg, onDone }: { msg: string; onDone: () => void }) {
 }
 
 /* ─── LOGIN PAGE ────────────────────────────────────────── */
-function LoginPage({ onLogin }: { onLogin: () => void }) {
+function LoginPage({ onLogin }: { onLogin: (user: any) => void }) {
   const [user, setUser] = useState('');
   const [pass, setPass] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (user === 'admin' && pass === 'admin123') {
-      onLogin();
+    setLoading(true);
+    const { data, error } = await validateLogin(user, pass);
+    if (!error && data) {
+      onLogin(data);
     } else {
       setError(true);
       setTimeout(() => setError(false), 2000);
     }
+    setLoading(false);
   };
 
   return (
@@ -90,11 +97,13 @@ function LoginPage({ onLogin }: { onLogin: () => void }) {
 
           <button 
             type="submit"
+            disabled={loading}
             className={`w-full h-14 rounded-2xl font-black text-white transition-all active:scale-95 shadow-xl shadow-rose-500/10 uppercase tracking-widest text-xs
               ${error ? 'bg-rose-700 animate-shake' : 'bg-[#fe3962] hover:bg-[#ff4d73]'}
+              ${loading ? 'opacity-50 cursor-not-allowed' : ''}
             `}
           >
-            {error ? 'Credenciales Incorrectas' : 'Entrar al Panel'}
+            {loading ? 'Validando...' : error ? 'Credenciales Incorrectas' : 'Entrar al Panel'}
           </button>
         </form>
 
@@ -114,34 +123,34 @@ function LoginPage({ onLogin }: { onLogin: () => void }) {
 
 /* ─── Root Dashboard ─────────────────────────────────── */
 export default function BingoDashboard() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<any>(null);
   const [isFinishingAuth, setIsFinishingAuth] = useState(true);
 
   useEffect(() => {
     try {
-      const auth = localStorage.getItem('bingo_auth');
-      if (auth === 'true') setIsAuthenticated(true);
+      const savedUser = localStorage.getItem('bingo_user');
+      if (savedUser) setUser(JSON.parse(savedUser));
     } catch (e) { console.error(e); }
     setIsFinishingAuth(false);
   }, []);
 
-  const handleLogin = () => {
-    localStorage.setItem('bingo_auth', 'true');
-    setIsAuthenticated(true);
+  const handleLogin = (userData: any) => {
+    localStorage.setItem('bingo_user', JSON.stringify(userData));
+    setUser(userData);
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('bingo_auth');
-    setIsAuthenticated(false);
+    localStorage.removeItem('bingo_user');
+    setUser(null);
   };
 
   if (isFinishingAuth) return <div className="min-h-screen bg-black" />;
-  if (!isAuthenticated) return <LoginPage onLogin={handleLogin} />;
+  if (!user) return <LoginPage onLogin={handleLogin} />;
 
-  return <DashboardContent onLogout={handleLogout} />;
+  return <DashboardContent user={user} onLogout={handleLogout} />;
 }
 
-function DashboardContent({ onLogout }: { onLogout: () => void }) {
+function DashboardContent({ user, onLogout }: { user: any; onLogout: () => void }) {
   const { session } = useActiveSession();
   const topPlayers = useTopPlayers();
   const retentionPlayers = useRetentionPlayers();
@@ -212,6 +221,7 @@ function DashboardContent({ onLogout }: { onLogout: () => void }) {
             { id: 'Jugadores',      icon: <Users size={18}/> },
             { id: 'Finanzas',       icon: <DollarSign size={18}/> },
             { id: 'Alertas',        icon: <Bell size={18}/>, badge: retentionPlayers.length || undefined },
+            ...(user?.rol === 'admin' ? [{ id: 'Usuarios', icon: <Shield size={18}/> }] : []),
           ].map(item => (
             <NavItem 
               key={item.id} 
@@ -237,12 +247,13 @@ function DashboardContent({ onLogout }: { onLogout: () => void }) {
       {/* Main Content */}
       <main className="flex-1 lg:ml-64 p-6 lg:p-12 min-h-screen overflow-x-hidden pt-28 lg:pt-12 bg-[#020202]">
         <div className="max-w-[1400px] mx-auto space-y-12">
-          {activeView === 'Resumen'       && <ResumenView {...viewProps} handleQuickSale={handleQuickSale} saleAmount={saleAmount} setSaleAmount={setSaleAmount} isSubmitting={isSubmitting} />}
+          {activeView === 'Resumen'       && <ResumenView {...viewProps} user={user} handleQuickSale={handleQuickSale} saleAmount={saleAmount} setSaleAmount={setSaleAmount} isSubmitting={isSubmitting} />}
           {activeView === 'Ganancias'     && <GananciasView {...viewProps} />}
           {activeView === 'Ganadores'     && <GanadoresView {...viewProps} />}
           {activeView === 'Jugadores'     && <JugadoresView {...viewProps} />}
           {activeView === 'Finanzas'      && <FinanzasView {...viewProps} />}
           {activeView === 'Alertas'       && <AlertasView {...viewProps} />}
+          {activeView === 'Usuarios'      && user?.rol === 'admin' && <GestionUsuariosView showToast={showToast} />}
           {activeView === 'Configuración' && <ConfiguracionView showToast={showToast} />}
         </div>
       </main>
@@ -251,7 +262,7 @@ function DashboardContent({ onLogout }: { onLogout: () => void }) {
 }
 
 /* ─── RESUMEN ────────────────────────────────────────── */
-function ResumenView({ session, topPlayers, handleQuickSale, saleAmount, setSaleAmount, isSubmitting, showToast }) {
+function ResumenView({ session, topPlayers, handleQuickSale, saleAmount, setSaleAmount, isSubmitting, showToast, user }) {
   const [period, setPeriod] = useState('Hoy');
   const periods = ['Hoy', 'Semana', 'Mes'];
 
@@ -276,11 +287,13 @@ function ResumenView({ session, topPlayers, handleQuickSale, saleAmount, setSale
         {/* Chart */}
         <div className="xl:col-span-2 card-larry p-8 h-[450px] flex flex-col relative group overflow-hidden">
           <div className="flex justify-between items-center mb-10">
-            <h3 className="text-lg font-bold flex items-center gap-2"><TrendingUp size={18} className="text-violet-500"/> Flujo de Ingresos</h3>
-            <form onSubmit={handleQuickSale} className="flex gap-2 bg-black/40 p-1 rounded-xl border border-white/5 opacity-0 group-hover:opacity-100 transition-opacity">
-              <input type="number" value={saleAmount} min={1} onChange={e => setSaleAmount(Number(e.target.value))} className="w-10 bg-transparent text-xs text-center focus:outline-none"/>
-              <button type="submit" disabled={isSubmitting} className="p-2 bg-violet-600 rounded-lg hover:bg-violet-700 active:scale-95 transition-all"><Plus size={14}/></button>
-            </form>
+            <h3 className="text-lg font-bold flex items-center gap-2 font-heading"><TrendingUp size={18} className="text-violet-500"/> Flujo de Ingresos</h3>
+            {user?.rol !== 'invitado' && (
+              <form onSubmit={handleQuickSale} className="flex gap-2 bg-black/40 p-1 rounded-xl border border-white/5 opacity-0 group-hover:opacity-100 transition-opacity">
+                <input type="number" value={saleAmount} min={1} onChange={e => setSaleAmount(Number(e.target.value))} className="w-10 bg-transparent text-xs text-center focus:outline-none"/>
+                <button type="submit" disabled={isSubmitting} className="p-2 bg-violet-600 rounded-lg hover:bg-violet-700 active:scale-95 transition-all"><Plus size={14}/></button>
+              </form>
+            )}
           </div>
           <div className="flex-1 w-full relative">
             <svg className="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 100">
@@ -804,4 +817,129 @@ function ExpenseLegend({ color, label }) {
 
 function CreditCardIcon(p: any) {
   return <svg {...p} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>;
+}
+
+/* ─── GESTION DE USUARIOS ────────────────────────────── */
+function GestionUsuariosView({ showToast }: { showToast: (m: string) => void }) {
+  const users = useSystemUsers();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newUser, setNewUser] = useState({ usuario: '', clave: '', rol: 'invitado' });
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const { error } = await createSystemUser(newUser.usuario, newUser.clave, newUser.rol);
+    if (!error) {
+      showToast('Usuario creado correctamente');
+      setIsModalOpen(false);
+      setNewUser({ usuario: '', clave: '', rol: 'invitado' });
+    } else showToast('Error al crear usuario');
+  };
+
+  const handleUpdateStatus = async (id: string, status: string) => {
+    await updateSystemUser(id, { status });
+    showToast(`Usuario ${status}`);
+  };
+
+  const handleKick = async (id: string) => {
+    await updateSystemUser(id, { is_online: false }); // Logic for kick
+    showToast('Usuario expulsado');
+  };
+
+  return (
+    <div className="space-y-10 animate-larry">
+      <div className="flex justify-between items-end">
+        <div>
+          <h1 className="text-5xl font-extrabold tracking-tight font-heading">Usuarios</h1>
+          <p className="text-slate-500 mt-2 font-medium">Gestiona accesos, roles y permisos</p>
+        </div>
+        <button 
+          onClick={() => setIsModalOpen(true)}
+          className="bg-violet-600 hover:bg-violet-700 text-white px-6 py-3 rounded-2xl flex items-center gap-2 font-bold transition-all active:scale-95 shadow-lg shadow-violet-500/20"
+        >
+          <UserPlus size={18}/> Crear Acceso
+        </button>
+      </div>
+
+      <div className="card-larry overflow-hidden">
+        <table className="w-full text-left">
+          <thead className="bg-white/5 text-[10px] uppercase tracking-widest text-slate-500 font-bold">
+            <tr>
+              <th className="px-8 py-5">Usuario</th>
+              <th className="px-8 py-5">Rol</th>
+              <th className="px-8 py-5">Estado</th>
+              <th className="px-8 py-5">Conexión</th>
+              <th className="px-8 py-5 text-right">Acciones</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-white/5">
+            {users.map(u => (
+              <tr key={u.id} className="group hover:bg-white/5 transition-colors">
+                <td className="px-8 py-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-violet-500/10 flex items-center justify-center text-violet-500 group-hover:bg-violet-500 group-hover:text-white transition-all">
+                      <User size={18}/>
+                    </div>
+                    <span className="font-bold">{u.usuario}</span>
+                  </div>
+                </td>
+                <td className="px-8 py-6">
+                  <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider ${u.rol === 'admin' ? 'bg-amber-500/10 text-amber-500' : 'bg-slate-500/10 text-slate-400'}`}>
+                    {u.rol}
+                  </span>
+                </td>
+                <td className="px-8 py-6">
+                  <span className={`px-2 py-1 rounded-md text-[10px] font-bold ${u.status === 'aprobado' ? 'text-emerald-500' : u.status === 'rechazado' ? 'text-rose-500' : 'text-amber-500'}`}>
+                    ● {u.status}
+                  </span>
+                </td>
+                <td className="px-8 py-6 text-sm text-slate-500">
+                  {u.is_online ? <span className="flex items-center gap-2 text-emerald-400 font-bold"><div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"/> Online</span> : 'Offline'}
+                </td>
+                <td className="px-8 py-6 text-right space-x-2">
+                  {u.status === 'pendiente' && (
+                    <>
+                      <button onClick={() => handleUpdateStatus(u.id, 'aprobado')} className="p-2 text-emerald-500 hover:bg-emerald-500/10 rounded-lg transition-all" title="Aprobar"><CheckCircle2 size={16}/></button>
+                      <button onClick={() => handleUpdateStatus(u.id, 'rechazado')} className="p-2 text-rose-500 hover:bg-rose-500/10 rounded-lg transition-all" title="Rechazar"><Ban size={16}/></button>
+                    </>
+                  )}
+                  {u.is_online && <button onClick={() => handleKick(u.id)} className="p-2 text-amber-500 hover:bg-amber-500/10 rounded-lg transition-all" title="Expulsar"><Power size={16}/></button>}
+                  <button onClick={() => deleteSystemUser(u.id)} className="p-2 text-slate-500 hover:text-rose-500 hover:bg-rose-500/10 rounded-lg transition-all"><LogOut size={16}/></button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* MODAL CREAR USUARIO */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-md p-6">
+          <div className="card-larry w-full max-w-md p-8 animate-larry">
+            <h2 className="text-2xl font-bold font-heading mb-6">Crear Nuevo Acceso</h2>
+            <form onSubmit={handleCreate} className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Nombre de Usuario</label>
+                <input required type="text" value={newUser.usuario} onChange={e => setNewUser({...newUser, usuario: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm focus:outline-none focus:border-violet-500 transition-all"/>
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Contraseña</label>
+                <input required type="password" value={newUser.clave} onChange={e => setNewUser({...newUser, clave: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm focus:outline-none focus:border-violet-500 transition-all"/>
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Rol de Usuario</label>
+                <select value={newUser.rol} onChange={e => setNewUser({...newUser, rol: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-sm focus:outline-none focus:border-violet-500 transition-all font-medium">
+                  <option value="invitado">Invitado (Solo Lectura)</option>
+                  <option value="admin">Administrador (Control Total)</option>
+                </select>
+              </div>
+              <div className="pt-6 flex gap-3">
+                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 p-4 rounded-xl font-bold bg-white/5 hover:bg-white/10 transition-all">Cancelar</button>
+                <button type="submit" className="flex-1 p-4 rounded-xl font-bold bg-violet-600 hover:bg-violet-700 transition-all shadow-lg shadow-violet-500/20">Crear Acceso</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
