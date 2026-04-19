@@ -262,107 +262,73 @@ function DashboardContent({ user, onLogout }: { user: any; onLogout: () => void 
 }
 
 /* ─── RESUMEN ────────────────────────────────────────── */
-function ResumenView({ session, topPlayers, handleQuickSale, saleAmount, setSaleAmount, isSubmitting, showToast, user }) {
-  const [period, setPeriod] = useState('Hoy');
-  const periods = ['Hoy', 'Semana', 'Mes'];
-
-  return (
-    <div className="space-y-6 animate-larry">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-extrabold tracking-tight font-heading">Dashboard</h1>
-          <p className="text-slate-500 text-xs font-medium">Estado actual del Bingo Larry</p>
-        </div>
-        <TabGroup tabs={periods} active={period} onChange={setPeriod} />
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        <KPICard icon={<DollarSign size={16}/>} label="Ingresos"           value={`Bs. ${session?.total_recaudado || 0}`} trend="+12.5%" trendUp />
-        <KPICard icon={<Users size={16}/>}      label="Ventas Hoy"         value={`${session?.cartones_vendidos || 0}`}  trend="+5.2%"  trendUp />
-        <KPICard icon={<Trophy size={16}/>}     label="Premios"            value={`Bs. ${session?.premios_entregados || 0}`} trend="-1.1%"  />
-        <KPICard icon={<TrendingUp size={16}/>} label="Precio Cartón"      value={`Bs. ${session?.precio_carton || 10}`} trend="Estable" trendUp />
-      </div>
-
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
-        {/* Chart */}
-        <div className="xl:col-span-2 card-larry p-6 h-[380px] flex flex-col relative group overflow-hidden">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="text-sm font-bold flex items-center gap-2 font-heading"><TrendingUp size={16} className="text-violet-500"/> Flujo de Ingresos</h3>
-            {user?.rol !== 'invitado' && (
-              <form onSubmit={handleQuickSale} className="flex gap-2 bg-black/40 p-1 rounded-lg border border-white/5 opacity-0 group-hover:opacity-100 transition-opacity">
-                <input type="number" value={saleAmount} min={1} onChange={e => setSaleAmount(Number(e.target.value))} className="w-8 bg-transparent text-[13px] text-center focus:outline-none"/>
-                <button type="submit" disabled={isSubmitting} className="p-1.5 bg-violet-600 rounded-md hover:bg-violet-700 active:scale-95 transition-all"><Plus size={12}/></button>
-              </form>
-            )}
-          </div>
+/* ─── INTERACTIVE CHART UNIT ────────────────────────── */
 function InteractiveChart() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const data = [
-    { day: 'Lun', val: 40, label: 'Bs. 4,200' },
-    { day: 'Mar', val: 30, label: 'Bs. 3,100' },
-    { day: 'Mie', val: 75, label: 'Bs. 8,400' },
-    { day: 'Jue', val: 65, label: 'Bs. 6,800' },
-    { day: 'Vie', val: 55, label: 'Bs. 5,900' },
-    { day: 'Sab', val: 85, label: 'Bs. 9,200' },
-    { day: 'Dom', val: 30, label: 'Bs. 3,400' },
+    { day: 'Lun', val: 65, label: 'Bs. 4,200' },
+    { day: 'Mar', val: 75, label: 'Bs. 3,100' },
+    { day: 'Mie', val: 25, label: 'Bs. 8,400' },
+    { day: 'Jue', val: 35, label: 'Bs. 6,800' },
+    { day: 'Vie', val: 45, label: 'Bs. 5,900' },
+    { day: 'Sab', val: 15, label: 'Bs. 9,200' },
+    { day: 'Dom', val: 70, label: 'Bs. 3,400' },
   ];
 
   const xPoints = [0, 16.6, 33.3, 50, 66.6, 83.3, 100];
-  const pathData = "M0,60 C16,70 33,25 50,35 C66,45 83,15 100,70"; // Modern curve
+  const points = data.map((d, i) => `${xPoints[i]},${d.val}`).join(' L ');
+  const pathData = `M${points}`;
   const areaData = `${pathData} L100,100 L0,100 Z`;
 
   return (
-    <div className="flex-1 w-full relative pt-4 group/svg" onMouseLeave={() => setHoveredIndex(null)}>
+    <div className="flex-1 w-full relative pt-10 group/svg" onMouseLeave={() => setHoveredIndex(null)}>
       <svg className="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 100">
         <defs>
-          <linearGradient id="glowG" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#7c3aed" stopOpacity="0.5"/>
+          <linearGradient id="glowG_Res" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#7c3aed" stopOpacity="0.4"/>
             <stop offset="100%" stopColor="#7c3aed" stopOpacity="0"/>
           </linearGradient>
-          <filter id="neon">
-            <feGaussianBlur stdDeviation="1.2" result="blur"/>
+          <filter id="neon_Res">
+            <feGaussianBlur stdDeviation="1.5" result="blur"/>
             <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
           </filter>
         </defs>
 
-        {/* Vertical Guide */}
         {hoveredIndex !== null && (
-          <line x1={xPoints[hoveredIndex]} y1="0" x2={xPoints[hoveredIndex]} y2="100" stroke="rgba(124,58,237,0.3)" strokeWidth="0.5" strokeDasharray="2 1" />
+          <line x1={xPoints[hoveredIndex]} y1="0" x2={xPoints[hoveredIndex]} y2="100" stroke="rgba(124,58,237,0.4)" strokeWidth="0.5" strokeDasharray="2 1" />
         )}
 
-        <path d={areaData} fill="url(#glowG)" className="transition-all duration-700" />
-        <path d={pathData} fill="none" stroke="#a78bfa" strokeWidth="1.2" filter="url(#neon)" className="transition-all duration-700" />
+        <path d={areaData} fill="url(#glowG_Res)" className="transition-all duration-500" />
+        <path d={pathData} fill="none" stroke="#a78bfa" strokeWidth="1.5" filter="url(#neon_Res)" strokeLinecap="round" strokeLinejoin="round" className="transition-all duration-500" />
         
-        {/* Magnet Points */}
         {data.map((d, i) => (
           <g key={i} onMouseEnter={() => setHoveredIndex(i)} className="cursor-pointer">
-            <circle cx={xPoints[i]} cy={d.val} r={hoveredIndex === i ? "3" : "1.5"} fill={hoveredIndex === i ? "#fff" : "#7c3aed"} className="transition-all duration-300" />
-            {hoveredIndex === i && <circle cx={xPoints[i]} cy={d.val} r="5" fill="#7c3aed" opacity="0.2" className="animate-ping" />}
+            <rect x={xPoints[i]-5} y="0" width="10" height="100" fill="transparent" />
+            <circle cx={xPoints[i]} cy={d.val} r={hoveredIndex === i ? "3" : "1.5"} fill={hoveredIndex === i ? "#fff" : "#7c3aed"} className="transition-all duration-200" />
+            {hoveredIndex === i && <circle cx={xPoints[i]} cy={d.val} r="6" fill="#7c3aed" opacity="0.3" className="animate-ping" />}
           </g>
         ))}
-
-        {/* Scanning line for ambient feeling */}
-        <rect x="0" y="0" width="0.1" height="100" fill="rgba(139,92,246,0.15)">
-          <animate attributeName="x" from="0" to="100" dur="8s" repeatCount="indefinite" />
-        </rect>
       </svg>
 
-      {/* Tooltip Overlay */}
       {hoveredIndex !== null && (
         <div 
-          className="absolute bg-black/90 border border-white/10 p-2 rounded-xl shadow-2xl backdrop-blur-md z-20 pointer-events-none animate-larry"
+          className="absolute bg-white text-black p-2 rounded-lg shadow-2xl z-20 pointer-events-none animate-larry"
           style={{ 
             left: `${xPoints[hoveredIndex]}%`, 
             top: `${data[hoveredIndex].val}%`,
-            transform: 'translate(-50%, -120%)'
+            transform: 'translate(-50%, -135%)',
+            boxShadow: '0 20px 40px -10px rgba(0,0,0,0.5), 0 0 20px rgba(124,58,237,0.2)'
           }}
         >
-          <p className="text-[10px] font-black text-violet-400 uppercase leading-none mb-1">{data[hoveredIndex].day}</p>
-          <p className="text-sm font-black text-white leading-none">{data[hoveredIndex].label}</p>
+          <div className="flex flex-col items-center">
+            <span className="text-[10px] font-black uppercase text-slate-400 tracking-tighter leading-none mb-1">{data[hoveredIndex].day}</span>
+            <span className="text-sm font-black text-black leading-none">{data[hoveredIndex].label}</span>
+          </div>
+          <div className="absolute bottom-[-6px] left-1/2 -translate-x-1/2 w-3 h-3 bg-white rotate-45"></div>
         </div>
       )}
 
-      <div className="absolute bottom-0 left-0 right-0 flex justify-between text-[11px] text-slate-500 font-black px-1 py-3 uppercase tracking-tighter opacity-70">
+      <div className="absolute bottom-0 left-0 right-0 flex justify-between text-[11px] text-slate-500 font-bold px-1 py-4 uppercase tracking-tighter">
         {data.map(d => <span key={d.day}>{d.day}</span>)}
       </div>
     </div>
@@ -403,7 +369,6 @@ function ResumenView({ session, topPlayers, handleQuickSale, saleAmount, setSale
             )}
           </div>
           <InteractiveChart />
-        </div>
         </div>
 
         {/* Winners */}
