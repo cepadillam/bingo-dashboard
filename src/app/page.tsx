@@ -60,7 +60,7 @@ function LoginPage({ onLogin }: { onLogin: (user: any) => void }) {
       <div className="relative z-10 w-full max-w-[400px] px-8 animate-larry">
         <div className="mb-12 text-center">
           <h2 className="text-3xl font-black text-white tracking-tighter">Bienvenido</h2>
-          <p className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.3em] mt-2">Acceso Administrativo</p>
+          <p className="text-slate-500 text-[13px] font-bold uppercase tracking-[0.3em] mt-2">Acceso Administrativo</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -71,7 +71,7 @@ function LoginPage({ onLogin }: { onLogin: (user: any) => void }) {
               placeholder="Usuario"
               value={user}
               onChange={(e) => setUser(e.target.value)}
-              className="w-full h-14 bg-[#1a1a1c]/90 backdrop-blur-md rounded-2xl pl-14 pr-6 text-white focus:outline-none border border-white/5 focus:border-white/20 transition-all placeholder:text-slate-600 font-medium text-sm"
+              className="w-full h-14 bg-[#1a1a1c]/90 backdrop-blur-md rounded-2xl pl-14 pr-6 text-white focus:outline-none border border-white/5 focus:border-white/20 transition-all placeholder:text-slate-400 font-medium text-sm"
               required
             />
           </div>
@@ -83,7 +83,7 @@ function LoginPage({ onLogin }: { onLogin: (user: any) => void }) {
               placeholder="Contraseña"
               value={pass}
               onChange={(e) => setPass(e.target.value)}
-              className="w-full h-14 bg-[#1a1a1c]/90 backdrop-blur-md rounded-2xl pl-14 pr-14 text-white focus:outline-none border border-white/5 focus:border-white/20 transition-all placeholder:text-slate-600 font-medium text-sm"
+              className="w-full h-14 bg-[#1a1a1c]/90 backdrop-blur-md rounded-2xl pl-14 pr-14 text-white focus:outline-none border border-white/5 focus:border-white/20 transition-all placeholder:text-slate-400 font-medium text-sm"
               required
             />
             <button 
@@ -107,7 +107,7 @@ function LoginPage({ onLogin }: { onLogin: (user: any) => void }) {
           </button>
         </form>
 
-        <p className="mt-10 text-center text-[9px] font-black text-slate-600 cursor-pointer hover:text-white transition-colors uppercase tracking-[0.2em] opacity-40">
+        <p className="mt-10 text-center text-[12px] font-black text-slate-400 cursor-pointer hover:text-white transition-colors uppercase tracking-[0.2em] opacity-40">
           ¿Olvidaste tu contraseña?
         </p>
       </div>
@@ -211,7 +211,7 @@ function DashboardContent({ user, onLogout }: { user: any; onLogout: () => void 
       `}>
         <div className="p-8">
           <h2 className="text-xl font-black text-white flex items-center gap-2 font-heading tracking-tighter">BINGO <span className="text-violet-500">Larry</span></h2>
-          <p className="text-[8px] text-slate-600 font-bold uppercase tracking-[0.2em] mt-1 opacity-50">SISTEMA ADMINISTRATIVO</p>
+          <p className="text-[11px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-1 opacity-50">SISTEMA ADMINISTRATIVO</p>
         </div>
         <nav className="flex-1 px-4 space-y-1">
           {[
@@ -290,7 +290,7 @@ function ResumenView({ session, topPlayers, handleQuickSale, saleAmount, setSale
             <h3 className="text-sm font-bold flex items-center gap-2 font-heading"><TrendingUp size={16} className="text-violet-500"/> Flujo de Ingresos</h3>
             {user?.rol !== 'invitado' && (
               <form onSubmit={handleQuickSale} className="flex gap-2 bg-black/40 p-1 rounded-lg border border-white/5 opacity-0 group-hover:opacity-100 transition-opacity">
-                <input type="number" value={saleAmount} min={1} onChange={e => setSaleAmount(Number(e.target.value))} className="w-8 bg-transparent text-[10px] text-center focus:outline-none"/>
+                <input type="number" value={saleAmount} min={1} onChange={e => setSaleAmount(Number(e.target.value))} className="w-8 bg-transparent text-[13px] text-center focus:outline-none"/>
                 <button type="submit" disabled={isSubmitting} className="p-1.5 bg-violet-600 rounded-md hover:bg-violet-700 active:scale-95 transition-all"><Plus size={12}/></button>
               </form>
             )}
@@ -314,7 +314,7 @@ function ResumenView({ session, topPlayers, handleQuickSale, saleAmount, setSale
                 <animate attributeName="x" from="0" to="100" dur="4s" repeatCount="indefinite" />
               </rect>
             </svg>
-            <div className="absolute bottom-0 left-0 right-0 flex justify-between text-[8px] text-slate-700 font-black px-2 py-2 uppercase tracking-tighter">
+            <div className="absolute bottom-0 left-0 right-0 flex justify-between text-[11px] text-slate-500 font-black px-2 py-2 uppercase tracking-tighter">
               <span>Lun</span><span>Mar</span><span>Mie</span><span>Jue</span><span>Vie</span><span>Sab</span><span>Dom</span>
             </div>
           </div>
@@ -327,8 +327,8 @@ function ResumenView({ session, topPlayers, handleQuickSale, saleAmount, setSale
             {(topPlayers.length > 0 ? topPlayers.slice(0,5) : [1,2,3,4,5]).map((p, i) => (
               <div key={i} className="flex items-center justify-between group cursor-pointer" onClick={() => showToast(`Ver perfil de ${typeof p === 'object' ? p.nombre : 'Jugador 100'+i}`)}>
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-slate-900 border border-white/5 flex items-center justify-center text-[10px] font-bold text-amber-500">#{i+1}</div>
-                  <div><h4 className="font-bold text-xs text-white">{typeof p === 'object' ? p.nombre : `Jugador 100${i+1}`}</h4><p className="text-[9px] text-slate-500">Bs. 500 • Premio Mayor</p></div>
+                  <div className="w-8 h-8 rounded-lg bg-slate-900 border border-white/5 flex items-center justify-center text-[13px] font-bold text-amber-500">#{i+1}</div>
+                  <div><h4 className="font-bold text-xs text-white">{typeof p === 'object' ? p.nombre : `Jugador 100${i+1}`}</h4><p className="text-[12px] text-slate-500">Bs. 500 • Premio Mayor</p></div>
                 </div>
                 <ChevronRight size={12} className="text-slate-800 group-hover:text-violet-500 transition-colors"/>
               </div>
@@ -396,16 +396,16 @@ function GananciasView({ showToast }) {
         <div className="flex justify-between items-center mb-10">
           <div>
             <h3 className="text-sm font-black uppercase tracking-[0.2em] text-white">Análisis de Flujo Maestro</h3>
-            <p className="text-[10px] text-slate-600 font-bold mt-1">VOLUMEN DE VENTAS VS RETORNO DE PREMIOS</p>
+            <p className="text-[13px] text-slate-400 font-bold mt-1">VOLUMEN DE VENTAS VS RETORNO DE PREMIOS</p>
           </div>
           <div className="flex items-center gap-6 bg-black/50 p-3 rounded-2xl border border-white/5">
             <div className="flex items-center gap-2">
               <div className="w-8 h-1 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
-              <span className="text-[10px] text-slate-400 font-black uppercase">Ventas</span>
+              <span className="text-[13px] text-slate-400 font-black uppercase">Ventas</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-8 h-1 bg-gradient-to-r from-rose-500 to-orange-500 rounded-full shadow-[0_0_10px_rgba(244,63,94,0.5)]"></div>
-              <span className="text-[10px] text-slate-400 font-black uppercase">Premios</span>
+              <span className="text-[13px] text-slate-400 font-black uppercase">Premios</span>
             </div>
           </div>
         </div>
@@ -477,27 +477,27 @@ function GanadoresView({ topPlayers }) {
         <div><h1 className="text-3xl font-extrabold font-heading">Ganadores</h1><p className="text-slate-500 text-xs">Historial de premios y sorteos</p></div>
         <div className="flex gap-2">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600" size={14}/>
-            <input type="text" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Buscar..." className="bg-white/5 border border-white/10 rounded-xl py-2 pl-9 pr-4 focus:outline-none focus:border-violet-500/50 text-[10px] w-40"/>
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14}/>
+            <input type="text" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Buscar..." className="bg-white/5 border border-white/10 rounded-xl py-2 pl-9 pr-4 focus:outline-none focus:border-violet-500/50 text-[13px] w-40"/>
           </div>
-          <button onClick={()=>setShowFilter(!showFilter)} className={`px-4 py-2 rounded-xl border flex items-center gap-2 font-bold transition-all text-[10px] ${showFilter||filterType?'bg-violet-600 border-violet-500 text-white':'bg-white/5 border-white/10 text-slate-300'}`}><Filter size={14}/> Filtrar</button>
+          <button onClick={()=>setShowFilter(!showFilter)} className={`px-4 py-2 rounded-xl border flex items-center gap-2 font-bold transition-all text-[13px] ${showFilter||filterType?'bg-violet-600 border-violet-500 text-white':'bg-white/5 border-white/10 text-slate-300'}`}><Filter size={14}/> Filtrar</button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 items-start">
         <div className="xl:col-span-3 card-larry overflow-hidden">
           <table className="w-full text-left">
-            <thead className="text-[9px] uppercase text-slate-700 font-black border-b border-white/5 bg-[#0d0d0d]">
+            <thead className="text-[12px] uppercase text-slate-500 font-black border-b border-white/5 bg-[#0d0d0d]">
               <tr><th className="py-4 px-6">Jugador</th><th className="py-4 px-6 text-center">Tipo</th><th className="py-4 px-6 text-right">Monto</th><th className="py-4 px-6">Sorteo</th><th className="py-4 px-6 text-right">Fecha</th></tr>
             </thead>
             <tbody className="divide-y divide-white/[0.03]">
               {filtered.map((p,i) => (
                 <tr key={i} className="group hover:bg-white/[0.02] cursor-pointer">
-                  <td className="py-3 px-6"><div className="flex items-center gap-3"><div className="w-7 h-7 rounded-lg bg-violet-600/10 text-violet-500 flex items-center justify-center font-bold text-[10px]">{p.charAt(0)}</div><span className="font-bold text-xs">{p}</span></div></td>
-                  <td className="py-3 px-6 text-center"><span className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-tighter ${i%2===0?'bg-amber-500/10 text-amber-500':'bg-cyan-500/10 text-cyan-500'}`}>{i%2===0?'Pleno':'Línea'}</span></td>
+                  <td className="py-3 px-6"><div className="flex items-center gap-3"><div className="w-7 h-7 rounded-lg bg-violet-600/10 text-violet-500 flex items-center justify-center font-bold text-[13px]">{p.charAt(0)}</div><span className="font-bold text-xs">{p}</span></div></td>
+                  <td className="py-3 px-6 text-center"><span className={`px-2 py-0.5 rounded-md text-[11px] font-black uppercase tracking-tighter ${i%2===0?'bg-amber-500/10 text-amber-500':'bg-cyan-500/10 text-cyan-500'}`}>{i%2===0?'Pleno':'Línea'}</span></td>
                   <td className="py-3 px-6 text-right text-emerald-400 font-black text-xs">Bs. {500+i*100}</td>
-                  <td className="py-3 px-6 text-[9px] text-slate-500 font-bold">#123{i} • #{45-i}</td>
-                  <td className="py-3 px-6 text-right text-slate-600 text-[9px] font-bold">20/03/24</td>
+                  <td className="py-3 px-6 text-[12px] text-slate-500 font-bold">#123{i} • #{45-i}</td>
+                  <td className="py-3 px-6 text-right text-slate-400 text-[12px] font-bold">20/03/24</td>
                 </tr>
               ))}
             </tbody>
@@ -505,9 +505,9 @@ function GanadoresView({ topPlayers }) {
         </div>
         <div className="space-y-4">
           <div className="card-larry p-5 bg-gradient-to-br from-violet-600/10 to-transparent border border-violet-500/20">
-            <h3 className="text-[9px] font-black text-violet-400 uppercase tracking-widest mb-4">Top Ganador</h3>
-            <div className="flex items-center gap-3 mb-4"><div className="w-10 h-10 rounded-full bg-amber-500 text-black flex items-center justify-center font-black text-sm">C</div><div><h4 className="text-sm font-black italic">Carlos López</h4><p className="text-amber-500 text-[8px] font-bold uppercase tracking-tighter">🏆 3 Bingos Ganados</p></div></div>
-            <div className="space-y-2"><div className="flex justify-between text-[8px] font-bold text-slate-500 uppercase"><span>Total</span><span>Bs. 4,500</span></div><div className="h-1 bg-white/5 rounded-full overflow-hidden"><div className="h-full bg-amber-500 w-[70%]"/></div></div>
+            <h3 className="text-[12px] font-black text-violet-400 uppercase tracking-widest mb-4">Top Ganador</h3>
+            <div className="flex items-center gap-3 mb-4"><div className="w-10 h-10 rounded-full bg-amber-500 text-black flex items-center justify-center font-black text-sm">C</div><div><h4 className="text-sm font-black italic">Carlos López</h4><p className="text-amber-500 text-[11px] font-bold uppercase tracking-tighter">🏆 3 Bingos Ganados</p></div></div>
+            <div className="space-y-2"><div className="flex justify-between text-[11px] font-bold text-slate-500 uppercase"><span>Total</span><span>Bs. 4,500</span></div><div className="h-1 bg-white/5 rounded-full overflow-hidden"><div className="h-full bg-amber-500 w-[70%]"/></div></div>
           </div>
         </div>
       </div>
@@ -525,22 +525,22 @@ function JugadoresView({ topPlayers }) {
       <div className="flex justify-between items-center">
         <div><h1 className="text-3xl font-extrabold font-heading">Jugadores</h1><p className="text-slate-500 text-xs">Base de datos de participantes</p></div>
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600" size={14}/>
-          <input value={query} onChange={e=>setQuery(e.target.value)} type="text" placeholder="Buscar..." className="bg-white/5 border border-white/10 rounded-xl py-2 pl-9 pr-4 focus:outline-none focus:border-violet-500/50 text-[10px] w-48"/>
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14}/>
+          <input value={query} onChange={e=>setQuery(e.target.value)} type="text" placeholder="Buscar..." className="bg-white/5 border border-white/10 rounded-xl py-2 pl-9 pr-4 focus:outline-none focus:border-violet-500/50 text-[13px] w-48"/>
         </div>
       </div>
       <div className="card-larry overflow-hidden">
         <table className="w-full text-left">
-          <thead className="text-[9px] uppercase text-slate-700 font-black border-b border-white/5 bg-[#0d0d0d]">
+          <thead className="text-[12px] uppercase text-slate-500 font-black border-b border-white/5 bg-[#0d0d0d]">
             <tr><th className="py-4 px-8">Jugador</th><th className="py-4 px-8 text-center">Victorias</th><th className="py-4 px-8 text-center">Partidas</th><th className="py-4 px-8 text-right">Registro</th></tr>
           </thead>
           <tbody className="divide-y divide-white/[0.03]">
             {filtered.map((p,i) => (
               <tr key={i} className="hover:bg-white/[0.02] transition-colors cursor-pointer group">
-                <td className="py-3 px-8"><div className="flex items-center gap-3"><div className="w-8 h-8 rounded-lg bg-violet-600/10 text-violet-400 font-bold flex items-center justify-center text-[10px]">{p.charAt(0)}</div><div><div className="font-bold text-xs">{p}</div><div className="text-[8px] text-slate-600">ID: #{1000+i}</div></div></div></td>
+                <td className="py-3 px-8"><div className="flex items-center gap-3"><div className="w-8 h-8 rounded-lg bg-violet-600/10 text-violet-400 font-bold flex items-center justify-center text-[13px]">{p.charAt(0)}</div><div><div className="font-bold text-xs">{p}</div><div className="text-[11px] text-slate-400">ID: #{1000+i}</div></div></div></td>
                 <td className="py-3 px-8 text-center"><span className="text-emerald-400 font-black text-lg">{Math.max(0, 10-i)}</span></td>
                 <td className="py-3 px-8 text-center text-slate-500 font-bold text-xs">{50 - i*3}</td>
-                <td className="py-3 px-8 text-right text-slate-700 text-[10px] font-bold italic">20/03/24</td>
+                <td className="py-3 px-8 text-right text-slate-500 text-[13px] font-bold italic">20/03/24</td>
               </tr>
             ))}
           </tbody>
@@ -561,7 +561,7 @@ function FinanzasView({ showToast }) {
         <div><h1 className="text-3xl font-extrabold font-heading">Finanzas</h1><p className="text-slate-500 text-xs">Balance y rentabilidad operativa</p></div>
         <div className="flex items-center gap-1 bg-white/5 rounded-xl border border-white/10 p-1">
           <button onClick={()=>setMonthIdx(i=>Math.max(0,i-1))} className="p-1 px-2 hover:bg-white/10 rounded-lg transition-colors text-slate-500 hover:text-white"><ChevronLeft size={14}/></button>
-          <span className="px-3 font-bold text-[10px] min-w-[80px] text-center uppercase tracking-widest">{months[monthIdx]}</span>
+          <span className="px-3 font-bold text-[13px] min-w-[80px] text-center uppercase tracking-widest">{months[monthIdx]}</span>
           <button onClick={()=>setMonthIdx(i=>Math.min(11,i+1))} className="p-1 px-2 hover:bg-white/10 rounded-lg transition-colors text-slate-500 hover:text-white"><ChevronRight size={14}/></button>
         </div>
       </div>
@@ -571,8 +571,8 @@ function FinanzasView({ showToast }) {
         <KPICard icon={<BarChart4 size={16}/>}    label="Costos"           value="Bs. 4,230"  trend="+2.1%"/>
         <KPICard icon={<CreditCardIcon size={16}/>} label="Premios"         value="Bs. 12,450" trend="50.6%" trendUp/>
         <div className="card-larry p-5 bg-violet-600/5 border border-violet-500/20 flex items-center justify-between">
-          <div><h4 className="text-[8px] font-black text-violet-400 uppercase tracking-widest leading-none mb-1">Rentabilidad</h4><p className="text-xl font-black text-white leading-none">32.1%</p></div>
-          <p className="text-[8px] font-bold text-violet-500 uppercase px-2 py-1 bg-violet-500/10 rounded-md">Saludable</p>
+          <div><h4 className="text-[11px] font-black text-violet-400 uppercase tracking-widest leading-none mb-1">Rentabilidad</h4><p className="text-xl font-black text-white leading-none">32.1%</p></div>
+          <p className="text-[11px] font-bold text-violet-500 uppercase px-2 py-1 bg-violet-500/10 rounded-md">Saludable</p>
         </div>
       </div>
 
@@ -584,13 +584,13 @@ function FinanzasView({ showToast }) {
               <div key={m} className="flex-1 flex gap-1 items-end justify-center relative h-full">
                 <div className="w-4 bg-emerald-500/60 rounded-t-sm" style={{height:`${40+i*8}%`}}></div>
                 <div className="w-4 bg-rose-500/60  rounded-t-sm" style={{height:`${20+i%3*10}%`}}></div>
-                <span className="absolute -bottom-6 text-[8px] text-slate-600 font-bold uppercase">{m}</span>
+                <span className="absolute -bottom-6 text-[11px] text-slate-400 font-bold uppercase">{m}</span>
               </div>
             ))}
           </div>
           <div className="flex justify-center gap-6 mt-10">
-            <div className="flex items-center gap-2"><div className="w-2 h-2 bg-emerald-500 rounded-full"></div><span className="text-[8px] font-bold text-slate-600 uppercase">Ingresos</span></div>
-            <div className="flex items-center gap-2"><div className="w-2 h-2 bg-rose-500 rounded-full"></div><span className="text-[8px] font-bold text-slate-600 uppercase">Egresos</span></div>
+            <div className="flex items-center gap-2"><div className="w-2 h-2 bg-emerald-500 rounded-full"></div><span className="text-[11px] font-bold text-slate-400 uppercase">Ingresos</span></div>
+            <div className="flex items-center gap-2"><div className="w-2 h-2 bg-rose-500 rounded-full"></div><span className="text-[11px] font-bold text-slate-400 uppercase">Egresos</span></div>
           </div>
         </div>
 
@@ -603,7 +603,7 @@ function FinanzasView({ showToast }) {
               <circle cx="16" cy="16" r="14" fill="none" stroke="#f59e0b" strokeWidth="4" strokeDasharray="15 100" strokeDashoffset="-70"/>
               <circle cx="16" cy="16" r="14" fill="none" stroke="#10b981" strokeWidth="4" strokeDasharray="15 100" strokeDashoffset="-85"/>
             </svg>
-            <div className="absolute inset-0 flex items-center justify-center flex-col"><span className="text-[8px] text-slate-600 font-bold uppercase">Total</span><span className="text-xl font-black italic text-white">100%</span></div>
+            <div className="absolute inset-0 flex items-center justify-center flex-col"><span className="text-[11px] text-slate-400 font-bold uppercase">Total</span><span className="text-xl font-black italic text-white">100%</span></div>
           </div>
           <div className="w-full grid grid-cols-2 gap-x-4 gap-y-3 mt-8">
             <ExpenseLegend color="#22d3ee" label="Op."/>
@@ -644,15 +644,15 @@ function AlertasView({ retentionPlayers, showToast }) {
         <div className="flex gap-10 pr-6">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500"><Clock size={18}/></div>
-            <div><p className="text-lg font-black leading-none">12</p><p className="text-[9px] font-bold text-slate-500 uppercase mt-1">Pendientes</p></div>
+            <div><p className="text-lg font-black leading-none">12</p><p className="text-[12px] font-bold text-slate-500 uppercase mt-1">Pendientes</p></div>
           </div>
           <div className="flex items-center gap-3 border-x border-white/10 px-10">
             <div className="w-10 h-10 rounded-xl bg-rose-500/10 flex items-center justify-center text-rose-500"><AlertCircle size={18}/></div>
-            <div><p className="text-lg font-black leading-none">5</p><p className="text-[9px] font-bold text-slate-500 uppercase mt-1">Críticos</p></div>
+            <div><p className="text-lg font-black leading-none">5</p><p className="text-[12px] font-bold text-slate-500 uppercase mt-1">Críticos</p></div>
           </div>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-slate-500/10 flex items-center justify-center text-slate-400"><Ban size={18}/></div>
-            <div><p className="text-lg font-black leading-none">3</p><p className="text-[9px] font-bold text-slate-500 uppercase mt-1">Baneados</p></div>
+            <div><p className="text-lg font-black leading-none">3</p><p className="text-[12px] font-bold text-slate-500 uppercase mt-1">Baneados</p></div>
           </div>
         </div>
       </div>
@@ -660,10 +660,10 @@ function AlertasView({ retentionPlayers, showToast }) {
       <div className="card-larry overflow-hidden">
         <div className="px-8 py-5 border-b border-white/5 flex justify-between items-center bg-[#0d0d0d]">
           <div className="flex gap-4">
-            <button onClick={()=>setTab('Activos')} className={`text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-lg transition-all ${tab==='Activos'?'bg-violet-600 text-white shadow-lg shadow-violet-500/20':'text-slate-500 hover:text-white'}`}>Activos</button>
-            <button onClick={()=>setTab('Historial')} className={`text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-lg transition-all ${tab==='Historial'?'bg-violet-600 text-white shadow-lg shadow-violet-500/20':'text-slate-500 hover:text-white'}`}>Historial</button>
+            <button onClick={()=>setTab('Activos')} className={`text-[13px] font-black uppercase tracking-widest px-4 py-2 rounded-lg transition-all ${tab==='Activos'?'bg-violet-600 text-white shadow-lg shadow-violet-500/20':'text-slate-500 hover:text-white'}`}>Activos</button>
+            <button onClick={()=>setTab('Historial')} className={`text-[13px] font-black uppercase tracking-widest px-4 py-2 rounded-lg transition-all ${tab==='Historial'?'bg-violet-600 text-white shadow-lg shadow-violet-500/20':'text-slate-500 hover:text-white'}`}>Historial</button>
           </div>
-          <button onClick={()=>showToast('Filtros aplicados')} className="text-slate-500 hover:text-white text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 px-4 py-2 border border-white/5 rounded-xl"><Filter size={14}/> Filtrar</button>
+          <button onClick={()=>showToast('Filtros aplicados')} className="text-slate-500 hover:text-white text-[13px] font-bold uppercase tracking-widest flex items-center gap-2 px-4 py-2 border border-white/5 rounded-xl"><Filter size={14}/> Filtrar</button>
         </div>
         <div className="divide-y divide-white/[0.03]">
           {items.map((item, i) => (
@@ -704,7 +704,7 @@ function ConfiguracionView({ showToast }) {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="md:col-span-1 space-y-1">
           {sections.map((s,i) => (
-            <button key={s} onClick={()=>setActiveSection(s)} className={`w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-xs transition-all ${activeSection===s?'bg-white/10 text-white':'text-slate-600 hover:text-white hover:bg-white/5'}`}>
+            <button key={s} onClick={()=>setActiveSection(s)} className={`w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-xs transition-all ${activeSection===s?'bg-white/10 text-white':'text-slate-400 hover:text-white hover:bg-white/5'}`}>
               {i===0?<Monitor size={14}/>:i===1?<User size={14}/>:i===2?<Bell size={14}/>:<Lock size={14}/>}
               {s}
             </button>
@@ -743,8 +743,8 @@ function ConfiguracionView({ showToast }) {
           {activeSection === 'Cuenta' && <>
             <SectionTitle icon={<User size={16}/>} title="Perfil" color="cyan"/>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5"><label className="text-[9px] font-black text-slate-600 uppercase tracking-widest ml-1">Nombre</label><input defaultValue="Admin Larry" className="w-full bg-black border border-white/10 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-violet-500"/></div>
-              <div className="space-y-1.5"><label className="text-[9px] font-black text-slate-600 uppercase tracking-widest ml-1">Email</label><input defaultValue="admin@bingo.com" className="w-full bg-black border border-white/10 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-violet-500"/></div>
+              <div className="space-y-1.5"><label className="text-[12px] font-black text-slate-400 uppercase tracking-widest ml-1">Nombre</label><input defaultValue="Admin Larry" className="w-full bg-black border border-white/10 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-violet-500"/></div>
+              <div className="space-y-1.5"><label className="text-[12px] font-black text-slate-400 uppercase tracking-widest ml-1">Email</label><input defaultValue="admin@bingo.com" className="w-full bg-black border border-white/10 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-violet-500"/></div>
             </div>
           </>}
         </div>
@@ -756,9 +756,9 @@ function ConfiguracionView({ showToast }) {
 /* ─── REUSABLE ATOMS ─────────────────────────────────── */
 function NavItem({ icon, label, active=false, badge=undefined, onClick=undefined as any }) {
   return (
-    <div onClick={onClick} className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all ${active?'sidebar-item-active text-white':'text-slate-600 hover:text-white hover:bg-white/5'}`}>
+    <div onClick={onClick} className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all ${active?'sidebar-item-active text-white':'text-slate-400 hover:text-white hover:bg-white/5'}`}>
       <div className="flex items-center gap-3">{icon}<span className="text-sm font-semibold">{label}</span></div>
-      {badge && <span className="bg-rose-600 text-[9px] px-2 py-0.5 rounded-full text-white font-bold animate-pulse">{badge}</span>}
+      {badge && <span className="bg-rose-600 text-[12px] px-2 py-0.5 rounded-full text-white font-bold animate-pulse">{badge}</span>}
     </div>
   );
 }
@@ -778,10 +778,10 @@ function KPICard({ icon, label, value, trend, trendUp=false }) {
     <div className="card-larry p-5 bg-[#0d0d0d] flex items-center gap-4 group">
       <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center text-slate-400 group-hover:bg-violet-600/10 group-hover:text-violet-500 transition-all">{icon}</div>
       <div className="flex-1">
-        <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">{label}</p>
+        <p className="text-[12px] font-bold text-slate-500 uppercase tracking-widest">{label}</p>
         <div className="flex items-baseline gap-2 mt-0.5">
           <p className="text-xl font-black text-white">{value}</p>
-          <span className={`text-[8px] font-bold ${trendUp?'text-emerald-500':'text-rose-500'}`}>{trend}</span>
+          <span className={`text-[11px] font-bold ${trendUp?'text-emerald-500':'text-rose-500'}`}>{trend}</span>
         </div>
       </div>
     </div>
@@ -792,32 +792,32 @@ function ReportCard({ label, value, color, trend }) {
   const css = { emerald:'border-l-emerald-500 bg-emerald-500/5 text-emerald-500', rose:'border-l-rose-500 bg-rose-500/5 text-rose-500', violet:'border-l-violet-500 bg-violet-500/5 text-violet-500' };
   return (
     <div className={`card-larry py-5 px-6 border-l-4 ${css[color]}`}>
-      <p className="text-[9px] font-black uppercase tracking-widest opacity-50 mb-1">{label}</p>
+      <p className="text-[12px] font-black uppercase tracking-widest opacity-50 mb-1">{label}</p>
       <p className="text-2xl font-black text-white">{value}</p>
-      <p className="text-[8px] font-bold mt-1 text-slate-600 uppercase">{trend} vs anterior</p>
+      <p className="text-[11px] font-bold mt-1 text-slate-400 uppercase">{trend} vs anterior</p>
     </div>
   );
 }
 
 function AlertSummaryCard({ icon, value, label, color, border=false }) {
   const themes = { amber:'border-amber-500/30 bg-amber-500/5 text-amber-500', rose:'border-rose-500/30 bg-rose-500/5 text-rose-500', slate:'bg-white/5 text-white/50 border-white/10' };
-  return <div className={`p-8 rounded-[2rem] flex items-center gap-6 border ${border?'border-2':''} ${themes[color]}`}><div className="p-5 bg-black/50 rounded-2xl border border-white/5">{icon}</div><div><p className="text-4xl font-black text-white">{value}</p><p className="text-[10px] font-black uppercase opacity-60 mt-1 tracking-widest">{label}</p></div></div>;
+  return <div className={`p-8 rounded-[2rem] flex items-center gap-6 border ${border?'border-2':''} ${themes[color]}`}><div className="p-5 bg-black/50 rounded-2xl border border-white/5">{icon}</div><div><p className="text-4xl font-black text-white">{value}</p><p className="text-[13px] font-black uppercase opacity-60 mt-1 tracking-widest">{label}</p></div></div>;
 }
 
 function AlertItem({ icon, name, detail, status, color, isBanned=false, isPaid=false }) {
-  const cls = { amber:'text-amber-500 bg-amber-500/10 border-amber-500/20', rose:'text-rose-500 bg-rose-500/10 border-rose-500/20', slate:'text-slate-600 bg-white/5 border-white/10', emerald:'text-emerald-500 bg-emerald-500/10 border-emerald-500/20' };
+  const cls = { amber:'text-amber-500 bg-amber-500/10 border-amber-500/20', rose:'text-rose-500 bg-rose-500/10 border-rose-500/20', slate:'text-slate-400 bg-white/5 border-white/10', emerald:'text-emerald-500 bg-emerald-500/10 border-emerald-500/20' };
   return (
     <div className="px-8 py-4 flex items-center justify-between hover:bg-white/[0.02] transition-all cursor-default group">
       <div className="flex items-center gap-5">
         <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${isBanned?'bg-rose-500/10 text-rose-500':isPaid?'bg-emerald-500/10 text-emerald-500':'bg-white/5 text-slate-500 group-hover:text-white'}`}>{icon}</div>
         <div>
           <h4 className="text-sm font-bold text-white leading-none">{name}</h4>
-          <p className="text-[10px] font-medium mt-1 text-slate-600 uppercase tracking-wider">{detail}</p>
+          <p className="text-[13px] font-medium mt-1 text-slate-400 uppercase tracking-wider">{detail}</p>
         </div>
       </div>
       <div className="flex items-center gap-4">
-        <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${cls[color]}`}>{status}</span>
-        <button className="p-2 text-slate-700 hover:text-white transition-colors"><ChevronRight size={14}/></button>
+        <span className={`px-3 py-1 rounded-lg text-[12px] font-black uppercase tracking-widest border ${cls[color]}`}>{status}</span>
+        <button className="p-2 text-slate-500 hover:text-white transition-colors"><ChevronRight size={14}/></button>
       </div>
     </div>
   );
@@ -826,7 +826,7 @@ function AlertItem({ icon, name, detail, status, color, isBanned=false, isPaid=f
 function ToggleItem({ label, description, active, onToggle }) {
   return (
     <div className="flex items-center justify-between px-6 py-4 bg-[#0c0c0c] rounded-2xl border border-white/5">
-      <div className="leading-tight"><h4 className="font-bold text-sm text-white">{label}</h4><p className="text-[9px] text-slate-600 font-bold mt-0.5 uppercase">{description}</p></div>
+      <div className="leading-tight"><h4 className="font-bold text-sm text-white">{label}</h4><p className="text-[12px] text-slate-400 font-bold mt-0.5 uppercase">{description}</p></div>
       <button onClick={onToggle} className={`w-10 h-5 rounded-full p-0.5 transition-all ${active?'bg-violet-600':'bg-white/10'}`} role="switch" aria-checked={active}>
         <div className={`w-4 h-4 bg-white rounded-full shadow-lg transition-all ${active?'translate-x-5':'translate-x-0'}`}></div>
       </button>
@@ -845,7 +845,7 @@ function SectionTitle({ icon, title, color }) {
 }
 
 function ExpenseLegend({ color, label }) {
-  return <div className="flex items-center gap-3"><div className="w-3 h-3 rounded-sm" style={{backgroundColor:color}}></div><span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">{label}</span></div>;
+  return <div className="flex items-center gap-3"><div className="w-3 h-3 rounded-sm" style={{backgroundColor:color}}></div><span className="text-[12px] font-black text-slate-400 uppercase tracking-widest">{label}</span></div>;
 }
 
 function CreditCardIcon(p: any) {
@@ -895,7 +895,7 @@ function GestionUsuariosView({ showToast }: { showToast: (m: string) => void }) 
 
       <div className="card-larry overflow-hidden">
         <table className="w-full text-left">
-          <thead className="bg-[#0d0d0d] text-[9px] uppercase tracking-widest text-slate-700 font-black border-b border-white/5">
+          <thead className="bg-[#0d0d0d] text-[12px] uppercase tracking-widest text-slate-500 font-black border-b border-white/5">
             <tr>
               <th className="px-6 py-4">Usuario</th>
               <th className="px-6 py-4">Rol</th>
@@ -909,19 +909,19 @@ function GestionUsuariosView({ showToast }: { showToast: (m: string) => void }) 
               <tr key={u.id} className="group hover:bg-white/[0.01] transition-colors">
                 <td className="px-6 py-3">
                   <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-violet-600/10 flex items-center justify-center text-violet-500 text-[10px]">
+                    <div className="w-7 h-7 rounded-lg bg-violet-600/10 flex items-center justify-center text-violet-500 text-[13px]">
                       <User size={14}/>
                     </div>
                     <span className="font-bold text-xs text-white">{u.usuario}</span>
                   </div>
                 </td>
                 <td className="px-6 py-3">
-                  <span className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-tighter ${u.rol === 'admin' ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' : 'bg-slate-500/10 text-slate-500 border border-white/5'}`}>
+                  <span className={`px-2 py-0.5 rounded-md text-[11px] font-black uppercase tracking-tighter ${u.rol === 'admin' ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' : 'bg-slate-500/10 text-slate-500 border border-white/5'}`}>
                     {u.rol}
                   </span>
                 </td>
                 <td className="px-6 py-3">
-                  <span className={`text-[9px] font-bold uppercase tracking-tighter ${u.status === 'aprobado' ? 'text-emerald-500' : u.status === 'rechazado' ? 'text-rose-500' : 'text-amber-500'}`}>
+                  <span className={`text-[12px] font-bold uppercase tracking-tighter ${u.status === 'aprobado' ? 'text-emerald-500' : u.status === 'rechazado' ? 'text-rose-500' : 'text-amber-500'}`}>
                     {u.status}
                   </span>
                 </td>

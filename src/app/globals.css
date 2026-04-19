@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
 :root {
   --bg-main: #020202;
@@ -10,16 +10,17 @@
   --bg-sidebar: #000000;
   --primary-purple: #8b5cf6;
   --accent-cyan: #22d3ee;
-  --text-dim: #64748b;
+  --text-dim: #94a3b8;
   --border-subtle: rgba(255, 255, 255, 0.05);
 }
 
 body {
   background-color: var(--bg-main);
-  color: #ffffff;
-  font-family: 'Inter', sans-serif;
+  color: #f8fafc;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   -webkit-font-smoothing: antialiased;
-  letter-spacing: -0.01em;
+  letter-spacing: 0.01em;
+  line-height: 1.6;
 }
 
 h1, h2, h3, .font-heading {
