@@ -608,39 +608,54 @@ function AlertasView({ retentionPlayers, showToast }) {
   const [tab, setTab] = useState<'Activos'|'Historial'>('Activos');
 
   const activos = [
-    { icon: <Clock size={18}/>,       name: 'Juan Pérez',   detail: 'Deuda de Bs. 50 • 2024-03-20',  status: 'PENDIENTE', color: 'amber' as const },
-    { icon: <AlertCircle size={18}/>, name: 'Carlos Ruiz',  detail: 'Deuda de Bs. 120 • 2024-03-18', status: 'CRÍTICO',   color: 'rose' as const,  isBanned: false },
-    { icon: <Ban size={18}/>,         name: 'Maria T.',     detail: 'Baneado el 2024-03-15',          status: 'BANEADO',   color: 'slate' as const, isBanned: true },
-    { icon: <CheckCircle2 size={18}/>,name: 'Ana Lopez',    detail: 'Deuda de Bs. 20 • 2024-03-21',  status: 'PAGADO',    color: 'emerald' as const, isPaid: true },
+    { icon: <Clock size={14}/>,       name: 'Juan Pérez',   detail: 'Deuda de Bs. 50 • 2024-03-20',  status: 'PENDIENTE', color: 'amber' as const },
+    { icon: <AlertCircle size={14}/>, name: 'Carlos Ruiz',  detail: 'Deuda de Bs. 120 • 2024-03-18', status: 'CRÍTICO',   color: 'rose' as const,  isBanned: false },
+    { icon: <Ban size={14}/>,         name: 'Maria T.',     detail: 'Baneado el 2024-03-15',          status: 'BANEADO',   color: 'slate' as const, isBanned: true },
+    { icon: <CheckCircle2 size={14}/>,name: 'Ana Lopez',    detail: 'Deuda de Bs. 20 • 2024-03-21',  status: 'PAGADO',    color: 'emerald' as const, isPaid: true },
   ];
 
   const historial = [
-    { icon: <CheckCircle2 size={18}/>,name: 'Roberto Diaz', detail: 'Deuda saldada Bs. 80 • 2024-03-01', status: 'RESUELTO', color: 'emerald' as const, isPaid: true },
-    { icon: <CheckCircle2 size={18}/>,name: 'Sandra Gil',   detail: 'Deuda saldada Bs. 30 • 2024-02-28', status: 'RESUELTO', color: 'emerald' as const, isPaid: true },
+    { icon: <CheckCircle2 size={14}/>,name: 'Roberto Diaz', detail: 'Deuda saldada Bs. 80 • 2024-03-01', status: 'RESUELTO', color: 'emerald' as const, isPaid: true },
+    { icon: <CheckCircle2 size={14}/>,name: 'Sandra Gil',   detail: 'Deuda saldada Bs. 30 • 2024-02-28', status: 'RESUELTO', color: 'emerald' as const, isPaid: true },
   ];
   const items = tab === 'Activos' ? activos : historial;
 
   return (
-    <div className="space-y-10 animate-larry">
-      <div className="flex justify-between items-end">
-        <div><h1 className="text-4xl font-bold">Alertas e Incidencias</h1><p className="text-slate-500 mt-2">Panel de control de riesgos y deudas</p></div>
-        <TabGroup tabs={['Activos','Historial']} active={tab} onChange={v => setTab(v as any)} />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <AlertSummaryCard icon={<Clock className="text-amber-500" size={24}/>} value="12" label="FIADOS PENDIENTES" color="amber" border/>
-        <AlertSummaryCard icon={<AlertCircle className="text-rose-500" size={24}/>} value="5" label="DEUDAS CRÍTICAS" color="rose" border/>
-        <AlertSummaryCard icon={<Ban className="text-slate-600" size={24}/>} value="3" label="USUARIOS BANEADOS" color="slate"/>
-      </div>
-
-      <div className="card-larry p-10 space-y-4">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="text-lg font-bold flex items-center gap-3"><AlertCircle size={20} className="text-rose-500"/> Listado de {tab}</h3>
-          <button onClick={()=>showToast('Filtros aplicados')} className="flex items-center gap-2 text-slate-500 text-xs font-bold hover:text-white transition-colors active:scale-95 px-4 py-2 bg-white/5 rounded-xl border border-white/5"><Filter size={16}/> Filtrar</button>
+    <div className="space-y-6 animate-larry">
+      <div className="flex justify-between items-center bg-white/5 p-6 rounded-[2rem] border border-white/5">
+        <div>
+          <h1 className="text-3xl font-extrabold font-heading">Alertas</h1>
+          <p className="text-slate-500 text-xs mt-0.5">Gestión de riesgos y deudas</p>
         </div>
-        {items.map((item, i) => (
-          <AlertItem key={i} {...item}/>
-        ))}
+        <div className="flex gap-10 pr-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500"><Clock size={18}/></div>
+            <div><p className="text-lg font-black leading-none">12</p><p className="text-[9px] font-bold text-slate-500 uppercase mt-1">Pendientes</p></div>
+          </div>
+          <div className="flex items-center gap-3 border-x border-white/10 px-10">
+            <div className="w-10 h-10 rounded-xl bg-rose-500/10 flex items-center justify-center text-rose-500"><AlertCircle size={18}/></div>
+            <div><p className="text-lg font-black leading-none">5</p><p className="text-[9px] font-bold text-slate-500 uppercase mt-1">Críticos</p></div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-slate-500/10 flex items-center justify-center text-slate-400"><Ban size={18}/></div>
+            <div><p className="text-lg font-black leading-none">3</p><p className="text-[9px] font-bold text-slate-500 uppercase mt-1">Baneados</p></div>
+          </div>
+        </div>
+      </div>
+
+      <div className="card-larry overflow-hidden">
+        <div className="px-8 py-5 border-b border-white/5 flex justify-between items-center bg-[#0d0d0d]">
+          <div className="flex gap-4">
+            <button onClick={()=>setTab('Activos')} className={`text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-lg transition-all ${tab==='Activos'?'bg-violet-600 text-white shadow-lg shadow-violet-500/20':'text-slate-500 hover:text-white'}`}>Activos</button>
+            <button onClick={()=>setTab('Historial')} className={`text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-lg transition-all ${tab==='Historial'?'bg-violet-600 text-white shadow-lg shadow-violet-500/20':'text-slate-500 hover:text-white'}`}>Historial</button>
+          </div>
+          <button onClick={()=>showToast('Filtros aplicados')} className="text-slate-500 hover:text-white text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 px-4 py-2 border border-white/5 rounded-xl"><Filter size={14}/> Filtrar</button>
+        </div>
+        <div className="divide-y divide-white/[0.03]">
+          {items.map((item, i) => (
+            <AlertItem key={i} {...item}/>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -778,14 +793,20 @@ function AlertSummaryCard({ icon, value, label, color, border=false }) {
 }
 
 function AlertItem({ icon, name, detail, status, color, isBanned=false, isPaid=false }) {
-  const cls = { amber:'text-amber-500 bg-amber-500/10 border-amber-500/30', rose:'text-rose-500 bg-rose-500/10 border-rose-500/30', slate:'text-slate-600 bg-white/5 border-white/10', emerald:'text-emerald-500 bg-emerald-500/10 border-emerald-500/30' };
+  const cls = { amber:'text-amber-500 bg-amber-500/10 border-amber-500/20', rose:'text-rose-500 bg-rose-500/10 border-rose-500/20', slate:'text-slate-600 bg-white/5 border-white/10', emerald:'text-emerald-500 bg-emerald-500/10 border-emerald-500/20' };
   return (
-    <div className="p-8 bg-black border border-white/10 rounded-[2.5rem] flex items-center justify-between hover:bg-white/[0.01] transition-all cursor-default">
-      <div className="flex items-center gap-6">
-        <div className={`p-4 rounded-full ${isBanned?'bg-rose-500/10 text-rose-500':isPaid?'bg-emerald-500/10 text-emerald-500':'bg-slate-900 text-slate-700'}`}>{icon}</div>
-        <div><h4 className="text-xl font-bold text-white">{name}</h4><p className="text-[10px] font-bold mt-1 text-slate-600 uppercase">{detail}</p></div>
+    <div className="px-8 py-4 flex items-center justify-between hover:bg-white/[0.02] transition-all cursor-default group">
+      <div className="flex items-center gap-5">
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${isBanned?'bg-rose-500/10 text-rose-500':isPaid?'bg-emerald-500/10 text-emerald-500':'bg-white/5 text-slate-500 group-hover:text-white'}`}>{icon}</div>
+        <div>
+          <h4 className="text-sm font-bold text-white leading-none">{name}</h4>
+          <p className="text-[10px] font-medium mt-1 text-slate-600 uppercase tracking-wider">{detail}</p>
+        </div>
       </div>
-      <span className={`px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest border ${cls[color]}`}>{status}</span>
+      <div className="flex items-center gap-4">
+        <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${cls[color]}`}>{status}</span>
+        <button className="p-2 text-slate-700 hover:text-white transition-colors"><ChevronRight size={14}/></button>
+      </div>
     </div>
   );
 }
