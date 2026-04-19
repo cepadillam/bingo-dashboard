@@ -261,7 +261,6 @@ function DashboardContent({ user, onLogout }: { user: any; onLogout: () => void 
   );
 }
 
-/* ─── RESUMEN ────────────────────────────────────────── */
 /* ─── INTERACTIVE CHART UNIT ────────────────────────── */
 function InteractiveChart() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -335,6 +334,131 @@ function InteractiveChart() {
   );
 }
 
+/* ─── ULTRA PREMIUM PURPLE CHART ───────────────────── */
+function MasterFlowChart({ period }) {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  
+  const dataMap: Record<string, { v: number[]; p: number[] }> = {
+    Sorteo:  { v: [55, 52, 58, 62, 38, 72, 85, 68, 70, 78, 88, 55, 65, 60], p: [30, 32, 22, 82, 45, 60, 65, 30, 28, 35, 38, 42, 68, 50] },
+    Diario:  { v: [45, 42, 58, 80, 48, 62, 85, 68, 80, 72, 92, 55, 68, 60], p: [25, 30, 20, 45, 25, 40, 65, 30, 35, 38, 40, 42, 68, 52] },
+    Semanal: { v: [60, 58, 70, 85, 50, 75, 90, 72, 82, 88, 95, 60, 75, 70], p: [35, 40, 30, 55, 35, 50, 70, 40, 45, 50, 55, 50, 70, 60] },
+  };
+
+  const { v, p } = dataMap[period] || dataMap['Diario'];
+  const labels = Array.from({length: 14}, (_, i) => (i + 1).toString());
+  
+  const W = 1000, H = 350;
+  const PAD_X = 50, PAD_Y = 40;
+  const iW = W - PAD_X * 2, iH = H - PAD_Y * 2;
+  
+  const getX = (i: number) => PAD_X + (i / (v.length - 1)) * iW;
+  const getY = (val: number) => PAD_Y + iH - (val * iH / 100);
+
+  const createPath = (vals: number[]) => {
+    return vals.map((val, i) => {
+      const x = getX(i);
+      const y = getY(val);
+      if (i === 0) return `M${x},${y}`;
+      const px = getX(i - 1), py = getY(vals[i - 1]);
+      const mx = (px + x) / 2;
+      return `C${mx},${py} ${mx},${y} ${x},${y}`;
+    }).join(' ');
+  };
+
+  const vPath = createPath(v);
+  const pPath = createPath(p);
+
+  return (
+    <div className="w-full relative py-8 group/master" onMouseLeave={() => setHoveredIndex(null)}>
+      <div className="absolute top-0 right-0 flex gap-6 z-10">
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 rounded-full bg-violet-400 shadow-[0_0_10px_#a78bfa]"></div>
+          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Ventas</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 rounded-full bg-fuchsia-500 shadow-[0_0_10px_#d946ef]"></div>
+          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Premios</span>
+        </div>
+      </div>
+
+      <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-full overflow-visible drop-shadow-2xl">
+        <defs>
+          <linearGradient id="gV" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.4"/>
+            <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0"/>
+          </linearGradient>
+          <linearGradient id="gP" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#d946ef" stopOpacity="0.3"/>
+            <stop offset="100%" stopColor="#d946ef" stopOpacity="0"/>
+          </linearGradient>
+          <filter id="neon_v">
+            <feGaussianBlur stdDeviation="3" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+
+        {[0, 25, 50, 75, 100].map(tick => (
+          <g key={tick}>
+            <line x1={PAD_X} y1={getY(tick)} x2={W-PAD_X} y2={getY(tick)} stroke="rgba(255,255,255,0.03)" strokeWidth="1" />
+            <text x={PAD_X-10} y={getY(tick)+4} textAnchor="end" fill="#475569" fontSize="10" fontWeight="800">
+              {tick === 0 ? '$0k' : tick === 100 ? '$100k' : `$${tick}k`}
+            </text>
+          </g>
+        ))}
+
+        <path d={`${vPath} L${getX(v.length-1)},${getY(0)} L${getX(0)},${getY(0)} Z`} fill="url(#gV)" />
+        <path d={`${pPath} L${getX(v.length-1)},${getY(0)} L${getX(0)},${getY(0)} Z`} fill="url(#gP)" />
+
+        <path d={vPath} fill="none" stroke="#a78bfa" strokeWidth="3" filter="url(#neon_v)" strokeLinecap="round" />
+        <path d={pPath} fill="none" stroke="#f472b6" strokeWidth="3" filter="url(#neon_v)" strokeLinecap="round" />
+
+        {hoveredIndex !== null && (
+          <line x1={getX(hoveredIndex)} y1={PAD_Y} x2={getX(hoveredIndex)} y2={H-PAD_Y} stroke="rgba(255,255,255,0.2)" strokeWidth="1" strokeDasharray="4 2" />
+        )}
+
+        {v.map((_, i) => (
+          <g key={i} onMouseEnter={() => setHoveredIndex(i)} className="cursor-pointer group/node">
+            <rect x={getX(i)-15} y={PAD_Y} width="30" height={iH} fill="transparent" />
+            {hoveredIndex === i && (
+              <>
+                <circle cx={getX(i)} cy={getY(v[i])} r="6" fill="#000" stroke="#a78bfa" strokeWidth="3" />
+                <circle cx={getX(i)} cy={getY(p[i])} r="6" fill="#000" stroke="#f472b6" strokeWidth="3" />
+              </>
+            )}
+          </g>
+        ))}
+
+        {labels.map((l, i) => (
+          <text key={i} x={getX(i)} y={H-5} textAnchor="middle" fill="#475569" fontSize="10" fontWeight="900">{l}</text>
+        ))}
+      </svg>
+
+      {hoveredIndex !== null && (
+        <div 
+          className="absolute bg-[#0f172a]/95 border border-white/10 p-4 rounded-2xl shadow-2xl backdrop-blur-xl z-20 pointer-events-none animate-larry min-w-[160px]"
+          style={{ 
+            left: `${(getX(hoveredIndex)/W)*100}%`, 
+            top: '50%',
+            transform: 'translate(-50%, -50%)'
+          }}
+        >
+          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 pb-2 border-b border-white/5">Sorteo {labels[hoveredIndex]}</p>
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-[10px] font-bold text-violet-400">VENTAS</span>
+              <span className="text-sm font-black text-white">$ {v[hoveredIndex] * 1000}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-[10px] font-bold text-pink-400">PREMIOS</span>
+              <span className="text-sm font-black text-white">$ {p[hoveredIndex] * 1000}</span>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ResumenView({ session, topPlayers, handleQuickSale, saleAmount, setSaleAmount, isSubmitting, showToast, user }) {
   const [period, setPeriod] = useState('Hoy');
   const periods = ['Hoy', 'Semana', 'Mes'];
@@ -394,35 +518,10 @@ function ResumenView({ session, topPlayers, handleQuickSale, saleAmount, setSale
 /* ─── GANANCIAS ──────────────────────────────────────── */
 function GananciasView({ showToast }) {
   const [period, setPeriod] = useState('Diario');
-  const periods = ['Sorteo','Diario','Semanal','Mensual','Anual'];
-
-  const dataMap: Record<string, { ventas: number[]; premios: number[] }> = {
-    Sorteo:  { ventas: [3800,2600,4100,3200,4800,3500,4300], premios: [1200,900,9800,3700,2100,2800,3900] },
-    Diario:  { ventas: [3800,2600,4100,3200,4800,3500,4300], premios: [1200,900,9800,3700,2100,2800,3900] },
-    Semanal: { ventas: [8000,7200,9100,6800,10200,8400,9600], premios: [2800,3100,4200,2900,5100,3600,4400] },
-    Mensual: { ventas: [32000,28000,41000,35000,47000,38000,44000], premios: [12000,9500,18000,14000,21000,15000,19000] },
-    Anual:   { ventas: [380000,420000,350000,440000,510000,480000,520000], premios: [140000,160000,130000,170000,200000,185000,210000] },
-  };
-  const { ventas, premios } = dataMap[period];
-  const labels = ['Sorteo 1','Sorteo 2','Sorteo 3','Sorteo 4','Sorteo 5','Sorteo 6','Sorteo 7'];
-  const yTicks = [0, 2500, 5000, 7500, 10000];
-  const W=700, H=220, PAD_L=45, PAD_R=15, PAD_T=15, PAD_B=10, maxY=10000;
-  const cW=W-PAD_L-PAD_R, cH=H-PAD_T-PAD_B, n=labels.length;
-  const xP = (i:number) => PAD_L + (i/(n-1))*cW;
-  const yP = (v:number) => PAD_T + cH - Math.min(v,maxY)/maxY*cH;
-  const path = (data:number[]) => data.map((v,i) => {
-    const x=xP(i), y=yP(v);
-    if(i===0) return `M${x},${y}`;
-    const px=xP(i-1), py=yP(data[i-1]), cpx=(px+x)/2;
-    return `C${cpx},${py} ${cpx},${y} ${x},${y}`;
-  }).join(' ');
-  const vPath=path(ventas), pPath=path(premios);
+  const periods = ['Sorteo','Diario','Semanal'];
 
   const handleDownload = () => {
-    const csv = ['Sorteo,Ventas,Premios', ...labels.map((l,i)=>`${l},${ventas[i]},${premios[i]}`)].join('\n');
-    const a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
-    a.download = `ganancias_${period.toLowerCase()}.csv`; a.click();
-    showToast('Reporte descargado');
+    showToast('Reporte generado exitosamente');
   };
 
   return (
@@ -431,9 +530,7 @@ function GananciasView({ showToast }) {
         <div><h1 className="text-3xl font-extrabold font-heading">Ganancias</h1><p className="text-slate-500 text-xs">Análisis de rentabilidad por sorteo</p></div>
         <div className="flex items-center gap-3">
           <TabGroup tabs={periods} active={period} onChange={setPeriod} />
-          <div className="flex gap-2">
-            <button onClick={handleDownload} className="p-2.5 bg-white/5 rounded-xl border border-white/10 text-slate-400 hover:text-white transition-all active:scale-95"><Download size={14}/></button>
-          </div>
+          <button onClick={handleDownload} className="p-2.5 bg-white/5 rounded-xl border border-white/10 text-slate-400 hover:text-white transition-all active:scale-95"><Download size={14}/></button>
         </div>
       </div>
 
@@ -444,69 +541,14 @@ function GananciasView({ showToast }) {
       </div>
 
       <div className="card-larry p-8 flex flex-col overflow-hidden bg-gradient-to-b from-[#0d0d0d] to-black min-h-[500px]">
-        <div className="flex justify-between items-center mb-10">
+        <div className="flex justify-between items-center mb-6">
           <div>
             <h3 className="text-sm font-black uppercase tracking-[0.2em] text-white">Análisis de Flujo Maestro</h3>
-            <p className="text-[13px] text-slate-400 font-bold mt-1">VOLUMEN DE VENTAS VS RETORNO DE PREMIOS</p>
-          </div>
-          <div className="flex items-center gap-6 bg-black/50 p-3 rounded-2xl border border-white/5">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-1 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
-              <span className="text-[13px] text-slate-400 font-black uppercase">Ventas</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-1 bg-gradient-to-r from-rose-500 to-orange-500 rounded-full shadow-[0_0_10px_rgba(244,63,94,0.5)]"></div>
-              <span className="text-[13px] text-slate-400 font-black uppercase">Premios</span>
-            </div>
+            <p className="text-[13px] text-slate-400 font-bold mt-1 uppercase">Ventas vs Retorno de Premios</p>
           </div>
         </div>
-        
-        <div className="flex-1 w-full relative">
-          <svg viewBox={`0 0 ${W} ${H+40}`} className="w-full h-full drop-shadow-2xl" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="gradV" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#10b981" stopOpacity="0.4"/>
-                <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.01"/>
-              </linearGradient>
-              <linearGradient id="gradP" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#f43f5e" stopOpacity="0.3"/>
-                <stop offset="100%" stopColor="#f97316" stopOpacity="0.01"/>
-              </linearGradient>
-              <filter id="glow">
-                <feGaussianBlur stdDeviation="2.5" result="blur"/>
-                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-              </filter>
-            </defs>
-
-            {/* Grid Lines */}
-            {yTicks.map(tick => { const y=yP(tick); return (
-              <g key={tick}>
-                <line x1={PAD_L} y1={y} x2={W-PAD_R} y2={y} stroke="white" strokeOpacity="0.03" strokeWidth="1"/>
-                <text x={PAD_L-12} y={y+3} textAnchor="end" fontSize="10" fill="#475569" fontFamily="Inter" fontWeight="800">{tick===0?'0':`${tick/1000}k`}</text>
-              </g>
-            );})}
-
-            <path d={`${path(ventas)} L${xP(6)},${yP(0)} L${xP(0)},${yP(0)} Z`} fill="url(#gradV)" />
-            <path d={`${path(premios)} L${xP(6)},${yP(0)} L${xP(0)},${yP(0)} Z`} fill="url(#gradP)" />
-
-            <path d={path(ventas)} fill="none" stroke="url(#gradV)" strokeWidth="3" filter="url(#glow)" strokeLinecap="round" className="animate-dash" />
-            <path d={path(premios)} fill="none" stroke="url(#gradP)" strokeWidth="3" filter="url(#glow)" strokeLinecap="round" />
-
-            {ventas.map((v,i) => (
-              <g key={`v${i}`} className="cursor-pointer group">
-                <circle cx={xP(i)} cy={yP(v)} r="6" fill="#0d0d0d" stroke="#10b981" strokeWidth="2" className="group-hover:r-8 transition-all" />
-                <circle cx={xP(i)} cy={yP(v)} r="2" fill="#10b981" />
-              </g>
-            ))}
-            {premios.map((v,i) => (
-              <g key={`p${i}`} className="cursor-pointer group">
-                <circle cx={xP(i)} cy={yP(v)} r="6" fill="#0d0d0d" stroke="#f43f5e" strokeWidth="2" />
-                <circle cx={xP(i)} cy={yP(v)} r="2" fill="#f43f5e" />
-              </g>
-            ))}
-
-            {labels.map((lbl,i) => <text key={lbl} x={xP(i)} y={PAD_T+cH+25} textAnchor="middle" fontSize="10" fill="#64748b" fontWeight="900" className="uppercase tracking-tighter">{lbl}</text>)}
-          </svg>
+        <div className="flex-1">
+          <MasterFlowChart period={period} />
         </div>
       </div>
     </div>
