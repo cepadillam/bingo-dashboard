@@ -1,12 +1,11 @@
 'use client';
-// Vercel Deployment Trigger - v1.0.1
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { 
   LayoutDashboard, TrendingUp, Trophy, Users, DollarSign, BarChart4,
   Bell, Settings, LogOut, ChevronRight, Plus, MessageCircle, Search,
   Calendar, Download, Filter, AlertCircle, Clock, Ban, CheckCircle2,
-  Lock, Volume2, Monitor, X, Check, ChevronLeft, ChevronDown
+  Lock, Volume2, Monitor, X, Check, ChevronLeft, ChevronDown, User
 } from 'lucide-react';
 import { useActiveSession, useTopPlayers, useRetentionPlayers, registerSale } from './supabase-hooks';
 
@@ -20,8 +19,125 @@ function Toast({ msg, onDone }: { msg: string; onDone: () => void }) {
   );
 }
 
+/* ─── LOGIN PAGE ────────────────────────────────────────── */
+function LoginPage({ onLogin }: { onLogin: () => void }) {
+  const [user, setUser] = useState('');
+  const [pass, setPass] = useState('');
+  const [error, setError] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (user === 'admin' && pass === 'admin123') {
+      onLogin();
+    } else {
+      setError(true);
+      setTimeout(() => setError(false), 2000);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden bg-black font-heading">
+      {/* Dynamic Background */}
+      <div 
+        className="absolute inset-0 z-0 scale-110 opacity-40 blur-sm brightness-50"
+        style={{ 
+          backgroundImage: 'url(/bg-login.png)', 
+          backgroundSize: 'cover', 
+          backgroundPosition: 'center',
+          animation: 'pulse 10s infinite alternate ease-in-out'
+        }}
+      />
+      
+      <div className="relative z-10 w-full max-w-[400px] px-8 animate-larry">
+        {/* Logo Icon */}
+        <div className="mb-10 flex justify-center">
+          <div className="w-24 h-24 rounded-full border-4 border-white flex items-center justify-center text-4xl font-extrabold text-white bg-white/5 backdrop-blur-md">
+            D
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="relative group">
+            <User className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-white transition-colors" size={18}/>
+            <input 
+              type="text" 
+              placeholder="Username"
+              value={user}
+              onChange={(e) => setUser(e.target.value)}
+              className="w-full h-14 bg-[#2a2a2e]/80 backdrop-blur-md rounded-full pl-14 pr-6 text-white focus:outline-none border-2 border-transparent focus:border-white/20 transition-all placeholder:text-slate-500 font-medium"
+            />
+          </div>
+
+          <div className="relative group">
+            <Lock className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-white transition-colors" size={18}/>
+            <input 
+              type="password" 
+              placeholder="Password"
+              value={pass}
+              onChange={(e) => setPass(e.target.value)}
+              className="w-full h-14 bg-[#2a2a2e]/80 backdrop-blur-md rounded-full pl-14 pr-6 text-white focus:outline-none border-2 border-transparent focus:border-white/20 transition-all placeholder:text-slate-500 font-medium"
+            />
+          </div>
+
+          <button 
+            type="submit"
+            className={`w-full h-14 rounded-full font-extrabold text-white transition-all active:scale-95 shadow-xl shadow-rose-500/20
+              ${error ? 'bg-rose-700 animate-shake' : 'bg-[#fe3962] hover:bg-[#ff4d73]'}
+            `}
+          >
+            {error ? 'Invalid Credentials' : 'Log In'}
+          </button>
+        </form>
+
+        <p className="mt-8 text-center text-xs font-bold text-slate-500 cursor-pointer hover:text-white transition-colors uppercase tracking-widest opacity-60">
+          Lost your password?
+        </p>
+      </div>
+
+      <style jsx>{`
+        @keyframes pulse {
+          from { transform: scale(1); }
+          to { transform: scale(1.15); }
+        }
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-5px); }
+          75% { transform: translateX(5px); }
+        }
+        .animate-shake { animation: shake 0.2s ease-in-out infinite; }
+      `}</style>
+    </div>
+  );
+}
+
 /* ─── Root Dashboard ─────────────────────────────────── */
 export default function BingoDashboard() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isFinishingAuth, setIsFinishingAuth] = useState(true);
+
+  useEffect(() => {
+    const auth = localStorage.getItem('bingo_auth');
+    if (auth === 'true') setIsAuthenticated(true);
+    setIsFinishingAuth(false);
+  }, []);
+
+  const handleLogin = () => {
+    localStorage.setItem('bingo_auth', 'true');
+    setIsAuthenticated(true);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('bingo_auth');
+    setIsAuthenticated(false);
+  };
+
+  if (isFinishingAuth) return <div className="min-h-screen bg-black" />;
+  if (!isAuthenticated) return <LoginPage onLogin={handleLogin} />;
+
+  return <DashboardContent onLogout={handleLogout} />;
+}
+
+function DashboardContent({ onLogout }: { onLogout: () => void }) {
   const { session } = useActiveSession();
   const topPlayers = useTopPlayers();
   const retentionPlayers = useRetentionPlayers();
@@ -110,7 +226,7 @@ export default function BingoDashboard() {
             active={activeView === 'Configuración'} 
             onClick={() => { setActiveView('Configuración'); closeMobileMenu(); }} 
           />
-          <NavItem icon={<LogOut size={18}/>} label="Cerrar Sesión" onClick={() => showToast('Sesión cerrada')} />
+          <NavItem icon={<LogOut size={18}/>} label="Cerrar Sesión" onClick={onLogout} />
         </div>
       </aside>
 
