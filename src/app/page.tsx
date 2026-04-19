@@ -297,11 +297,24 @@ function ResumenView({ session, topPlayers, handleQuickSale, saleAmount, setSale
           </div>
           <div className="flex-1 w-full relative">
             <svg className="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 100">
-              <defs><linearGradient id="rg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#7c3aed" stopOpacity="0.4"/><stop offset="100%" stopColor="#7c3aed" stopOpacity="0"/></linearGradient></defs>
-              <path d="M0,100 L0,40 C20,30 40,75 50,65 C60,55 80,85 100,30 L100,100 Z" fill="url(#rg)"/>
-              <path d="M0,40 C20,30 40,75 50,65 C60,55 80,85 100,30" fill="none" stroke="#7c3aed" strokeWidth="0.5"/>
+              <defs>
+                <linearGradient id="glowG" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#7c3aed" stopOpacity="0.6"/>
+                  <stop offset="100%" stopColor="#7c3aed" stopOpacity="0"/>
+                </linearGradient>
+                <filter id="neon">
+                  <feGaussianBlur stdDeviation="1.5" result="blur"/>
+                  <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                </filter>
+              </defs>
+              <path d="M0,100 L0,40 C20,30 40,75 50,65 C60,55 80,85 100,30 L100,100 Z" fill="url(#glowG)"/>
+              <path d="M0,40 C20,30 40,75 50,65 C60,55 80,85 100,30" fill="none" stroke="#a78bfa" strokeWidth="1.5" filter="url(#neon)"/>
+              {/* Animated scanning line */}
+              <rect x="0" y="0" width="0.2" height="100" fill="rgba(255,255,255,0.2)" className="animate-pulse">
+                <animate attributeName="x" from="0" to="100" dur="4s" repeatCount="indefinite" />
+              </rect>
             </svg>
-            <div className="absolute bottom-0 left-0 right-0 flex justify-between text-[9px] text-slate-600 font-bold px-2 py-3">
+            <div className="absolute bottom-0 left-0 right-0 flex justify-between text-[8px] text-slate-700 font-black px-2 py-2 uppercase tracking-tighter">
               <span>Lun</span><span>Mar</span><span>Mie</span><span>Jue</span><span>Vie</span><span>Sab</span><span>Dom</span>
             </div>
           </div>
@@ -379,27 +392,69 @@ function GananciasView({ showToast }) {
         <ReportCard label="Utilidad Neta"      value="Bs. 32,781" color="violet"  trend="+15%"/>
       </div>
 
-      <div className="card-larry p-6 flex flex-col overflow-hidden">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="text-xs font-black uppercase tracking-widest text-slate-500">Comparativa de Rendimiento</h3>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2"><div className="w-6 h-0.5 bg-rose-500 rounded-full"></div><span className="text-[8px] text-slate-600 font-black uppercase">Premios</span></div>
-            <div className="flex items-center gap-2"><div className="w-6 border-t-2 border-dashed border-emerald-500"></div><span className="text-[8px] text-slate-600 font-black uppercase">Ventas</span></div>
+      <div className="card-larry p-8 flex flex-col overflow-hidden bg-gradient-to-b from-[#0d0d0d] to-black min-h-[500px]">
+        <div className="flex justify-between items-center mb-10">
+          <div>
+            <h3 className="text-sm font-black uppercase tracking-[0.2em] text-white">Análisis de Flujo Maestro</h3>
+            <p className="text-[10px] text-slate-600 font-bold mt-1">VOLUMEN DE VENTAS VS RETORNO DE PREMIOS</p>
+          </div>
+          <div className="flex items-center gap-6 bg-black/50 p-3 rounded-2xl border border-white/5">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-1 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
+              <span className="text-[10px] text-slate-400 font-black uppercase">Ventas</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-1 bg-gradient-to-r from-rose-500 to-orange-500 rounded-full shadow-[0_0_10px_rgba(244,63,94,0.5)]"></div>
+              <span className="text-[10px] text-slate-400 font-black uppercase">Premios</span>
+            </div>
           </div>
         </div>
-        <div className="w-full">
-          <svg viewBox={`0 0 ${W} ${H+20}`} className="w-full h-[280px]" xmlns="http://www.w3.org/2000/svg">
+        
+        <div className="flex-1 w-full relative">
+          <svg viewBox={`0 0 ${W} ${H+40}`} className="w-full h-full drop-shadow-2xl" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="gradV" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#10b981" stopOpacity="0.4"/>
+                <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.01"/>
+              </linearGradient>
+              <linearGradient id="gradP" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#f43f5e" stopOpacity="0.3"/>
+                <stop offset="100%" stopColor="#f97316" stopOpacity="0.01"/>
+              </linearGradient>
+              <filter id="glow">
+                <feGaussianBlur stdDeviation="2.5" result="blur"/>
+                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+            </defs>
+
+            {/* Grid Lines */}
             {yTicks.map(tick => { const y=yP(tick); return (
               <g key={tick}>
-                <line x1={PAD_L} y1={y} x2={W-PAD_R} y2={y} stroke="rgba(255,255,255,0.04)" strokeWidth="1"/>
-                <text x={PAD_L-8} y={y+3} textAnchor="end" fontSize="8" fill="#4b5563" fontFamily="Inter,sans-serif" fontWeight="700">{tick===0?'0':`${tick/1000}k`}</text>
+                <line x1={PAD_L} y1={y} x2={W-PAD_R} y2={y} stroke="white" strokeOpacity="0.03" strokeWidth="1"/>
+                <text x={PAD_L-12} y={y+3} textAnchor="end" fontSize="10" fill="#475569" fontFamily="Inter" fontWeight="800">{tick===0?'0':`${tick/1000}k`}</text>
               </g>
             );})}
-            <path d={vPath} fill="none" stroke="#10b981" strokeWidth="1.5" strokeDasharray="4 2"/>
-            <path d={pPath} fill="none" stroke="#f43f5e" strokeWidth="2"/>
-            {ventas.map((v,i) => <circle key={`v${i}`} cx={xP(i)} cy={yP(v)} r="3" fill="#10b981"/>)}
-            {premios.map((v,i) => <circle key={`p${i}`} cx={xP(i)} cy={yP(v)} r="3" fill="#f43f5e"/>)}
-            {labels.map((lbl,i) => <text key={lbl} x={xP(i)} y={PAD_T+cH+15} textAnchor="middle" fontSize="8" fill="#374151" fontFamily="Inter,sans-serif" fontWeight="800">{lbl}</text>)}
+
+            <path d={`${path(ventas)} L${xP(6)},${yP(0)} L${xP(0)},${yP(0)} Z`} fill="url(#gradV)" />
+            <path d={`${path(premios)} L${xP(6)},${yP(0)} L${xP(0)},${yP(0)} Z`} fill="url(#gradP)" />
+
+            <path d={path(ventas)} fill="none" stroke="url(#gradV)" strokeWidth="3" filter="url(#glow)" strokeLinecap="round" className="animate-dash" />
+            <path d={path(premios)} fill="none" stroke="url(#gradP)" strokeWidth="3" filter="url(#glow)" strokeLinecap="round" />
+
+            {ventas.map((v,i) => (
+              <g key={`v${i}`} className="cursor-pointer group">
+                <circle cx={xP(i)} cy={yP(v)} r="6" fill="#0d0d0d" stroke="#10b981" strokeWidth="2" className="group-hover:r-8 transition-all" />
+                <circle cx={xP(i)} cy={yP(v)} r="2" fill="#10b981" />
+              </g>
+            ))}
+            {premios.map((v,i) => (
+              <g key={`p${i}`} className="cursor-pointer group">
+                <circle cx={xP(i)} cy={yP(v)} r="6" fill="#0d0d0d" stroke="#f43f5e" strokeWidth="2" />
+                <circle cx={xP(i)} cy={yP(v)} r="2" fill="#f43f5e" />
+              </g>
+            ))}
+
+            {labels.map((lbl,i) => <text key={lbl} x={xP(i)} y={PAD_T+cH+25} textAnchor="middle" fontSize="10" fill="#64748b" fontWeight="900" className="uppercase tracking-tighter">{lbl}</text>)}
           </svg>
         </div>
       </div>
