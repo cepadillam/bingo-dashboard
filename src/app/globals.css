@@ -1,0 +1,72 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --bg-main: #000000;
+  --bg-card: #0e0e0e;
+  --bg-sidebar: #000000;
+  --primary-purple: #7c3aed;
+  --text-dim: #9ca3af;
+}
+
+body {
+  background-color: var(--bg-main);
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.sidebar-item-active {
+  background: linear-gradient(90deg, rgba(124, 58, 237, 0.8) 0%, rgba(124, 58, 237, 0.4) 100%);
+  border-right: 3px solid var(--primary-purple);
+}
+
+.card-larry {
+  background-color: var(--bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  border-radius: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.card-larry:hover {
+  border-color: rgba(124, 58, 237, 0.2);
+  background-color: #121212;
+}
+
+.text-gradient-purple {
+  background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.chart-gradient-fill {
+  fill: url(#chartGradient);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #262626;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #404040;
+}
+
+/* Animations from Larry Design */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-larry {
+  animation: fadeIn 0.4s ease-out forwards;
+}
