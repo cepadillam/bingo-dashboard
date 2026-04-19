@@ -31,6 +31,7 @@ export default function BingoDashboard() {
   const [salePrice, setSalePrice] = useState<number>(session?.precio_carton || 10);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const showToast = (msg: string) => setToast(msg);
 
@@ -47,12 +48,38 @@ export default function BingoDashboard() {
 
   const viewProps = { session, topPlayers, retentionPlayers, showToast };
 
+  const closeMobileMenu = () => setIsMobileMenuOpen(false);
+
   return (
     <div className="flex min-h-screen bg-black text-white selection:bg-violet-500/30">
       {toast && <Toast msg={toast} onDone={() => setToast(null)} />}
 
+      {/* Mobile Header */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-black/80 backdrop-blur-xl border-b border-white/5 z-30 flex items-center justify-between px-6">
+        <h2 className="text-xl font-bold text-white flex items-center gap-2 tracking-tighter">
+          BINGO <span className="text-violet-500">Larry</span>
+        </h2>
+        <button 
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className="p-2 text-slate-400 hover:text-white transition-colors"
+        >
+          {isMobileMenuOpen ? <X size={24}/> : <Monitor size={24}/>} 
+        </button>
+      </div>
+
+      {/* Sidebar Overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-opacity"
+          onClick={closeMobileMenu}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-64 border-r border-white/5 flex flex-col fixed inset-y-0 bg-black z-20">
+      <aside className={`
+        w-64 border-r border-white/5 flex flex-col fixed inset-y-0 bg-black z-50 transition-transform duration-300 lg:translate-x-0
+        ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
+      `}>
         <div className="p-8">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">BINGO <span className="text-violet-500">Larry</span></h2>
           <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Admin Dashboard</p>
@@ -66,17 +93,29 @@ export default function BingoDashboard() {
             { id: 'Finanzas',       icon: <DollarSign size={18}/> },
             { id: 'Alertas',        icon: <Bell size={18}/>, badge: retentionPlayers.length || undefined },
           ].map(item => (
-            <NavItem key={item.id} icon={item.icon} label={item.id} active={activeView === item.id} badge={item.badge} onClick={() => setActiveView(item.id)} />
+            <NavItem 
+              key={item.id} 
+              icon={item.icon} 
+              label={item.id} 
+              active={activeView === item.id} 
+              badge={item.badge} 
+              onClick={() => { setActiveView(item.id); closeMobileMenu(); }} 
+            />
           ))}
         </nav>
         <div className="p-4 border-t border-white/5 space-y-1">
-          <NavItem icon={<Settings size={18}/>} label="Configuración" active={activeView === 'Configuración'} onClick={() => setActiveView('Configuración')} />
+          <NavItem 
+            icon={<Settings size={18}/>} 
+            label="Configuración" 
+            active={activeView === 'Configuración'} 
+            onClick={() => { setActiveView('Configuración'); closeMobileMenu(); }} 
+          />
           <NavItem icon={<LogOut size={18}/>} label="Cerrar Sesión" onClick={() => showToast('Sesión cerrada')} />
         </div>
       </aside>
 
-      {/* Main */}
-      <main className="flex-1 ml-64 p-10 min-h-screen overflow-x-hidden">
+      {/* Main Content */}
+      <main className="flex-1 lg:ml-64 p-6 lg:p-10 min-h-screen overflow-x-hidden pt-24 lg:pt-10">
         {activeView === 'Resumen'       && <ResumenView {...viewProps} handleQuickSale={handleQuickSale} saleAmount={saleAmount} setSaleAmount={setSaleAmount} isSubmitting={isSubmitting} />}
         {activeView === 'Ganancias'     && <GananciasView {...viewProps} />}
         {activeView === 'Ganadores'     && <GanadoresView {...viewProps} />}
