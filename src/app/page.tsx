@@ -111,9 +111,7 @@ function LoginPage({ onLogin }: { onLogin: (user: any) => void }) {
           </button>
         </form>
 
-        <p className="mt-10 text-center text-[12px] font-black text-slate-400 cursor-pointer hover:text-white transition-colors uppercase tracking-[0.2em] opacity-40">
-          ¿Olvidaste tu contraseña?
-        </p>
+
       </div>
 
       <style jsx>{`
