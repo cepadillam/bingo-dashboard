@@ -1748,69 +1748,112 @@ function GestionUsuariosView({ showToast }: { showToast: (m: string) => void }) 
   };
 
   return (
-    <div className="space-y-4 md:space-y-10 animate-larry">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="space-y-6 md:space-y-10 animate-larry">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
         <div>
-          <h1 className="text-xl md:text-5xl font-black font-heading text-white">Usuarios</h1>
-          <p className="text-[9px] md:text-base text-slate-500 font-bold uppercase tracking-widest mt-1">Accesos y permisos</p>
+          <h1 className="text-3xl md:text-5xl font-black font-heading bg-gradient-to-r from-white to-slate-500 bg-clip-text text-transparent">Usuarios</h1>
+          <p className="text-[10px] md:text-base text-slate-500 font-bold uppercase tracking-[0.3em] mt-1">Control de Accesos</p>
         </div>
         <button 
           onClick={() => setIsModalOpen(true)}
-          className="w-full sm:w-auto bg-violet-600 hover:bg-violet-700 text-white px-4 md:px-6 py-2.5 md:py-3 rounded-xl md:rounded-2xl flex items-center justify-center gap-2 font-black text-[9px] md:text-sm transition-all active:scale-95 shadow-lg shadow-violet-500/20"
+          className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white rounded-2xl flex items-center justify-center gap-3 font-black text-xs uppercase tracking-widest transition-all active:scale-95 shadow-xl shadow-violet-600/20"
         >
-          <UserPlus size={16}/> Nuevo Acceso
+          <UserPlus size={18}/> Nuevo Acceso
         </button>
       </div>
 
-      <div className="card-larry overflow-x-auto scrollbar-hide">
-        <table className="w-full text-left min-w-[600px] md:min-w-0">
-          <thead className="bg-[#0d0d0d] text-[9px] md:text-[12px] uppercase tracking-widest text-slate-500 font-black border-b border-white/5">
+      {/* Desktop Table */}
+      <div className="hidden md:block card-larry overflow-hidden">
+        <table className="w-full text-left">
+          <thead className="bg-white/[0.02] text-[12px] uppercase tracking-widest text-slate-500 font-black border-b border-white/5">
             <tr>
-              <th className="px-4 md:px-6 py-3 md:py-4">Usuario</th>
-              <th className="px-4 md:px-6 py-3 md:py-4">Rol</th>
-              <th className="px-4 md:px-6 py-3 md:py-4">Estado</th>
-              <th className="px-4 md:px-6 py-3 md:py-4">Conexión</th>
-              <th className="px-4 md:px-6 py-3 md:py-4 text-right">Acciones</th>
+              <th className="px-8 py-5">Usuario</th>
+              <th className="px-8 py-5">Rol</th>
+              <th className="px-8 py-5">Estado</th>
+              <th className="px-8 py-5">Conexión</th>
+              <th className="px-8 py-5 text-right">Acciones</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/[0.03]">
             {users.map(u => (
               <tr key={u.id} className="group hover:bg-white/[0.01] transition-colors">
-                <td className="px-4 md:px-6 py-2 md:py-3">
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-violet-600/10 flex items-center justify-center text-violet-500 text-[13px]">
-                      <User size={14}/>
+                <td className="px-8 py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-violet-600/10 flex items-center justify-center text-violet-500">
+                      <User size={18}/>
                     </div>
-                    <span className="font-bold text-xs text-white">{u.usuario}</span>
+                    <span className="font-bold text-sm text-white">{u.usuario}</span>
                   </div>
                 </td>
-                <td className="px-6 py-3">
-                  <span className={`px-2 py-0.5 rounded-md text-[11px] font-black uppercase tracking-tighter ${u.rol === 'admin' ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' : 'bg-slate-500/10 text-slate-500 border border-white/5'}`}>
+                <td className="px-8 py-4">
+                  <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${u.rol === 'admin' ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' : 'bg-slate-500/10 text-slate-500 border border-white/5'}`}>
                     {u.rol}
                   </span>
                 </td>
-                <td className="px-6 py-3">
-                  <span className={`text-[12px] font-bold uppercase tracking-tighter ${u.status === 'aprobado' ? 'text-emerald-500' : u.status === 'rechazado' ? 'text-rose-500' : 'text-amber-500'}`}>
+                <td className="px-8 py-4">
+                  <span className={`text-[12px] font-black uppercase tracking-widest ${u.status === 'aprobado' ? 'text-emerald-500' : u.status === 'rechazado' ? 'text-rose-500' : 'text-amber-500'}`}>
                     {u.status}
                   </span>
                 </td>
-                <td className="px-6 py-3 text-[9px]">
-                  {u.is_online ? <span className="flex items-center gap-1.5 text-emerald-400 font-bold">Online</span> : <span className="text-slate-700 font-bold uppercase">Offline</span>}
+                <td className="px-8 py-4">
+                  {u.is_online ? <span className="flex items-center gap-2 text-emerald-400 font-bold text-[10px] uppercase tracking-widest"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"/> Online</span> : <span className="text-slate-700 font-bold uppercase text-[10px] tracking-widest">Offline</span>}
                 </td>
-                <td className="px-6 py-3 text-right space-x-1">
+                <td className="px-8 py-4 text-right space-x-2">
                   {u.status === 'pendiente' && (
                     <>
-                      <button onClick={() => handleUpdateStatus(u.id, 'aprobado')} className="p-1.5 text-emerald-500 hover:bg-emerald-500/10 rounded-md transition-all"><CheckCircle2 size={14}/></button>
-                      <button onClick={() => handleUpdateStatus(u.id, 'rechazado')} className="p-1.5 text-rose-500 hover:bg-rose-500/10 rounded-md transition-all"><Ban size={14}/></button>
+                      <button onClick={() => handleUpdateStatus(u.id, 'aprobado')} className="p-2 text-emerald-500 hover:bg-emerald-500/10 rounded-xl transition-all"><CheckCircle2 size={16}/></button>
+                      <button onClick={() => handleUpdateStatus(u.id, 'rechazado')} className="p-2 text-rose-500 hover:bg-rose-500/10 rounded-xl transition-all"><Ban size={16}/></button>
                     </>
                   )}
-                  {u.is_online && <button onClick={() => handleKick(u.id)} className="p-1.5 text-amber-500 hover:bg-amber-500/10 rounded-md transition-all" title="Expulsar"><Power size={14}/></button>}
-                  <button onClick={() => deleteSystemUser(u.id)} className="p-1.5 text-slate-700 hover:text-rose-500 transition-all"><LogOut size={14}/></button>
+                  {u.is_online && <button onClick={() => handleKick(u.id)} className="p-2 text-amber-500 hover:bg-amber-500/10 rounded-xl transition-all"><Power size={16}/></button>}
+                  <button onClick={() => deleteSystemUser(u.id)} className="p-2 text-slate-500 hover:text-rose-500 transition-all"><LogOut size={16}/></button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile Cards */}
+      <div className="grid grid-cols-1 gap-4 md:hidden">
+        {users.map(u => (
+          <div key={u.id} className="card-larry p-5 space-y-4 relative overflow-hidden">
+            <div className="flex justify-between items-start">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-violet-600/10 flex items-center justify-center text-violet-500 border border-violet-500/20">
+                  <User size={20}/>
+                </div>
+                <div>
+                  <h3 className="font-black text-white uppercase tracking-tight">{u.usuario}</h3>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-md ${u.rol === 'admin' ? 'bg-amber-500/10 text-amber-500' : 'bg-slate-500/10 text-slate-500'}`}>{u.rol}</span>
+                    {u.is_online && <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest flex items-center gap-1"><div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse"/> Online</span>}
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-col items-end gap-1">
+                 <span className={`text-[10px] font-black uppercase tracking-widest ${u.status === 'aprobado' ? 'text-emerald-500' : u.status === 'rechazado' ? 'text-rose-500' : 'text-amber-500'}`}>
+                    {u.status}
+                 </span>
+              </div>
+            </div>
+            
+            <div className="pt-4 border-t border-white/5 flex justify-between items-center">
+              <div className="flex gap-2">
+                {u.status === 'pendiente' && (
+                  <>
+                    <button onClick={() => handleUpdateStatus(u.id, 'aprobado')} className="px-4 py-2 bg-emerald-500/10 text-emerald-500 rounded-xl font-black text-[10px] uppercase tracking-widest border border-emerald-500/20">Aprobar</button>
+                    <button onClick={() => handleUpdateStatus(u.id, 'rechazado')} className="px-4 py-2 bg-rose-500/10 text-rose-500 rounded-xl font-black text-[10px] uppercase tracking-widest border border-rose-500/20">Rechazar</button>
+                  </>
+                )}
+              </div>
+              <div className="flex gap-1">
+                {u.is_online && <button onClick={() => handleKick(u.id)} className="p-3 text-amber-500 bg-amber-500/5 rounded-xl border border-amber-500/10"><Power size={18}/></button>}
+                <button onClick={() => deleteSystemUser(u.id)} className="p-3 text-slate-500 bg-white/5 rounded-xl border border-white/10"><LogOut size={18}/></button>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* MODAL CREAR USUARIO */}
