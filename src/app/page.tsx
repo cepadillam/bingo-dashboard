@@ -233,14 +233,14 @@ function DashboardContent({ user, onLogout }: { user: any; onLogout: () => void 
       {/* Sidebar Mobile Overlay */}
       {isMobileMenuOpen && (
         <div 
-          className="lg:hidden fixed inset-0 bg-black/40 backdrop-blur-[2px] z-[60] transition-opacity"
+          className="lg:hidden fixed inset-0 bg-black/80 z-[80] transition-opacity duration-300"
           onClick={closeMobileMenu}
         />
       )}
 
       {/* Sidebar */}
       <aside className={`
-        w-60 border-r border-white/5 flex flex-col fixed inset-y-0 bg-black z-[70] transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] lg:translate-x-0
+        w-64 border-r border-white/5 flex flex-col fixed inset-y-0 bg-[#080808] z-[100] transition-transform duration-300 ease-out lg:translate-x-0
         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <div className="p-8">
@@ -251,65 +251,72 @@ function DashboardContent({ user, onLogout }: { user: any; onLogout: () => void 
         </div>
         <nav className="flex-1 px-4 space-y-1 overflow-y-auto custom-scrollbar">
           {[
-            { id: 'Resumen',        icon: <LayoutDashboard size={16}/> },
-            { id: 'Sorteo',         icon: <DollarSign size={16}/> },
-            { id: 'Ganancias',      icon: <TrendingUp size={16}/> },
-            { id: 'Gastos',         icon: <CreditCard size={16}/> },
-            { id: 'Ganadores',      icon: <Trophy size={16}/> },
-            { id: 'Jugadores',      icon: <Users size={16}/> },
-            { id: 'Alertas',        icon: <Bell size={16}/>, badge: alertas.filter(a => a.status === 'CRITICO').length || undefined },
-            ...(user?.rol === 'admin' ? [{ id: 'Usuarios', icon: <Shield size={16}/> }] : []),
+            { id: 'Resumen',        icon: <LayoutDashboard size={18}/> },
+            { id: 'Sorteo',         icon: <DollarSign size={18}/> },
+            { id: 'Ganancias',      icon: <TrendingUp size={18}/> },
+            { id: 'Gastos',         icon: <CreditCard size={18}/> },
+            { id: 'Ganadores',      icon: <Trophy size={18}/> },
+            { id: 'Jugadores',      icon: <Users size={18}/> },
+            { id: 'Alertas',        icon: <Bell size={18}/>, badge: alertas.filter(a => a.status === 'CRITICO').length || undefined },
+            ...(user?.rol === 'admin' ? [{ id: 'Usuarios', icon: <Shield size={18}/> }] : []),
           ].map(item => (
-            <NavItem 
-              key={item.id} 
-              icon={item.icon} 
-              label={item.id} 
-              active={activeView === item.id} 
-              badge={item.badge} 
-              onClick={() => { setActiveView(item.id); closeMobileMenu(); }} 
-            />
+            <button 
+              key={item.id}
+              onClick={() => { setActiveView(item.id); closeMobileMenu(); }}
+              className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all duration-200 ${activeView === item.id ? 'bg-violet-600 text-white shadow-lg shadow-violet-600/20' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+            >
+              <div className="flex items-center gap-4">
+                {item.icon}
+                <span className="text-xs font-black uppercase tracking-widest">{item.id}</span>
+              </div>
+              {item.badge && <span className="w-5 h-5 bg-rose-600 text-[10px] font-black rounded-full flex items-center justify-center animate-pulse">{item.badge}</span>}
+            </button>
           ))}
         </nav>
-        <div className="p-4 border-t border-white/5 space-y-0.5">
-          <NavItem 
-            icon={<Settings size={16}/>} 
-            label="Configuración" 
-            active={activeView === 'Configuración'} 
-            onClick={() => { setActiveView('Configuración'); closeMobileMenu(); }} 
-          />
-          <NavItem icon={<LogOut size={16}/>} label="Cerrar Sesión" onClick={onLogout} />
+        <div className="p-4 border-t border-white/5 space-y-1">
+          <button 
+            onClick={() => { setActiveView('Configuración'); closeMobileMenu(); }}
+            className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all ${activeView === 'Configuración' ? 'bg-white/10 text-white' : 'text-slate-400 hover:text-white'}`}
+          >
+            <Settings size={18}/>
+            <span className="text-xs font-black uppercase tracking-widest">Ajustes</span>
+          </button>
+          <button onClick={onLogout} className="w-full flex items-center gap-4 p-4 text-slate-500 hover:text-rose-400 transition-all">
+            <LogOut size={18}/>
+            <span className="text-xs font-black uppercase tracking-widest">Salir</span>
+          </button>
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 lg:ml-60 transition-all duration-500 min-h-screen">
-        <header className="sticky top-0 z-50 bg-black/90 backdrop-blur-2xl border-b border-white/5 px-4 lg:px-12 py-5 flex justify-between items-center">
+      <main className="flex-1 lg:ml-64 transition-all duration-500 min-h-screen">
+        <header className="sticky top-0 z-50 bg-black/90 backdrop-blur-2xl border-b border-white/5 px-6 py-5 flex justify-between items-center">
           <div className="flex items-center gap-4">
-            <button onClick={() => setIsMobileMenuOpen(true)} className="lg:hidden p-2.5 text-white bg-violet-600 rounded-xl shadow-lg shadow-violet-500/20">
-              <Menu size={20}/>
+            <button onClick={() => setIsMobileMenuOpen(true)} className="lg:hidden p-3 text-white bg-violet-600 rounded-2xl shadow-xl shadow-violet-600/30 active:scale-95 transition-transform">
+              <Menu size={24}/>
             </button>
             <div className="flex flex-col">
               <h2 className="text-[10px] font-black text-violet-500 uppercase tracking-[0.3em] leading-none mb-1">
                 {activeView}
               </h2>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-black text-white lg:hidden">BINGO <span className="text-violet-500">PRO</span></span>
-                <p className="text-[10px] text-slate-600 font-bold uppercase hidden lg:block tracking-widest">Administración / Central</p>
+                <span className="text-sm font-black text-white lg:hidden">BINGO <span className="text-violet-500">PRO</span></span>
+                <p className="text-[10px] text-slate-500 font-bold uppercase hidden lg:block tracking-[0.2em]">Administración Central</p>
               </div>
             </div>
           </div>
           <div className="flex items-center gap-4">
              <div className="hidden sm:flex flex-col text-right">
-                <span className="text-[11px] font-black text-white leading-none">{user?.usuario}</span>
-                <span className="text-[9px] font-bold text-violet-500 uppercase mt-1">{user?.rol}</span>
+                <span className="text-[11px] font-black text-white leading-none uppercase tracking-tight">{user?.usuario}</span>
+                <span className="text-[9px] font-black text-violet-500 uppercase mt-1 tracking-widest">{user?.rol}</span>
              </div>
-             <div className="w-8 h-8 rounded-lg bg-violet-600/20 border border-white/10 flex items-center justify-center font-black text-[10px]">
+             <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 border border-white/10 flex items-center justify-center font-black text-sm text-violet-400">
                 {user?.usuario?.charAt(0).toUpperCase()}
              </div>
           </div>
         </header>
 
-        <div className="max-w-[1500px] mx-auto p-4 md:p-8 space-y-6 overflow-hidden">
+        <div className="max-w-[1600px] mx-auto p-4 md:p-10 space-y-8 overflow-hidden">
           {activeView === 'Resumen'       && <ResumenView {...viewProps} user={user} handleQuickSale={handleQuickSale} saleAmount={saleAmount} setSaleAmount={setSaleAmount} isSubmitting={isSubmitting} />}
           {activeView === 'Sorteo'        && <FinanzasView {...viewProps} />}
           {activeView === 'Ganancias'     && <GananciasView {...viewProps} />}
@@ -1850,7 +1857,7 @@ const GlobalStyles = () => (
 
     body {
       font-family: 'Inter', sans-serif;
-      background: #020202;
+      background: #000000;
       -webkit-font-smoothing: antialiased;
       overflow-x: hidden;
     }
@@ -1858,11 +1865,11 @@ const GlobalStyles = () => (
     .font-heading { font-family: 'Outfit', sans-serif; }
 
     .card-larry {
-      @apply bg-white/[0.03] border border-white/[0.06] rounded-[2rem] backdrop-blur-xl transition-all duration-500;
-    }
-    .card-larry:hover {
-      @apply border-white/20 bg-white/[0.05] shadow-2xl shadow-black/60;
-      transform: translateY(-2px);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 2rem;
+      backdrop-filter: blur(16px);
+      transition: all 0.5s ease;
     }
 
     .animate-larry {
@@ -1878,25 +1885,6 @@ const GlobalStyles = () => (
     .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
     .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(139,92,246,0.5); }
-
-    /* Mobile Adjustments */
-    @media (max-width: 640px) {
-      .card-larry { @apply rounded-[1.5rem] p-5; }
-      .p-8 { @apply p-5 !important; }
-      .p-12 { @apply p-6 !important; }
-    }
-
-    input, select, button {
-      @apply transition-all duration-300;
-    }
-    
-    .recharts-responsive-container {
-      @apply transition-opacity duration-700;
-    }
-
-    .glass-header {
-      @apply bg-black/80 backdrop-blur-xl border-b border-white/5;
-    }
   `}</style>
 );
 
