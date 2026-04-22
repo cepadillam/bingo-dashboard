@@ -1036,14 +1036,14 @@ function JugadoresView({ topPlayers, showToast }) {
 
   return (
     <div className="space-y-6 animate-larry">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
         <div>
-          <h1 className="text-3xl font-black font-heading tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">Inteligencia de Jugadores</h1>
-          <p className="text-slate-500 text-xs font-medium uppercase tracking-[0.2em] mt-1">Gestión Centralizada y Sincronización</p>
+          <h1 className="text-2xl md:text-4xl font-black font-heading bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">Inteligencia de Jugadores</h1>
+          <p className="text-slate-500 text-[10px] md:text-xs font-bold uppercase tracking-widest mt-1">Gestión centralizada y sincronización</p>
         </div>
-        <div className="flex gap-2 w-full md:w-auto">
+        <div className="flex gap-3 w-full sm:w-auto">
           <button onClick={handleDeleteAll} className="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-500 rounded-2xl hover:bg-rose-500 hover:text-white transition-all" title="Borrar Todo"><Trash2 size={18}/></button>
-          <label className={`flex-1 md:flex-none cursor-pointer flex items-center justify-center gap-2 px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all border ${importing ? 'bg-white/5 border-white/10 text-slate-500' : 'bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-500/50 shadow-lg shadow-emerald-500/20'}`}>
+          <label className={`flex-1 sm:flex-none cursor-pointer flex items-center justify-center gap-2 px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all border ${importing ? 'bg-white/5 border-white/10 text-slate-500' : 'bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-500/50 shadow-lg shadow-emerald-500/20'}`}>
             {importing ? 'Sincronizando...' : <><Download size={14}/> Importar Excel</>}
             <input type="file" accept=".xlsx, .xls, .csv" className="hidden" onChange={handleFileUpload} disabled={importing} />
           </label>
@@ -1410,13 +1410,13 @@ function AlertasView({ alertas, setAlertas, showToast }) {
 
   return (
     <div className="space-y-6 animate-larry">
-      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center bg-white/5 p-8 rounded-[2.5rem] border border-white/5 gap-8">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-white/5 p-8 rounded-[2.5rem] border border-white/5">
         <div>
-          <h1 className="text-3xl font-black font-heading text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-amber-400">Control de Alertas</h1>
-          <p className="text-slate-500 text-xs mt-1.5 uppercase tracking-widest font-black opacity-60">SISTEMA DE SEGURIDAD Y DEUDAS</p>
+          <h1 className="text-2xl md:text-4xl font-black font-heading bg-gradient-to-r from-rose-400 to-orange-400 bg-clip-text text-transparent">Control de Alertas</h1>
+          <p className="text-slate-500 text-[10px] md:text-xs font-bold uppercase tracking-widest mt-1">Sistema de seguridad y deudas</p>
           <button onClick={openAdd} className="mt-6 flex items-center gap-2 px-6 py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-violet-500/20"><Plus size={14}/> Registrar Nueva Alerta</button>
         </div>
-        <div className="flex gap-8 w-full xl:w-auto xl:pr-6 overflow-x-auto pb-2 xl:pb-0">
+        <div className="flex gap-8 w-full lg:w-auto lg:pr-6 overflow-x-auto pb-2 lg:pb-0">
           <div className="flex items-center gap-4 min-w-max">
             <div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500 border border-amber-500/20"><Clock size={20}/></div>
             <div><p className="text-2xl font-black leading-none">{stats.pendientes}</p><p className="text-[10px] font-black text-slate-500 uppercase mt-1">Pendientes</p></div>
@@ -1540,7 +1540,7 @@ function ConfiguracionView({ showToast }) {
   return (
     <div className="space-y-6 animate-larry max-w-[1000px]">
       <div className="flex justify-between items-center">
-        <div><h1 className="text-3xl font-extrabold font-heading">Ajustes</h1><p className="text-slate-500 text-xs">Configuración del sistema</p></div>
+        <div><h1 className="text-2xl md:text-3xl font-extrabold font-heading">Ajustes</h1><p className="text-slate-500 text-[10px] md:text-xs">Configuración del sistema</p></div>
         <button onClick={handleSave} className={`px-5 py-2.5 rounded-xl flex items-center gap-2 font-bold text-xs active:scale-95 transition-all ${saved?'bg-emerald-600 shadow-lg shadow-emerald-500/20':'bg-violet-600 shadow-lg shadow-violet-500/20'}`}>
           {saved ? <Check size={14}/> : <Lock size={14}/>} {saved ? 'Guardado' : 'Guardar Cambios'}
         </button>
@@ -1671,22 +1671,22 @@ function ReportCard({ label, value, color, trend }) {
 
 function AlertSummaryCard({ icon, value, label, color, border=false }) {
   const themes = { amber:'border-amber-500/30 bg-amber-500/5 text-amber-500', rose:'border-rose-500/30 bg-rose-500/5 text-rose-500', slate:'bg-white/5 text-white/50 border-white/10' };
-  return <div className={`p-8 rounded-[2rem] flex items-center gap-6 border ${border?'border-2':''} ${themes[color]}`}><div className="p-5 bg-black/50 rounded-2xl border border-white/5">{icon}</div><div><p className="text-4xl font-black text-white">{value}</p><p className="text-[13px] font-black uppercase opacity-60 mt-1 tracking-widest">{label}</p></div></div>;
+  return <div className={`p-4 md:p-8 rounded-[1.5rem] md:rounded-[2rem] flex items-center gap-4 md:gap-6 border ${border?'border-2':''} ${themes[color]}`}><div className="p-3 md:p-5 bg-black/50 rounded-2xl border border-white/5">{icon}</div><div><p className="text-2xl md:text-4xl font-black text-white">{value}</p><p className="text-[10px] md:text-[13px] font-black uppercase opacity-60 mt-1 tracking-widest">{label}</p></div></div>;
 }
 
 function AlertItem({ icon, name, detail, status, color, isBanned=false, isPaid=false }) {
   const cls = { amber:'text-amber-500 bg-amber-500/10 border-amber-500/20', rose:'text-rose-500 bg-rose-500/10 border-rose-500/20', slate:'text-slate-400 bg-white/5 border-white/10', emerald:'text-emerald-500 bg-emerald-500/10 border-emerald-500/20' };
   return (
-    <div className="px-8 py-4 flex items-center justify-between hover:bg-white/[0.02] transition-all cursor-default group">
-      <div className="flex items-center gap-5">
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${isBanned?'bg-rose-500/10 text-rose-500':isPaid?'bg-emerald-500/10 text-emerald-500':'bg-white/5 text-slate-500 group-hover:text-white'}`}>{icon}</div>
+    <div className="px-4 md:px-8 py-4 flex items-center justify-between hover:bg-white/[0.02] transition-all cursor-default group">
+      <div className="flex items-center gap-3 md:gap-5">
+        <div className={`w-8 h-8 md:w-10 md:h-10 rounded-xl flex items-center justify-center transition-all ${isBanned?'bg-rose-500/10 text-rose-500':isPaid?'bg-emerald-500/10 text-emerald-500':'bg-white/5 text-slate-500 group-hover:text-white'}`}>{icon}</div>
         <div>
-          <h4 className="text-sm font-bold text-white leading-none">{name}</h4>
-          <p className="text-[13px] font-medium mt-1 text-slate-400 uppercase tracking-wider">{detail}</p>
+          <h4 className="text-xs md:text-sm font-bold text-white leading-none">{name}</h4>
+          <p className="text-[10px] md:text-[13px] font-medium mt-1 text-slate-400 uppercase tracking-wider truncate max-w-[150px] md:max-w-none">{detail}</p>
         </div>
       </div>
-      <div className="flex items-center gap-4">
-        <span className={`px-3 py-1 rounded-lg text-[12px] font-black uppercase tracking-widest border ${cls[color]}`}>{status}</span>
+      <div className="flex items-center gap-2 md:gap-4">
+        <span className={`px-2 py-0.5 md:px-3 md:py-1 rounded-lg text-[9px] md:text-[12px] font-black uppercase tracking-widest border ${cls[color]}`}>{status}</span>
         <button className="p-2 text-slate-500 hover:text-white transition-colors"><ChevronRight size={14}/></button>
       </div>
     </div>
@@ -1718,10 +1718,6 @@ function ExpenseLegend({ color, label }) {
   return <div className="flex items-center gap-3"><div className="w-3 h-3 rounded-sm" style={{backgroundColor:color}}></div><span className="text-[12px] font-black text-slate-400 uppercase tracking-widest">{label}</span></div>;
 }
 
-function CreditCardIcon(p: any) {
-  return <svg {...p} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>;
-}
-
 /* ─── GESTION DE USUARIOS ────────────────────────────── */
 function GestionUsuariosView({ showToast }: { showToast: (m: string) => void }) {
   const users = useSystemUsers();
@@ -1749,15 +1745,15 @@ function GestionUsuariosView({ showToast }: { showToast: (m: string) => void }) 
   };
 
   return (
-    <div className="space-y-10 animate-larry">
-      <div className="flex justify-between items-end">
+    <div className="space-y-6 md:space-y-10 animate-larry">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-5xl font-extrabold tracking-tight font-heading">Usuarios</h1>
-          <p className="text-slate-500 mt-2 font-medium">Gestiona accesos, roles y permisos</p>
+          <h1 className="text-2xl md:text-5xl font-extrabold tracking-tight font-heading">Usuarios</h1>
+          <p className="text-slate-500 text-[10px] md:text-base mt-1 md:mt-2 font-medium">Gestiona accesos, roles y permisos</p>
         </div>
         <button 
           onClick={() => setIsModalOpen(true)}
-          className="bg-violet-600 hover:bg-violet-700 text-white px-6 py-3 rounded-2xl flex items-center gap-2 font-bold transition-all active:scale-95 shadow-lg shadow-violet-500/20"
+          className="w-full sm:w-auto bg-violet-600 hover:bg-violet-700 text-white px-6 py-3 rounded-2xl flex items-center justify-center gap-2 font-bold transition-all active:scale-95 shadow-lg shadow-violet-500/20"
         >
           <UserPlus size={18}/> Crear Acceso
         </button>
