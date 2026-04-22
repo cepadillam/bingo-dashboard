@@ -10,7 +10,7 @@ import {
   Bell, Settings, LogOut, ChevronRight, Plus, MessageCircle, Search,
   Calendar, Download, Filter, AlertCircle, Clock, Ban, CheckCircle2,
   Lock, Volume2, Monitor, X, Check, ChevronLeft, ChevronDown, User,
-  Eye, EyeOff, Shield, UserPlus, Power, Trash2, Activity, CreditCard
+  Eye, EyeOff, Shield, UserPlus, Power, Trash2, Activity, CreditCard, Menu
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { 
@@ -244,8 +244,10 @@ function DashboardContent({ user, onLogout }: { user: any; onLogout: () => void 
         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <div className="p-8">
-          <h2 className="text-xl font-black text-white flex items-center gap-2 font-heading tracking-tighter leading-tight uppercase">Sistema <span className="text-violet-500">Administrativo</span></h2>
-          <p className="text-[11px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-1 opacity-50">BINGO DASHBOARD</p>
+          <h2 className="text-lg font-black text-white flex flex-col leading-tight uppercase font-heading tracking-tight">
+            Sistema <span className="text-violet-500">Administrativo</span>
+            <span className="text-[10px] text-slate-500 font-bold tracking-[0.3em] mt-1">BINGO DASHBOARD</span>
+          </h2>
         </div>
         <nav className="flex-1 px-4 space-y-1 overflow-y-auto custom-scrollbar">
           {[
@@ -281,14 +283,19 @@ function DashboardContent({ user, onLogout }: { user: any; onLogout: () => void 
 
       {/* Main Content */}
       <main className="flex-1 lg:ml-60 transition-all duration-500 min-h-screen">
-        <header className="sticky top-0 z-50 bg-[#050505]/80 backdrop-blur-xl border-b border-white/5 px-4 lg:px-8 py-4 flex justify-between items-center">
+        <header className="sticky top-0 z-50 bg-black/90 backdrop-blur-2xl border-b border-white/5 px-4 lg:px-12 py-5 flex justify-between items-center">
           <div className="flex items-center gap-4">
-            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="lg:hidden p-2 text-slate-400 hover:text-white bg-white/5 rounded-xl border border-white/5">
-              <LayoutDashboard size={20}/>
+            <button onClick={() => setIsMobileMenuOpen(true)} className="lg:hidden p-2.5 text-white bg-violet-600 rounded-xl shadow-lg shadow-violet-500/20">
+              <Menu size={20}/>
             </button>
-            <div>
-              <h2 className="text-xs font-black text-slate-500 uppercase tracking-[0.3em]">{activeView}</h2>
-              <p className="text-[10px] text-slate-600 font-bold uppercase mt-0.5 hidden sm:block">Administración / Central</p>
+            <div className="flex flex-col">
+              <h2 className="text-[10px] font-black text-violet-500 uppercase tracking-[0.3em] leading-none mb-1">
+                {activeView}
+              </h2>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-black text-white lg:hidden">BINGO <span className="text-violet-500">PRO</span></span>
+                <p className="text-[10px] text-slate-600 font-bold uppercase hidden lg:block tracking-widest">Administración / Central</p>
+              </div>
             </div>
           </div>
           <div className="flex items-center gap-4">
