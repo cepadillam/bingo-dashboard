@@ -1419,18 +1419,18 @@ function AlertasView({ alertas, setAlertas, showToast }) {
           <p className="text-[9px] md:text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Seguridad y deudas</p>
           <button onClick={openAdd} className="mt-4 md:mt-6 flex items-center gap-2 px-4 md:px-6 py-2.5 md:py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-xl md:rounded-2xl font-black text-[9px] md:text-[10px] uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-violet-500/20"><Plus size={14}/> Nueva Alerta</button>
         </div>
-        <div className="flex gap-4 md:gap-8 w-full lg:w-auto lg:pr-6 overflow-x-auto pb-2 lg:pb-0">
-          <div className="flex items-center gap-4 min-w-max">
-            <div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500 border border-amber-500/20"><Clock size={20}/></div>
-            <div><p className="text-2xl font-black leading-none">{stats.pendientes}</p><p className="text-[10px] font-black text-slate-500 uppercase mt-1">Pendientes</p></div>
+        <div className="flex gap-2 md:gap-8 w-full lg:w-auto lg:pr-6 overflow-x-auto pb-2 lg:pb-0 scrollbar-hide">
+          <div className="flex items-center gap-2 md:gap-4 min-w-max">
+            <div className="w-8 h-8 md:w-12 md:h-12 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500 border border-amber-500/20"><Clock size={16}/></div>
+            <div><p className="text-lg md:text-2xl font-black leading-none">{stats.pendientes}</p><p className="text-[8px] md:text-[10px] font-black text-slate-500 uppercase mt-1">Pendientes</p></div>
           </div>
-          <div className="flex items-center gap-4 min-w-max border-x border-white/10 px-8">
-            <div className="w-12 h-12 rounded-2xl bg-rose-500/10 flex items-center justify-center text-rose-500 border border-rose-500/20"><AlertCircle size={20}/></div>
-            <div><p className="text-2xl font-black leading-none">{stats.criticos}</p><p className="text-[10px] font-black text-slate-500 uppercase mt-1">Críticos</p></div>
+          <div className="flex items-center gap-2 md:gap-4 min-w-max border-x border-white/10 px-4 md:px-8">
+            <div className="w-8 h-8 md:w-12 md:h-12 rounded-xl bg-rose-500/10 flex items-center justify-center text-rose-500 border border-rose-500/20"><AlertCircle size={16}/></div>
+            <div><p className="text-lg md:text-2xl font-black leading-none">{stats.criticos}</p><p className="text-[8px] md:text-[10px] font-black text-slate-500 uppercase mt-1">Críticos</p></div>
           </div>
-          <div className="flex items-center gap-4 min-w-max">
-            <div className="w-12 h-12 rounded-2xl bg-slate-500/10 flex items-center justify-center text-slate-400 border border-white/10"><Ban size={20}/></div>
-            <div><p className="text-2xl font-black leading-none">{stats.baneados}</p><p className="text-[10px] font-black text-slate-500 uppercase mt-1">Baneados</p></div>
+          <div className="flex items-center gap-2 md:gap-4 min-w-max">
+            <div className="w-8 h-8 md:w-12 md:h-12 rounded-xl bg-slate-500/10 flex items-center justify-center text-slate-400 border border-white/10"><Ban size={16}/></div>
+            <div><p className="text-lg md:text-2xl font-black leading-none">{stats.baneados}</p><p className="text-[8px] md:text-[10px] font-black text-slate-500 uppercase mt-1">Baneados</p></div>
           </div>
         </div>
       </div>
@@ -1756,27 +1756,27 @@ function GestionUsuariosView({ showToast }: { showToast: (m: string) => void }) 
         </div>
         <button 
           onClick={() => setIsModalOpen(true)}
-          className="w-full sm:w-auto bg-violet-600 hover:bg-violet-700 text-white px-6 py-3 rounded-2xl flex items-center justify-center gap-2 font-bold transition-all active:scale-95 shadow-lg shadow-violet-500/20"
+          className="w-full sm:w-auto bg-violet-600 hover:bg-violet-700 text-white px-4 md:px-6 py-2.5 md:py-3 rounded-xl md:rounded-2xl flex items-center justify-center gap-2 font-black text-[9px] md:text-sm transition-all active:scale-95 shadow-lg shadow-violet-500/20"
         >
-          <UserPlus size={18}/> Crear Acceso
+          <UserPlus size={16}/> Nuevo Acceso
         </button>
       </div>
 
-      <div className="card-larry overflow-hidden">
-        <table className="w-full text-left">
-          <thead className="bg-[#0d0d0d] text-[12px] uppercase tracking-widest text-slate-500 font-black border-b border-white/5">
+      <div className="card-larry overflow-x-auto scrollbar-hide">
+        <table className="w-full text-left min-w-[600px] md:min-w-0">
+          <thead className="bg-[#0d0d0d] text-[9px] md:text-[12px] uppercase tracking-widest text-slate-500 font-black border-b border-white/5">
             <tr>
-              <th className="px-6 py-4">Usuario</th>
-              <th className="px-6 py-4">Rol</th>
-              <th className="px-6 py-4">Estado</th>
-              <th className="px-6 py-4">Conexión</th>
-              <th className="px-6 py-4 text-right">Acciones</th>
+              <th className="px-4 md:px-6 py-3 md:py-4">Usuario</th>
+              <th className="px-4 md:px-6 py-3 md:py-4">Rol</th>
+              <th className="px-4 md:px-6 py-3 md:py-4">Estado</th>
+              <th className="px-4 md:px-6 py-3 md:py-4">Conexión</th>
+              <th className="px-4 md:px-6 py-3 md:py-4 text-right">Acciones</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/[0.03]">
             {users.map(u => (
               <tr key={u.id} className="group hover:bg-white/[0.01] transition-colors">
-                <td className="px-6 py-3">
+                <td className="px-4 md:px-6 py-2 md:py-3">
                   <div className="flex items-center gap-2">
                     <div className="w-7 h-7 rounded-lg bg-violet-600/10 flex items-center justify-center text-violet-500 text-[13px]">
                       <User size={14}/>
