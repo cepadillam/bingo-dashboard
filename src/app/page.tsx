@@ -3,14 +3,14 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, Legend
+  ResponsiveContainer, Legend, BarChart, Bar, PieChart, Pie, Cell
 } from 'recharts';
 import { 
   LayoutDashboard, TrendingUp, Trophy, Users, DollarSign, BarChart4,
   Bell, Settings, LogOut, ChevronRight, Plus, MessageCircle, Search,
   Calendar, Download, Filter, AlertCircle, Clock, Ban, CheckCircle2,
   Lock, Volume2, Monitor, X, Check, ChevronLeft, ChevronDown, User,
-  Eye, EyeOff, Shield, UserPlus, Power
+  Eye, EyeOff, Shield, UserPlus, Power, Trash2
 } from 'lucide-react';
 import { 
   useActiveSession, useTopPlayers, useRetentionPlayers, registerSale, 
@@ -158,6 +158,24 @@ function DashboardContent({ user, onLogout }: { user: any; onLogout: () => void 
   const retentionPlayers = useRetentionPlayers();
 
   const [activeView, setActiveView] = useState('Resumen');
+  const [historicoSorteos, setHistoricoSorteos] = useState<any[]>([
+    { id: '1', nombre: 'Sorteo 1', fecha: '2024-03-05', vendidos: 120, regalados: 5, repartidos: 150, precio: 10, premios: 400 },
+    { id: '2', nombre: 'Sorteo 2', fecha: '2024-03-12', vendidos: 180, regalados: 10, repartidos: 200, precio: 10, premios: 600 },
+    { id: '3', nombre: 'Sorteo 3', fecha: '2024-03-19', vendidos: 210, regalados: 15, repartidos: 250, precio: 10, premios: 800 },
+    { id: '4', nombre: 'Sorteo 4', fecha: '2024-03-26', vendidos: 155, regalados: 8, repartidos: 180, precio: 10, premios: 500 },
+  ]);
+
+  const statsMensuales = useMemo(() => {
+    const totalVendido = historicoSorteos.reduce((acc, s) => acc + (s.vendidos * s.precio), 0);
+    const totalPremios = historicoSorteos.reduce((acc, s) => acc + s.premios, 0);
+    return {
+      ingresos: totalVendido,
+      premios: totalPremios,
+      ganancia: totalVendido - totalPremios,
+      volumen: historicoSorteos.reduce((acc, s) => acc + s.vendidos, 0)
+    };
+  }, [historicoSorteos]);
+
   const [saleAmount, setSaleAmount] = useState<number>(1);
   const [salePrice, setSalePrice] = useState<number>(session?.precio_carton || 10);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -177,7 +195,7 @@ function DashboardContent({ user, onLogout }: { user: any; onLogout: () => void 
     finally { setIsSubmitting(false); }
   };
 
-  const viewProps = { session, topPlayers, retentionPlayers, showToast };
+  const viewProps = { session, topPlayers, retentionPlayers, showToast, historicoSorteos, setHistoricoSorteos, statsMensuales };
 
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
@@ -218,10 +236,10 @@ function DashboardContent({ user, onLogout }: { user: any; onLogout: () => void 
         <nav className="flex-1 px-4 space-y-1">
           {[
             { id: 'Resumen',        icon: <LayoutDashboard size={16}/> },
+            { id: 'Sorteo',         icon: <DollarSign size={16}/> },
             { id: 'Ganancias',      icon: <TrendingUp size={16}/> },
             { id: 'Ganadores',      icon: <Trophy size={16}/> },
             { id: 'Jugadores',      icon: <Users size={16}/> },
-            { id: 'Finanzas',       icon: <DollarSign size={16}/> },
             { id: 'Alertas',        icon: <Bell size={16}/>, badge: retentionPlayers.length || undefined },
             ...(user?.rol === 'admin' ? [{ id: 'Usuarios', icon: <Shield size={16}/> }] : []),
           ].map(item => (
@@ -250,10 +268,10 @@ function DashboardContent({ user, onLogout }: { user: any; onLogout: () => void 
       <main className="flex-1 lg:ml-60 p-4 lg:p-8 min-h-screen overflow-x-hidden pt-24 lg:pt-8 bg-[#020202]">
         <div className="max-w-[1400px] mx-auto space-y-6">
           {activeView === 'Resumen'       && <ResumenView {...viewProps} user={user} handleQuickSale={handleQuickSale} saleAmount={saleAmount} setSaleAmount={setSaleAmount} isSubmitting={isSubmitting} />}
+          {activeView === 'Sorteo'        && <FinanzasView {...viewProps} />}
           {activeView === 'Ganancias'     && <GananciasView {...viewProps} />}
           {activeView === 'Ganadores'     && <GanadoresView {...viewProps} />}
           {activeView === 'Jugadores'     && <JugadoresView {...viewProps} />}
-          {activeView === 'Finanzas'      && <FinanzasView {...viewProps} />}
           {activeView === 'Alertas'       && <AlertasView {...viewProps} />}
           {activeView === 'Usuarios'      && user?.rol === 'admin' && <GestionUsuariosView showToast={showToast} />}
           {activeView === 'Configuración' && <ConfiguracionView showToast={showToast} />}
@@ -375,48 +393,74 @@ function MasterFlowChart({ period }: { period: string }) {
   );
 }
 
-function ResumenView({ session, topPlayers, handleQuickSale, saleAmount, setSaleAmount, isSubmitting, showToast, user }) {
-  const [period, setPeriod] = useState('Hoy');
+function ResumenView({ session, topPlayers, handleQuickSale, saleAmount, setSaleAmount, isSubmitting, showToast, user, statsMensuales }) {
+  const [period, setPeriod] = useState('Mes');
   const periods = ['Hoy', 'Semana', 'Mes'];
 
   return (
     <div className="space-y-6 animate-larry">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight font-heading">Dashboard</h1>
-          <p className="text-slate-500 text-xs font-medium">Estado actual del Bingo Larry</p>
+          <h1 className="text-3xl font-extrabold tracking-tight font-heading">Resumen Mensual</h1>
+          <p className="text-slate-500 text-xs font-medium">Resultados acumulados de Marzo 2024</p>
         </div>
         <TabGroup tabs={periods} active={period} onChange={setPeriod} />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        <KPICard icon={<DollarSign size={16}/>} label="Ingresos"           value={`Bs. ${session?.total_recaudado || 0}`} trend="+12.5%" trendUp />
-        <KPICard icon={<Users size={16}/>}      label="Ventas Hoy"         value={`${session?.cartones_vendidos || 0}`}  trend="+5.2%"  trendUp />
-        <KPICard icon={<Trophy size={16}/>}     label="Premios"            value={`Bs. ${session?.premios_entregados || 0}`} trend="-1.1%"  />
-        <KPICard icon={<TrendingUp size={16}/>} label="Precio Cartón"      value={`Bs. ${session?.precio_carton || 10}`} trend="Estable" trendUp />
+        <KPICard 
+          icon={<DollarSign size={16}/>} 
+          label="Ingresos Mes"           
+          value={`Bs. ${statsMensuales.ingresos.toLocaleString()}`} 
+          trend="+15.2%" 
+          trendUp 
+          sparkData={[3000, 4500, 3200, 6000, 5500, 8000, statsMensuales.ingresos/4]}
+          color="#8b5cf6"
+        />
+        <KPICard 
+          icon={<Users size={16}/>}      
+          label="Cartones Vendidos"         
+          value={`${statsMensuales.volumen}`}  
+          trend="+8.1%"  
+          trendUp 
+          sparkData={[200, 300, 250, 400, 350, 500, statsMensuales.volumen/4]}
+          color="#10b981"
+        />
+        <KPICard 
+          icon={<Trophy size={16}/>}     
+          label="Ganancia Neta"            
+          value={`Bs. ${statsMensuales.ganancia.toLocaleString()}`} 
+          trend="+12.4%" 
+          trendUp
+          sparkData={[1000, 1500, 1200, 2000, 1800, 2500, statsMensuales.ganancia/4]}
+          color="#f59e0b"
+        />
+        <KPICard 
+          icon={<TrendingUp size={16}/>} 
+          label="Margen Promedio"      
+          value={`${((statsMensuales.ganancia / (statsMensuales.ingresos || 1)) * 100).toFixed(1)}%`} 
+          trend="Saludable" 
+          trendUp 
+          sparkData={[60, 65, 62, 70, 68, 72, 70]}
+          color="#ec4899"
+        />
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
         {/* Chart */}
         <div className="xl:col-span-2 card-larry p-6 h-[380px] flex flex-col relative group overflow-hidden">
           <div className="flex justify-between items-center mb-6">
-            <h3 className="text-sm font-bold flex items-center gap-2 font-heading"><TrendingUp size={16} className="text-violet-500"/> Flujo de Ingresos</h3>
-            {user?.rol !== 'invitado' && (
-              <form onSubmit={handleQuickSale} className="flex gap-2 bg-black/40 p-1 rounded-lg border border-white/5 opacity-0 group-hover:opacity-100 transition-opacity">
-                <input type="number" value={saleAmount} min={1} onChange={e => setSaleAmount(Number(e.target.value))} className="w-8 bg-transparent text-[13px] text-center focus:outline-none"/>
-                <button type="submit" disabled={isSubmitting} className="p-1.5 bg-violet-600 rounded-md hover:bg-violet-700 active:scale-95 transition-all"><Plus size={12}/></button>
-              </form>
-            )}
+            <h3 className="text-sm font-bold flex items-center gap-2 font-heading tracking-widest uppercase"><TrendingUp size={16} className="text-violet-500"/> Rendimiento de Sorteos</h3>
           </div>
           <InteractiveChart />
         </div>
 
         {/* Winners */}
         <div className="card-larry p-6 flex flex-col h-[380px]">
-          <h3 className="text-sm font-bold mb-6 flex items-center gap-2 font-heading"><Trophy size={16} className="text-amber-500"/> Últimos Ganadores</h3>
+          <h3 className="text-sm font-bold mb-6 flex items-center gap-2 font-heading tracking-widest uppercase"><Trophy size={16} className="text-amber-500"/> Últimos Ganadores</h3>
           <div className="space-y-4 flex-1 overflow-y-auto pr-2 custom-scrollbar">
             {(topPlayers.length > 0 ? topPlayers.slice(0,5) : [1,2,3,4,5]).map((p, i) => (
-              <div key={i} className="flex items-center justify-between group cursor-pointer" onClick={() => showToast(`Ver perfil de ${typeof p === 'object' ? p.nombre : 'Jugador 100'+i}`)}>
+              <div key={i} className="flex items-center justify-between group cursor-pointer">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg bg-slate-900 border border-white/5 flex items-center justify-center text-[13px] font-bold text-amber-500">#{i+1}</div>
                   <div><h4 className="font-bold text-xs text-white">{typeof p === 'object' ? p.nombre : `Jugador 100${i+1}`}</h4><p className="text-[12px] text-slate-500">Bs. 500 • Premio Mayor</p></div>
@@ -560,65 +604,204 @@ function JugadoresView({ topPlayers }) {
 }
 
 /* ─── FINANZAS ───────────────────────────────────────── */
-function FinanzasView({ showToast }) {
-  const months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-  const [monthIdx, setMonthIdx] = useState(2);
+function FinanzasView({ showToast, historicoSorteos, setHistoricoSorteos }) {
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [sorteo, setSorteo] = useState('Sorteo Especial');
+  const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0]);
+  const [vendidos, setVendidos] = useState(150);
+  const [regalados, setRegalados] = useState(10);
+  const [repartidos, setRepartidos] = useState(200);
+  const [precio, setPrecio] = useState(10);
+  const [premios, setPremios] = useState(500);
+
+  const [mesSeleccionado, setMesSeleccionado] = useState(new Date().getMonth());
+  const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+  const totalRecaudado = vendidos * precio;
+  const ganancia = totalRecaudado - premios;
+
+  const handleSave = () => {
+    if (editingId) {
+      setHistoricoSorteos(historicoSorteos.map(s => s.id === editingId ? { ...s, nombre: sorteo, fecha, vendidos, regalados, repartidos, precio, premios } : s));
+      setEditingId(null);
+      showToast('Sorteo actualizado');
+    } else {
+      const nuevo = { id: Date.now().toString(), nombre: sorteo, fecha, vendidos, regalados, repartidos, precio, premios };
+      setHistoricoSorteos([...historicoSorteos, nuevo]);
+      showToast('Sorteo registrado');
+    }
+  };
+
+  const handleEdit = (s: any) => {
+    setEditingId(s.id);
+    setSorteo(s.nombre);
+    setFecha(s.fecha);
+    setVendidos(s.vendidos);
+    setRegalados(s.regalados);
+    setRepartidos(s.repartidos);
+    setPrecio(s.precio);
+    setPremios(s.premios);
+    showToast('Cargando detalles...');
+  };
+
+  const handleDelete = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setHistoricoSorteos(historicoSorteos.filter(s => s.id !== id));
+    if (editingId === id) setEditingId(null);
+    showToast('Sorteo eliminado');
+  };
+
+  const resetForm = () => {
+    setEditingId(null);
+    setSorteo('Nuevo Sorteo');
+    setVendidos(0);
+    setRegalados(0);
+    setRepartidos(0);
+    setPremios(0);
+  };
+
+  const sorteosMes = useMemo(() => {
+    return historicoSorteos.filter(s => new Date(s.fecha).getMonth() === mesSeleccionado);
+  }, [historicoSorteos, mesSeleccionado]);
+
+  const statsMes = useMemo(() => {
+    const v = sorteosMes.reduce((acc, s) => acc + (s.vendidos * s.precio), 0);
+    const p = sorteosMes.reduce((acc, s) => acc + s.premios, 0);
+    return { ingresos: v, ganancia: v - p };
+  }, [sorteosMes]);
 
   return (
-    <div className="space-y-6 animate-larry">
-      <div className="flex justify-between items-center">
-        <div><h1 className="text-3xl font-extrabold font-heading">Finanzas</h1><p className="text-slate-500 text-xs">Balance y rentabilidad operativa</p></div>
-        <div className="flex items-center gap-1 bg-white/5 rounded-xl border border-white/10 p-1">
-          <button onClick={()=>setMonthIdx(i=>Math.max(0,i-1))} className="p-1 px-2 hover:bg-white/10 rounded-lg transition-colors text-slate-500 hover:text-white"><ChevronLeft size={14}/></button>
-          <span className="px-3 font-bold text-[13px] min-w-[80px] text-center uppercase tracking-widest">{months[monthIdx]}</span>
-          <button onClick={()=>setMonthIdx(i=>Math.min(11,i+1))} className="p-1 px-2 hover:bg-white/10 rounded-lg transition-colors text-slate-500 hover:text-white"><ChevronRight size={14}/></button>
+    <div className="space-y-8 animate-larry">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+        <div>
+          <h1 className="text-4xl font-black font-heading tracking-tight">Finanzas</h1>
+          <div className="flex items-center gap-4 mt-2">
+            <div className="flex items-center gap-2 bg-white/5 border border-white/10 p-1 rounded-xl">
+              <button onClick={() => setMesSeleccionado(m => Math.max(0, m-1))} className="p-1 hover:bg-white/10 rounded-lg"><ChevronLeft size={16}/></button>
+              <span className="px-4 text-xs font-black uppercase tracking-widest w-32 text-center">{meses[mesSeleccionado]}</span>
+              <button onClick={() => setMesSeleccionado(m => Math.min(11, m+1))} className="p-1 hover:bg-white/10 rounded-lg"><ChevronRight size={16}/></button>
+            </div>
+          </div>
+        </div>
+        <div className="flex gap-3 w-full md:w-auto">
+          {editingId && <button onClick={resetForm} className="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-500 rounded-2xl hover:bg-rose-500 hover:text-white transition-all"><X size={18}/></button>}
+          <button onClick={() => showToast('Exportando PDF...')} className="flex-1 md:flex-none p-3 bg-white/5 rounded-2xl border border-white/10 text-slate-400 hover:text-white transition-all flex items-center justify-center gap-2"><Download size={18}/> <span className="md:hidden text-xs font-bold uppercase">Exportar</span></button>
+          <button onClick={handleSave} className={`${editingId ? 'bg-emerald-600 shadow-emerald-500/20' : 'bg-violet-600 shadow-violet-500/20'} flex-[2] md:flex-none text-white px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl active:scale-95 transition-all`}>
+            {editingId ? 'Actualizar Sorteo' : 'Registrar Sorteo'}
+          </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-        <KPICard icon={<DollarSign size={16}/>} label="Ingresos Brutos"   value="Bs. 24,560" trend="+8.2%" trendUp/>
-        <KPICard icon={<BarChart4 size={16}/>}    label="Costos"           value="Bs. 4,230"  trend="+2.1%"/>
-        <KPICard icon={<CreditCardIcon size={16}/>} label="Premios"         value="Bs. 12,450" trend="50.6%" trendUp/>
-        <div className="card-larry p-5 bg-violet-600/5 border border-violet-500/20 flex items-center justify-between">
-          <div><h4 className="text-[11px] font-black text-violet-400 uppercase tracking-widest leading-none mb-1">Rentabilidad</h4><p className="text-xl font-black text-white leading-none">32.1%</p></div>
-          <p className="text-[11px] font-bold text-violet-500 uppercase px-2 py-1 bg-violet-500/10 rounded-md">Saludable</p>
-        </div>
-      </div>
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        {/* Input & Form */}
+        <div className="xl:col-span-2 space-y-6">
+          <div className="card-larry p-8 grid grid-cols-1 md:grid-cols-2 gap-6 bg-gradient-to-br from-[#0d0d0d] to-black">
+            <div className="space-y-4 md:col-span-1">
+              <label className="text-[10px] font-black text-violet-400 uppercase tracking-[0.3em]">Nombre</label>
+              <input type="text" value={sorteo} onChange={e => setSorteo(e.target.value)} className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold text-white focus:border-violet-500 outline-none" />
+            </div>
+            <div className="space-y-4 md:col-span-1">
+              <label className="text-[10px] font-black text-violet-400 uppercase tracking-[0.3em]">Fecha</label>
+              <input type="date" value={fecha} onChange={e => setFecha(e.target.value)} className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold text-white focus:border-violet-500 outline-none [color-scheme:dark]" />
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 md:col-span-2 pt-4">
+              <div className="space-y-2"><label className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Venta</label><input type="number" value={vendidos} onChange={e=>setVendidos(Number(e.target.value))} className="w-full bg-white/5 border border-white/5 rounded-lg p-3 text-xs font-bold text-white outline-none focus:border-violet-500/50"/></div>
+              <div className="space-y-2"><label className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Regalo</label><input type="number" value={regalados} onChange={e=>setRegalados(Number(e.target.value))} className="w-full bg-white/5 border border-white/5 rounded-lg p-3 text-xs font-bold text-white outline-none focus:border-violet-500/50"/></div>
+              <div className="space-y-2"><label className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Reparto</label><input type="number" value={repartidos} onChange={e=>setRepartidos(Number(e.target.value))} className="w-full bg-white/5 border border-white/5 rounded-lg p-3 text-xs font-bold text-white outline-none focus:border-violet-500/50"/></div>
+              <div className="space-y-2"><label className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Precio</label><input type="number" value={precio} onChange={e=>setPrecio(Number(e.target.value))} className="w-full bg-white/5 border border-white/5 rounded-lg p-3 text-xs font-bold text-white outline-none focus:border-violet-500/50"/></div>
+              <div className="space-y-2"><label className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Premios</label><input type="number" value={premios} onChange={e=>setPremios(Number(e.target.value))} className="w-full bg-white/5 border border-white/5 rounded-lg p-3 text-xs font-bold text-white outline-none focus:border-violet-500/50"/></div>
+            </div>
+          </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <div className="xl:col-span-2 card-larry p-6 flex flex-col h-[380px]">
-          <h3 className="text-xs font-black uppercase text-slate-500 mb-6">Balance Ingresos vs Egresos</h3>
-          <div className="flex-1 flex items-end gap-6 px-4 relative">
-            {['Ene','Feb','Mar','Abr','May','Jun'].map((m,i) => (
-              <div key={m} className="flex-1 flex gap-1 items-end justify-center relative h-full">
-                <div className="w-4 bg-emerald-500/60 rounded-t-sm" style={{height:`${40+i*8}%`}}></div>
-                <div className="w-4 bg-rose-500/60  rounded-t-sm" style={{height:`${20+i%3*10}%`}}></div>
-                <span className="absolute -bottom-6 text-[11px] text-slate-400 font-bold uppercase">{m}</span>
+          {/* Monthly Chart */}
+          <div className="card-larry p-8 h-[400px] flex flex-col">
+            <div className="flex justify-between items-center mb-8">
+              <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em]">Desempeño Diario: {meses[mesSeleccionado]}</h3>
+              <div className="flex gap-4">
+                <div className="flex items-center gap-2"><div className="w-2 h-2 bg-violet-500 rounded-full"></div><span className="text-[10px] font-black text-slate-500 uppercase">Ventas</span></div>
+                <div className="flex items-center gap-2"><div className="w-2 h-2 bg-rose-500 rounded-full"></div><span className="text-[10px] font-black text-slate-500 uppercase">Premios</span></div>
               </div>
-            ))}
-          </div>
-          <div className="flex justify-center gap-6 mt-10">
-            <div className="flex items-center gap-2"><div className="w-2 h-2 bg-emerald-500 rounded-full"></div><span className="text-[11px] font-bold text-slate-400 uppercase">Ingresos</span></div>
-            <div className="flex items-center gap-2"><div className="w-2 h-2 bg-rose-500 rounded-full"></div><span className="text-[11px] font-bold text-slate-400 uppercase">Egresos</span></div>
+            </div>
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart 
+                data={sorteosMes.length > 0 ? sorteosMes.map(s => ({ d: new Date(s.fecha).getUTCDate(), v: s.vendidos * s.precio, p: s.premios })).sort((a,b) => a.d - b.d) : [{d:1,v:0,p:0}, {d:30,v:0,p:0}]} 
+                margin={{ top: 10, right: 30, left: 10, bottom: 20 }}
+              >
+                <defs>
+                  <linearGradient id="mIng" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3}/><stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/></linearGradient>
+                  <linearGradient id="mPre" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#f43f5e" stopOpacity={0.2}/><stop offset="95%" stopColor="#f43f5e" stopOpacity={0}/></linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
+                <XAxis 
+                  dataKey="d" 
+                  tick={{fill:'#64748b', fontSize:8, fontWeight:800}} 
+                  axisLine={false} 
+                  tickLine={false} 
+                  type="number"
+                  domain={[1, 31]}
+                  ticks={[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31]}
+                  interval={0}
+                />
+                <YAxis 
+                  tick={{fill:'#64748b', fontSize:10, fontWeight:800}} 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tickFormatter={v => v >= 1000 ? `${v/1000}k` : v} 
+                />
+                <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'rgba(139,92,246,0.2)', strokeWidth: 2 }} />
+                <Area type="monotone" dataKey="v" name="Ventas" stroke="#8b5cf6" strokeWidth={3} fill="url(#mIng)" animationDuration={1000} />
+                <Area type="monotone" dataKey="p" name="Premios" stroke="#f43f5e" strokeWidth={3} fill="url(#mPre)" animationDuration={1000} />
+              </AreaChart>
+            </ResponsiveContainer>
           </div>
         </div>
 
-        <div className="card-larry p-6 flex flex-col items-center justify-center">
-          <h3 className="text-xs font-black uppercase text-slate-500 mb-6 self-start">Gastos</h3>
-          <div className="relative w-36 h-36">
-            <svg className="w-full h-full -rotate-90" viewBox="0 0 32 32">
-              <circle cx="16" cy="16" r="14" fill="none" stroke="#22d3ee" strokeWidth="4" strokeDasharray="30 100"/>
-              <circle cx="16" cy="16" r="14" fill="none" stroke="#7c3aed" strokeWidth="4" strokeDasharray="40 100" strokeDashoffset="-30"/>
-              <circle cx="16" cy="16" r="14" fill="none" stroke="#f59e0b" strokeWidth="4" strokeDasharray="15 100" strokeDashoffset="-70"/>
-              <circle cx="16" cy="16" r="14" fill="none" stroke="#10b981" strokeWidth="4" strokeDasharray="15 100" strokeDashoffset="-85"/>
-            </svg>
-            <div className="absolute inset-0 flex items-center justify-center flex-col"><span className="text-[11px] text-slate-400 font-bold uppercase">Total</span><span className="text-xl font-black italic text-white">100%</span></div>
+        {/* Totals Sidebar */}
+        <div className="space-y-6">
+          <div className="card-larry p-8 bg-violet-600/5 border-violet-500/20 flex flex-col gap-8">
+            <h4 className="text-[10px] font-black text-violet-500 uppercase tracking-[0.4em] border-b border-violet-500/10 pb-4">Balance {meses[mesSeleccionado]}</h4>
+            
+            <div className="space-y-1">
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Ingresos Totales</p>
+              <p className="text-4xl font-black text-white tracking-tighter">Bs. {statsMes.ingresos.toLocaleString()}</p>
+            </div>
+
+            <div className="space-y-1 pt-4 border-t border-white/5">
+              <p className="text-[10px] font-bold text-emerald-500/60 uppercase tracking-widest">Ganancia Neta</p>
+              <p className="text-4xl font-black text-emerald-400 tracking-tighter">Bs. {statsMes.ganancia.toLocaleString()}</p>
+            </div>
+
+            <div className="pt-6 space-y-4">
+              <div className="flex justify-between items-end"><span className="text-[10px] font-black text-slate-500 uppercase">Tasa de Retorno</span><span className="text-sm font-black text-white">{((statsMes.ingresos > 0 ? (statsMes.ingresos - statsMes.ganancia)/statsMes.ingresos : 0)*100).toFixed(1)}%</span></div>
+              <div className="h-1.5 bg-white/5 rounded-full overflow-hidden"><div className="h-full bg-violet-500" style={{width: `${(statsMes.ingresos > 0 ? (statsMes.ingresos - statsMes.ganancia)/statsMes.ingresos : 0)*100}%`}}></div></div>
+            </div>
           </div>
-          <div className="w-full grid grid-cols-2 gap-x-4 gap-y-3 mt-8">
-            <ExpenseLegend color="#22d3ee" label="Op."/>
-            <ExpenseLegend color="#10b981" label="Mkt."/>
-            <ExpenseLegend color="#7c3aed" label="Prm."/>
-            <ExpenseLegend color="#f59e0b" label="Res."/>
+
+          <div className="card-larry p-6 space-y-4">
+            <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Historial de Sorteos</h4>
+            <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+              {sorteosMes.length === 0 && <p className="text-[10px] text-slate-700 uppercase font-black py-10 text-center italic">No hay registros este mes</p>}
+              {sorteosMes.map(s => (
+                <div key={s.id} onClick={() => handleEdit(s)} className={`flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer group ${editingId === s.id ? 'bg-violet-600/10 border-violet-500/50' : 'bg-white/5 border-white/5 hover:border-violet-500/30'}`}>
+                  <div className="flex items-center gap-3">
+                    <button onClick={(e) => handleDelete(s.id, e)} className="p-2 text-slate-500 hover:text-rose-500 hover:bg-rose-500/10 rounded-lg transition-all" title="Eliminar Sorteo">
+                      <Trash2 size={14}/>
+                    </button>
+                    <div>
+                      <p className="text-[11px] font-black text-white group-hover:text-violet-400 transition-colors">{s.nombre}</p>
+                      <p className="text-[9px] font-bold text-slate-500">{s.fecha}</p>
+                    </div>
+                  </div>
+                  <div className="text-right flex items-center gap-4">
+                    <div>
+                      <p className="text-[11px] font-black text-emerald-400">Bs. {(s.vendidos * s.precio - s.premios).toLocaleString()}</p>
+                      <p className="text-[9px] font-bold text-slate-500 uppercase">{s.vendidos} V / {s.regalados} R / {s.repartidos} Tot</p>
+                    </div>
+                    <ChevronRight size={12} className="text-slate-800 group-hover:text-violet-500 transition-colors"/>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -782,16 +965,41 @@ function TabGroup({ tabs, active, onChange }: { tabs: string[], active: string, 
   );
 }
 
-function KPICard({ icon, label, value, trend, trendUp=false }) {
+function KPICard({ icon, label, value, trend, trendUp=false, sparkData=[], color="#8b5cf6" }) {
   return (
-    <div className="card-larry p-5 bg-[#0d0d0d] flex items-center gap-4 group">
-      <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center text-slate-400 group-hover:bg-violet-600/10 group-hover:text-violet-500 transition-all">{icon}</div>
-      <div className="flex-1">
-        <p className="text-[12px] font-bold text-slate-500 uppercase tracking-widest">{label}</p>
-        <div className="flex items-baseline gap-2 mt-0.5">
-          <p className="text-xl font-black text-white">{value}</p>
-          <span className={`text-[11px] font-bold ${trendUp?'text-emerald-500':'text-rose-500'}`}>{trend}</span>
+    <div className="card-larry p-5 bg-[#0d0d0d] flex flex-col gap-4 group overflow-hidden relative">
+      <div className="flex items-center gap-4 relative z-10">
+        <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center text-slate-400 group-hover:bg-violet-600/10 group-hover:text-violet-500 transition-all">{icon}</div>
+        <div className="flex-1">
+          <p className="text-[12px] font-bold text-slate-500 uppercase tracking-widest">{label}</p>
+          <div className="flex items-baseline gap-2 mt-0.5">
+            <p className="text-xl font-black text-white">{value}</p>
+            <span className={`text-[11px] font-bold ${trendUp?'text-emerald-500':'text-rose-500'}`}>{trend}</span>
+          </div>
         </div>
+      </div>
+      
+      {/* Mini Sparkline */}
+      <div className="absolute bottom-0 left-0 right-0 h-12 opacity-50 group-hover:opacity-100 transition-opacity">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={sparkData.map((v, i) => ({ v, i }))}>
+            <defs>
+              <linearGradient id={`spark-${label}`} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor={color} stopOpacity={0.3}/>
+                <stop offset="95%" stopColor={color} stopOpacity={0}/>
+              </linearGradient>
+            </defs>
+            <Area 
+              type="monotone" 
+              dataKey="v" 
+              stroke={color} 
+              strokeWidth={2} 
+              fill={`url(#spark-${label})`} 
+              dot={false}
+              animationDuration={2000}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );
