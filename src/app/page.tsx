@@ -10,11 +10,13 @@ import {
   Bell, Settings, LogOut, ChevronRight, Plus, MessageCircle, Search,
   Calendar, Download, Filter, AlertCircle, Clock, Ban, CheckCircle2,
   Lock, Volume2, Monitor, X, Check, ChevronLeft, ChevronDown, User,
-  Eye, EyeOff, Shield, UserPlus, Power, Trash2
+  Eye, EyeOff, Shield, UserPlus, Power, Trash2, Activity, CreditCard
 } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import { 
   useActiveSession, useTopPlayers, useRetentionPlayers, registerSale, 
-  validateLogin, useSystemUsers, updateSystemUser, deleteSystemUser, createSystemUser 
+  validateLogin, useSystemUsers, updateSystemUser, deleteSystemUser, createSystemUser,
+  bulkInsertPlayers, deletePlayer, updatePlayer, deleteAllPlayers
 } from './supabase-hooks';
 
 /* ─── Toast Notification ─────────────────────────────── */
@@ -149,7 +151,12 @@ export default function BingoDashboard() {
   if (isFinishingAuth) return <div className="min-h-screen bg-black" />;
   if (!user) return <LoginPage onLogin={handleLogin} />;
 
-  return <DashboardContent user={user} onLogout={handleLogout} />;
+  return (
+    <>
+      <GlobalStyles />
+      <DashboardContent user={user} onLogout={handleLogout} />
+    </>
+  );
 }
 
 function DashboardContent({ user, onLogout }: { user: any; onLogout: () => void }) {
@@ -158,6 +165,10 @@ function DashboardContent({ user, onLogout }: { user: any; onLogout: () => void 
   const retentionPlayers = useRetentionPlayers();
 
   const [activeView, setActiveView] = useState('Resumen');
+  const [gastos, setGastos] = useState<any[]>([
+    { id: '1', descripcion: 'Pago de Personal', monto: 1200, fecha: '2024-03-15', categoria: 'Personal' },
+    { id: '2', descripcion: 'Publicidad Facebook', monto: 300, fecha: '2024-03-18', categoria: 'Marketing' },
+  ]);
   const [historicoSorteos, setHistoricoSorteos] = useState<any[]>([
     { id: '1', nombre: 'Sorteo 1', fecha: '2024-03-05', vendidos: 120, regalados: 5, repartidos: 150, precio: 10, premios: 400 },
     { id: '2', nombre: 'Sorteo 2', fecha: '2024-03-12', vendidos: 180, regalados: 10, repartidos: 200, precio: 10, premios: 600 },
@@ -168,19 +179,35 @@ function DashboardContent({ user, onLogout }: { user: any; onLogout: () => void 
   const statsMensuales = useMemo(() => {
     const totalVendido = historicoSorteos.reduce((acc, s) => acc + (s.vendidos * s.precio), 0);
     const totalPremios = historicoSorteos.reduce((acc, s) => acc + s.premios, 0);
+    const totalGastos = gastos.reduce((acc, g) => acc + g.monto, 0);
     return {
       ingresos: totalVendido,
       premios: totalPremios,
-      ganancia: totalVendido - totalPremios,
+      gastos: totalGastos,
+      ganancia: totalVendido - totalPremios - totalGastos,
       volumen: historicoSorteos.reduce((acc, s) => acc + s.vendidos, 0)
     };
-  }, [historicoSorteos]);
+  }, [historicoSorteos, gastos]);
 
   const [saleAmount, setSaleAmount] = useState<number>(1);
   const [salePrice, setSalePrice] = useState<number>(session?.precio_carton || 10);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const [ganadores, setGanadores] = useState<any[]>([
+    { id: '1', nombre: 'Juan Pérez', tipo: 'VIP', monto: 500, cartones: 2, sorteo: '#100 • S1', fecha: '2024-03-20', pagado: true },
+    { id: '2', nombre: 'María Garcia', tipo: 'Nuevo', monto: 600, cartones: 1, sorteo: '#101 • S2', fecha: '2024-03-20', pagado: false },
+    { id: '3', nombre: 'Carlos López', tipo: 'Viejo', monto: 700, cartones: 3, sorteo: '#102 • S3', fecha: '2024-03-20', pagado: true },
+    { id: '4', nombre: 'Ana Torres', tipo: 'Nuevo', monto: 800, cartones: 1, sorteo: '#103 • S4', fecha: '2024-03-20', pagado: false },
+  ]);
+
+  const [alertas, setAlertas] = useState<any[]>([
+    { id: '1', name: 'Juan Pérez', detail: 'Deuda de Bs. 50 • 2024-03-20', status: 'PENDIENTE', color: 'amber' },
+    { id: '2', name: 'Carlos Ruiz', detail: 'Deuda de Bs. 120 • 2024-03-18', status: 'CRITICO', color: 'rose' },
+    { id: '3', name: 'Maria T.', detail: 'Baneado el 2024-03-15', status: 'BANEADO', color: 'slate' },
+    { id: '4', name: 'Ana Lopez', detail: 'Deuda de Bs. 20 • 2024-03-21', status: 'PAGADO', color: 'emerald' },
+  ]);
 
   const showToast = (msg: string) => setToast(msg);
 
@@ -195,31 +222,18 @@ function DashboardContent({ user, onLogout }: { user: any; onLogout: () => void 
     finally { setIsSubmitting(false); }
   };
 
-  const viewProps = { session, topPlayers, retentionPlayers, showToast, historicoSorteos, setHistoricoSorteos, statsMensuales };
+  const viewProps = { session, topPlayers, retentionPlayers, showToast, historicoSorteos, setHistoricoSorteos, statsMensuales, alertas, setAlertas, ganadores, setGanadores, gastos, setGastos };
 
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
   return (
-    <div className="flex min-h-screen bg-black text-white selection:bg-violet-500/30">
+    <div className="flex min-h-screen bg-black text-white selection:bg-violet-500/30 overflow-x-hidden">
       {toast && <Toast msg={toast} onDone={() => setToast(null)} />}
 
-      {/* Mobile Header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 glass-header z-30 flex items-center justify-between px-6">
-        <h2 className="text-xl font-bold text-white flex items-center gap-2 tracking-tight font-heading">
-          BINGO <span className="text-violet-500">Larry</span>
-        </h2>
-        <button 
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="p-2 text-slate-400 hover:text-white transition-colors"
-        >
-          {isMobileMenuOpen ? <X size={20}/> : <Monitor size={20}/>} 
-        </button>
-      </div>
-
-      {/* Sidebar Overlay */}
+      {/* Sidebar Mobile Overlay */}
       {isMobileMenuOpen && (
         <div 
-          className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-opacity"
+          className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] transition-opacity"
           onClick={closeMobileMenu}
         />
       )}
@@ -230,17 +244,18 @@ function DashboardContent({ user, onLogout }: { user: any; onLogout: () => void 
         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <div className="p-8">
-          <h2 className="text-xl font-black text-white flex items-center gap-2 font-heading tracking-tighter">BINGO <span className="text-violet-500">Larry</span></h2>
-          <p className="text-[11px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-1 opacity-50">SISTEMA ADMINISTRATIVO</p>
+          <h2 className="text-xl font-black text-white flex items-center gap-2 font-heading tracking-tighter leading-tight uppercase">Sistema <span className="text-violet-500">Administrativo</span></h2>
+          <p className="text-[11px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-1 opacity-50">BINGO DASHBOARD</p>
         </div>
-        <nav className="flex-1 px-4 space-y-1">
+        <nav className="flex-1 px-4 space-y-1 overflow-y-auto custom-scrollbar">
           {[
             { id: 'Resumen',        icon: <LayoutDashboard size={16}/> },
             { id: 'Sorteo',         icon: <DollarSign size={16}/> },
             { id: 'Ganancias',      icon: <TrendingUp size={16}/> },
+            { id: 'Gastos',         icon: <CreditCard size={16}/> },
             { id: 'Ganadores',      icon: <Trophy size={16}/> },
             { id: 'Jugadores',      icon: <Users size={16}/> },
-            { id: 'Alertas',        icon: <Bell size={16}/>, badge: retentionPlayers.length || undefined },
+            { id: 'Alertas',        icon: <Bell size={16}/>, badge: alertas.filter(a => a.status === 'CRITICO').length || undefined },
             ...(user?.rol === 'admin' ? [{ id: 'Usuarios', icon: <Shield size={16}/> }] : []),
           ].map(item => (
             <NavItem 
@@ -265,11 +280,33 @@ function DashboardContent({ user, onLogout }: { user: any; onLogout: () => void 
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 lg:ml-60 p-4 lg:p-8 min-h-screen overflow-x-hidden pt-24 lg:pt-8 bg-[#020202]">
-        <div className="max-w-[1400px] mx-auto space-y-6">
+      <main className="flex-1 lg:ml-60 transition-all duration-500 min-h-screen">
+        <header className="sticky top-0 z-50 bg-[#050505]/80 backdrop-blur-xl border-b border-white/5 px-4 lg:px-8 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="lg:hidden p-2 text-slate-400 hover:text-white bg-white/5 rounded-xl border border-white/5">
+              <LayoutDashboard size={20}/>
+            </button>
+            <div>
+              <h2 className="text-xs font-black text-slate-500 uppercase tracking-[0.3em]">{activeView}</h2>
+              <p className="text-[10px] text-slate-600 font-bold uppercase mt-0.5 hidden sm:block">Administración / Central</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+             <div className="hidden sm:flex flex-col text-right">
+                <span className="text-[11px] font-black text-white leading-none">{user?.usuario}</span>
+                <span className="text-[9px] font-bold text-violet-500 uppercase mt-1">{user?.rol}</span>
+             </div>
+             <div className="w-8 h-8 rounded-lg bg-violet-600/20 border border-white/10 flex items-center justify-center font-black text-[10px]">
+                {user?.usuario?.charAt(0).toUpperCase()}
+             </div>
+          </div>
+        </header>
+
+        <div className="max-w-[1500px] mx-auto p-4 md:p-8 space-y-6 overflow-hidden">
           {activeView === 'Resumen'       && <ResumenView {...viewProps} user={user} handleQuickSale={handleQuickSale} saleAmount={saleAmount} setSaleAmount={setSaleAmount} isSubmitting={isSubmitting} />}
           {activeView === 'Sorteo'        && <FinanzasView {...viewProps} />}
           {activeView === 'Ganancias'     && <GananciasView {...viewProps} />}
+          {activeView === 'Gastos'        && <GastosView {...viewProps} />}
           {activeView === 'Ganadores'     && <GanadoresView {...viewProps} />}
           {activeView === 'Jugadores'     && <JugadoresView {...viewProps} />}
           {activeView === 'Alertas'       && <AlertasView {...viewProps} />}
@@ -301,20 +338,20 @@ function CustomTooltip({ active, payload, label }: any) {
 }
 
 /* ─── DASHBOARD INCOME CHART (Recharts) ─────────────── */
-function InteractiveChart() {
-  const data = [
-    { dia: 'Lun', ingresos: 4200, premios: 1800 },
-    { dia: 'Mar', ingresos: 3100, premios: 1200 },
-    { dia: 'Mie', ingresos: 8400, premios: 3200 },
-    { dia: 'Jue', ingresos: 6800, premios: 2900 },
-    { dia: 'Vie', ingresos: 5900, premios: 2100 },
-    { dia: 'Sab', ingresos: 9200, premios: 3800 },
-    { dia: 'Dom', ingresos: 3400, premios: 1400 },
-  ];
+function InteractiveChart({ data: rawData, period }: { data: any[], period: string }) {
+  const chartData = useMemo(() => {
+    if (rawData.length === 0) return [];
+    return rawData.map(s => ({
+      dia: period === 'Mes' ? new Date(s.fecha).getUTCDate() : s.nombre,
+      ingresos: s.vendidos * s.precio,
+      premios: s.premios
+    })).sort((a,b) => (period === 'Mes' ? (a.dia as number) - (b.dia as number) : 0));
+  }, [rawData, period]);
+
   return (
     <div className="flex-1 w-full min-h-0">
       <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={data} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+        <AreaChart data={chartData.length > 0 ? chartData : [{dia:'-', ingresos:0, premios:0}]} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
           <defs>
             <linearGradient id="colorIngresos" x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.4}/>
@@ -326,7 +363,7 @@ function InteractiveChart() {
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false}/>
-          <XAxis dataKey="dia" tick={{ fill: '#64748b', fontSize: 11, fontWeight: 700 }} axisLine={false} tickLine={false}/>
+          <XAxis dataKey="dia" tick={{ fill: '#64748b', fontSize: 10, fontWeight: 700 }} axisLine={false} tickLine={false}/>
           <YAxis tick={{ fill: '#64748b', fontSize: 10, fontWeight: 700 }} axisLine={false} tickLine={false} tickFormatter={v => `${v/1000}k`}/>
           <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'rgba(139,92,246,0.3)', strokeWidth: 1, strokeDasharray: '4 4' }}/>
           <Area type="monotone" dataKey="ingresos" name="Ingresos" stroke="#8b5cf6" strokeWidth={2.5} fill="url(#colorIngresos)" dot={false} activeDot={{ r: 5, fill: '#8b5cf6', stroke: '#fff', strokeWidth: 2 }}/>
@@ -393,52 +430,92 @@ function MasterFlowChart({ period }: { period: string }) {
   );
 }
 
-function ResumenView({ session, topPlayers, handleQuickSale, saleAmount, setSaleAmount, isSubmitting, showToast, user, statsMensuales }) {
+function ResumenView({ session, topPlayers, handleQuickSale, saleAmount, setSaleAmount, isSubmitting, showToast, user, historicoSorteos, gastos }) {
   const [period, setPeriod] = useState('Mes');
   const periods = ['Hoy', 'Semana', 'Mes'];
+
+  const statsPeriod = useMemo(() => {
+    const now = new Date();
+    const filtered = historicoSorteos.filter(s => {
+      const d = new Date(s.fecha);
+      if (period === 'Hoy') return d.toDateString() === now.toDateString();
+      if (period === 'Semana') {
+        const diff = now.getTime() - d.getTime();
+        return diff >= 0 && diff <= 7 * 24 * 60 * 60 * 1000;
+      }
+      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    });
+
+    const totalVendido = filtered.reduce((acc, s) => acc + (s.vendidos * s.precio), 0);
+    const totalPremios = filtered.reduce((acc, s) => acc + s.premios, 0);
+    const totalGastos = gastos.filter(g => {
+      const d = new Date(g.fecha);
+      if (period === 'Hoy') return d.toDateString() === now.toDateString();
+      if (period === 'Semana') return (now.getTime() - d.getTime()) <= 7 * 24 * 60 * 60 * 1000;
+      return d.getMonth() === now.getMonth();
+    }).reduce((acc, g) => acc + g.monto, 0);
+    
+    return {
+      ingresos: totalVendido,
+      premios: totalPremios,
+      gastos: totalGastos,
+      ganancia: totalVendido - totalPremios - totalGastos,
+      volumen: filtered.reduce((acc, s) => acc + s.vendidos, 0),
+      data: filtered
+    };
+  }, [historicoSorteos, period, gastos]);
 
   return (
     <div className="space-y-6 animate-larry">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight font-heading">Resumen Mensual</h1>
-          <p className="text-slate-500 text-xs font-medium">Resultados acumulados de Marzo 2024</p>
+          <h1 className="text-3xl font-extrabold tracking-tight font-heading">Panel de Resumen</h1>
+          <p className="text-slate-500 text-xs font-medium uppercase tracking-widest mt-1">Análisis de rendimiento: {period}</p>
         </div>
         <TabGroup tabs={periods} active={period} onChange={setPeriod} />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
         <KPICard 
           icon={<DollarSign size={16}/>} 
-          label="Ingresos Mes"           
-          value={`Bs. ${statsMensuales.ingresos.toLocaleString()}`} 
-          trend="+15.2%" 
+          label="Ingresos"           
+          value={`Bs. ${statsPeriod.ingresos.toLocaleString()}`} 
+          trend={period === 'Hoy' ? 'Hoy' : '+15.2%'} 
           trendUp 
-          sparkData={[3000, 4500, 3200, 6000, 5500, 8000, statsMensuales.ingresos/4]}
+          sparkData={[3000, 4500, 3200, 6000, 5500, 8000, statsPeriod.ingresos/4]}
           color="#8b5cf6"
         />
         <KPICard 
           icon={<Users size={16}/>}      
-          label="Cartones Vendidos"         
-          value={`${statsMensuales.volumen}`}  
+          label="Vendidos"         
+          value={`${statsPeriod.volumen}`}  
           trend="+8.1%"  
           trendUp 
-          sparkData={[200, 300, 250, 400, 350, 500, statsMensuales.volumen/4]}
+          sparkData={[200, 300, 250, 400, 350, 500, statsPeriod.volumen/4]}
           color="#10b981"
         />
         <KPICard 
+          icon={<CreditCard size={16}/>}      
+          label="Gastos"         
+          value={`Bs. ${statsPeriod.gastos.toLocaleString()}`}  
+          trend={period === 'Hoy' ? 'Hoy' : '-2.4%'}  
+          trendUp={false} 
+          sparkData={[500, 800, 600, 1000, 900, 1200, statsPeriod.gastos/4]}
+          color="#f43f5e"
+        />
+        <KPICard 
           icon={<Trophy size={16}/>}     
-          label="Ganancia Neta"            
-          value={`Bs. ${statsMensuales.ganancia.toLocaleString()}`} 
+          label="Ganancia"            
+          value={`Bs. ${statsPeriod.ganancia.toLocaleString()}`} 
           trend="+12.4%" 
           trendUp
-          sparkData={[1000, 1500, 1200, 2000, 1800, 2500, statsMensuales.ganancia/4]}
+          sparkData={[1000, 1500, 1200, 2000, 1800, 2500, statsPeriod.ganancia/4]}
           color="#f59e0b"
         />
         <KPICard 
           icon={<TrendingUp size={16}/>} 
-          label="Margen Promedio"      
-          value={`${((statsMensuales.ganancia / (statsMensuales.ingresos || 1)) * 100).toFixed(1)}%`} 
+          label="Margen"      
+          value={`${((statsPeriod.ganancia / (statsPeriod.ingresos || 1)) * 100).toFixed(1)}%`} 
           trend="Saludable" 
           trendUp 
           sparkData={[60, 65, 62, 70, 68, 72, 70]}
@@ -450,9 +527,9 @@ function ResumenView({ session, topPlayers, handleQuickSale, saleAmount, setSale
         {/* Chart */}
         <div className="xl:col-span-2 card-larry p-6 h-[380px] flex flex-col relative group overflow-hidden">
           <div className="flex justify-between items-center mb-6">
-            <h3 className="text-sm font-bold flex items-center gap-2 font-heading tracking-widest uppercase"><TrendingUp size={16} className="text-violet-500"/> Rendimiento de Sorteos</h3>
+            <h3 className="text-sm font-bold flex items-center gap-2 font-heading tracking-widest uppercase"><TrendingUp size={16} className="text-violet-500"/> Histórico del Período</h3>
           </div>
-          <InteractiveChart />
+          <InteractiveChart data={statsPeriod.data} period={period} />
         </div>
 
         {/* Winners */}
@@ -476,7 +553,7 @@ function ResumenView({ session, topPlayers, handleQuickSale, saleAmount, setSale
 }
 
 /* ─── GANANCIAS ──────────────────────────────────────── */
-function GananciasView({ showToast }) {
+function GananciasView({ showToast, statsMensuales }) {
   const [period, setPeriod] = useState('Diario');
   const periods = ['Sorteo','Diario','Semanal'];
 
@@ -494,10 +571,11 @@ function GananciasView({ showToast }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <ReportCard label="Ingreso Total"     value="Bs. 45,231" color="emerald" trend="+12%"/>
-        <ReportCard label="Premios"           value="Bs. 12,450" color="rose"    trend="+5%"/>
-        <ReportCard label="Utilidad Neta"      value="Bs. 32,781" color="violet"  trend="+15%"/>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <ReportCard label="Ingreso Total"     value={`Bs. ${statsMensuales.ingresos.toLocaleString()}`} color="emerald" trend="+12%"/>
+        <ReportCard label="Premios"           value={`Bs. ${statsMensuales.premios.toLocaleString()}`} color="rose"    trend="+5%"/>
+        <ReportCard label="Gastos"            value={`Bs. ${statsMensuales.gastos.toLocaleString()}`} color="rose"    trend="+2%"/>
+        <ReportCard label="Utilidad Neta"      value={`Bs. ${statsMensuales.ganancia.toLocaleString()}`} color="violet"  trend="+15%"/>
       </div>
 
       <div className="card-larry p-8 flex flex-col overflow-hidden bg-gradient-to-b from-[#0d0d0d] to-black min-h-[500px]">
@@ -515,90 +593,530 @@ function GananciasView({ showToast }) {
   );
 }
 
-/* ─── GANADORES ──────────────────────────────────────── */
-function GanadoresView({ topPlayers }) {
+function GanadoresView({ ganadores, setGanadores, showToast }) {
   const [query, setQuery] = useState('');
-  const [filterType, setFilterType] = useState<string|null>(null);
-  const [showFilter, setShowFilter] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingGanador, setEditingGanador] = useState<any>(null);
+  const [formData, setFormData] = useState({ nombre: '', tipo: 'Nuevo', monto: '', cartones: '', sorteo: '', pagado: false });
 
-  const allWinners = ['Juan Pérez','María Garcia','Carlos López','Ana Torres','Pedro Diaz','Luis Moreno','Carmen Vega','Roberto Díaz','Sandra Gil','Miguel Ruiz'];
-  const filtered = allWinners.filter(n => n.toLowerCase().includes(query.toLowerCase()) && (!filterType || (filterType === 'pleno' ? allWinners.indexOf(n) % 2 === 0 : allWinners.indexOf(n) % 2 !== 0)));
+  const lifetimeWinners = useMemo(() => {
+    const map = new Map();
+    ganadores.forEach(g => {
+      const prev = map.get(g.nombre) || { wins: 0, total: 0 };
+      map.set(g.nombre, { wins: prev.wins + 1, total: prev.total + g.monto });
+    });
+    return Array.from(map.entries()).map(([nombre, stats]) => ({ nombre, ...stats })).sort((a,b) => b.wins - a.wins);
+  }, [ganadores]);
+
+  const filtered = ganadores.filter(g => g.nombre.toLowerCase().includes(query.toLowerCase()));
+
+  const handleOpenModal = (ganador = null) => {
+    if (ganador) {
+      setEditingGanador(ganador);
+      setFormData({ nombre: ganador.nombre, tipo: ganador.tipo, monto: ganador.monto.toString(), cartones: ganador.cartones.toString(), sorteo: ganador.sorteo, pagado: ganador.pagado });
+    } else {
+      setEditingGanador(null);
+      setFormData({ nombre: '', tipo: 'Nuevo', monto: '', cartones: '1', sorteo: '', pagado: false });
+    }
+    setIsModalOpen(true);
+  };
+
+  const handleSave = (e: React.FormEvent) => {
+    e.preventDefault();
+    const newGanador = {
+      ...formData,
+      id: editingGanador ? editingGanador.id : Date.now().toString(),
+      monto: Number(formData.monto),
+      cartones: Number(formData.cartones),
+      fecha: new Date().toLocaleDateString()
+    };
+
+    if (editingGanador) {
+      setGanadores(ganadores.map(g => g.id === editingGanador.id ? newGanador : g));
+      showToast('Ganador actualizado');
+    } else {
+      setGanadores([newGanador, ...ganadores]);
+      showToast('Ganador registrado');
+    }
+    setIsModalOpen(false);
+  };
+
+  const handleDelete = (id: string) => {
+    if (confirm('¿Eliminar este registro?')) {
+      setGanadores(ganadores.filter(g => g.id !== id));
+      showToast('Registro eliminado');
+    }
+  };
+
+  const togglePago = (id: string) => {
+    setGanadores(ganadores.map(g => g.id === id ? { ...g, pagado: !g.pagado } : g));
+  };
 
   return (
     <div className="space-y-6 animate-larry">
-      <div className="flex justify-between items-center">
-        <div><h1 className="text-3xl font-extrabold font-heading">Ganadores</h1><p className="text-slate-500 text-xs">Historial de premios y sorteos</p></div>
-        <div className="flex gap-2">
-          <div className="relative">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-extrabold font-heading">Ganadores</h1>
+          <p className="text-slate-500 text-xs">Gestión de premios y estados de pago</p>
+        </div>
+        <div className="flex gap-2 w-full md:w-auto">
+          <div className="relative flex-1 md:flex-none">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14}/>
-            <input type="text" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Buscar..." className="bg-white/5 border border-white/10 rounded-xl py-2 pl-9 pr-4 focus:outline-none focus:border-violet-500/50 text-[13px] w-40"/>
+            <input 
+              type="text" 
+              value={query} 
+              onChange={e=>setQuery(e.target.value)} 
+              placeholder="Buscar..." 
+              className="bg-white/5 border border-white/10 rounded-xl py-2 pl-9 pr-4 focus:outline-none focus:border-violet-500/50 text-[13px] w-full"
+            />
           </div>
-          <button onClick={()=>setShowFilter(!showFilter)} className={`px-4 py-2 rounded-xl border flex items-center gap-2 font-bold transition-all text-[13px] ${showFilter||filterType?'bg-violet-600 border-violet-500 text-white':'bg-white/5 border-white/10 text-slate-300'}`}><Filter size={14}/> Filtrar</button>
+          <button 
+            onClick={() => handleOpenModal()}
+            className="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-xl flex items-center gap-2 font-bold transition-all text-[13px]"
+          >
+            <Plus size={14}/> Registrar
+          </button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 items-start">
         <div className="xl:col-span-3 card-larry overflow-hidden">
-          <table className="w-full text-left">
-            <thead className="text-[12px] uppercase text-slate-500 font-black border-b border-white/5 bg-[#0d0d0d]">
-              <tr><th className="py-4 px-6">Jugador</th><th className="py-4 px-6 text-center">Tipo</th><th className="py-4 px-6 text-right">Monto</th><th className="py-4 px-6">Sorteo</th><th className="py-4 px-6 text-right">Fecha</th></tr>
+          <div className="overflow-x-auto max-h-[600px] overflow-y-auto custom-scrollbar">
+            <table className="w-full text-left min-w-[800px]">
+              <thead className="text-[11px] uppercase text-slate-500 font-black border-b border-white/5 bg-[#0d0d0d] sticky top-0 z-10">
+                <tr>
+                  <th className="py-5 px-6">Jugador</th>
+                  <th className="py-5 px-6 text-center">Tipo</th>
+                  <th className="py-5 px-6 text-center">Cartones</th>
+                  <th className="py-5 px-6 text-right">Monto</th>
+                  <th className="py-5 px-6">Sorteo</th>
+                  <th className="py-5 px-6 text-center">Estado</th>
+                  <th className="py-5 px-6 text-right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/[0.03]">
+                {filtered.map((g) => (
+                  <tr key={g.id} className="group hover:bg-white/[0.02] transition-colors">
+                    <td className="py-4 px-6">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-violet-600/10 text-violet-500 flex items-center justify-center font-bold text-[12px]">{g.nombre.charAt(0)}</div>
+                        <span className="font-bold text-[13px]">{g.nombre}</span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6 text-center">
+                      <span className={`px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-tighter 
+                        ${g.tipo === 'VIP' ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' : 
+                          g.tipo === 'Nuevo' ? 'bg-cyan-500/10 text-cyan-500' : 
+                          'bg-slate-500/10 text-slate-400'}`}>
+                        {g.tipo}
+                      </span>
+                    </td>
+                    <td className="py-4 px-6 text-center">
+                      <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-white/5 rounded-lg border border-white/5">
+                        <Trophy size={10} className="text-amber-500"/>
+                        <span className="text-xs font-black text-white">{g.cartones}</span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6 text-right text-emerald-400 font-black text-sm">Bs. {g.monto.toLocaleString()}</td>
+                    <td className="py-4 px-6 text-[12px] text-slate-500 font-bold uppercase tracking-widest">{g.sorteo}</td>
+                    <td className="py-4 px-6 text-center">
+                      <button 
+                        onClick={() => togglePago(g.id)}
+                        className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-all ${g.pagado ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : 'bg-rose-500/10 text-rose-500 border-rose-500/20'}`}
+                      >
+                        {g.pagado ? 'Pagado' : 'Pendiente'}
+                      </button>
+                    </td>
+                    <td className="py-4 px-6 text-right space-x-2">
+                      <button onClick={() => handleOpenModal(g)} className="p-2 text-slate-500 hover:text-white hover:bg-white/5 rounded-lg transition-all"><Settings size={14}/></button>
+                      <button onClick={() => handleDelete(g.id)} className="p-2 text-slate-500 hover:text-rose-500 hover:bg-rose-500/5 rounded-lg transition-all"><Trash2 size={14}/></button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div className="card-larry p-6 bg-gradient-to-br from-violet-600/10 to-transparent border border-violet-500/20">
+            <h3 className="text-[12px] font-black text-violet-400 uppercase tracking-widest mb-4">Historial de por Vida</h3>
+            <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+              {lifetimeWinners.map((w, i) => (
+                <div key={i} className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
+                  <div className="flex items-center gap-3">
+                    <div className="w-7 h-7 rounded-lg bg-black flex items-center justify-center text-[10px] font-black text-amber-500">#{i+1}</div>
+                    <div className="min-w-0">
+                      <p className="text-[11px] font-black text-white truncate">{w.nombre}</p>
+                      <p className="text-[9px] font-bold text-slate-500 uppercase">{w.wins} Premios</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[10px] font-black text-emerald-400">Bs. {w.total.toLocaleString()}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="card-larry p-6">
+            <h3 className="text-[12px] font-black text-slate-500 uppercase tracking-widest mb-4">Métricas del Mes</h3>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <span className="text-[11px] font-bold text-slate-500 uppercase">Pendientes</span>
+                <span className="text-sm font-black text-rose-500">{ganadores.filter(g=>!g.pagado).length}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-[11px] font-bold text-slate-500 uppercase">Pagados</span>
+                <span className="text-sm font-black text-emerald-500">{ganadores.filter(g=>g.pagado).length}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* MODAL GANADORES */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="bg-[#0a0a0a] border border-white/10 w-full max-w-md p-8 rounded-[2rem] shadow-2xl animate-larry">
+            <h2 className="text-2xl font-black font-heading mb-6">{editingGanador ? 'Editar Ganador' : 'Registrar Ganador'}</h2>
+            <form onSubmit={handleSave} className="space-y-4">
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Nombre del Jugador</label>
+                <input 
+                  required 
+                  type="text" 
+                  value={formData.nombre} 
+                  onChange={e => setFormData({...formData, nombre: e.target.value})} 
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-violet-500 outline-none transition-all"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Tipo</label>
+                  <select 
+                    value={formData.tipo} 
+                    onChange={e => setFormData({...formData, tipo: e.target.value})} 
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-violet-500 outline-none transition-all appearance-none"
+                  >
+                    <option value="Nuevo">Nuevo</option>
+                    <option value="Viejo">Viejo</option>
+                    <option value="VIP">VIP</option>
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Cartones Ganados</label>
+                  <input 
+                    required 
+                    type="number" 
+                    value={formData.cartones} 
+                    onChange={e => setFormData({...formData, cartones: e.target.value})} 
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-violet-500 outline-none transition-all"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Monto (Bs.)</label>
+                  <input 
+                    required 
+                    type="number" 
+                    value={formData.monto} 
+                    onChange={e => setFormData({...formData, monto: e.target.value})} 
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-violet-500 outline-none transition-all"
+                  />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Sorteo / Referencia</label>
+                <input 
+                  required 
+                  type="text" 
+                  value={formData.sorteo} 
+                  onChange={e => setFormData({...formData, sorteo: e.target.value})} 
+                  placeholder="Ej: #105 • S6"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-violet-500 outline-none transition-all"
+                />
+              </div>
+              <div className="flex items-center gap-3 p-4 bg-white/5 rounded-xl border border-white/5">
+                <input 
+                  type="checkbox" 
+                  id="pagado" 
+                  checked={formData.pagado} 
+                  onChange={e => setFormData({...formData, pagado: e.target.checked})}
+                  className="w-4 h-4 rounded border-white/10 bg-black text-violet-600 focus:ring-violet-500"
+                />
+                <label htmlFor="pagado" className="text-xs font-bold text-slate-300 uppercase tracking-widest">Ya fue pagado</label>
+              </div>
+              <div className="pt-6 flex gap-3">
+                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-4 text-[11px] font-black uppercase text-slate-500 hover:text-white transition-all">Cancelar</button>
+                <button type="submit" className="flex-1 py-4 bg-violet-600 rounded-2xl text-[11px] font-black uppercase text-white hover:bg-violet-700 transition-all shadow-lg shadow-violet-500/20">Guardar Cambios</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─── GASTOS ────────────────────────────────────────── */
+function GastosView({ gastos, setGastos, showToast, statsMensuales }) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingGasto, setEditingGasto] = useState<any>(null);
+  const [formData, setFormData] = useState({ descripcion: '', monto: '', categoria: 'Operación', fecha: new Date().toISOString().split('T')[0] });
+
+  const handleOpenModal = (gasto = null) => {
+    if (gasto) {
+      setEditingGasto(gasto);
+      setFormData({ descripcion: gasto.descripcion, monto: gasto.monto.toString(), categoria: gasto.categoria, fecha: gasto.fecha });
+    } else {
+      setEditingGasto(null);
+      setFormData({ descripcion: '', monto: '', categoria: 'Operación', fecha: new Date().toISOString().split('T')[0] });
+    }
+    setIsModalOpen(true);
+  };
+
+  const handleSave = (e: React.FormEvent) => {
+    e.preventDefault();
+    const newGasto = {
+      ...formData,
+      id: editingGasto ? editingGasto.id : Date.now().toString(),
+      monto: Number(formData.monto)
+    };
+
+    if (editingGasto) {
+      setGastos(gastos.map(g => g.id === editingGasto.id ? newGasto : g));
+      showToast('Gasto actualizado');
+    } else {
+      setGastos([newGasto, ...gastos]);
+      showToast('Gasto registrado');
+    }
+    setIsModalOpen(false);
+  };
+
+  const handleDelete = (id: string) => {
+    if (confirm('¿Eliminar este gasto?')) {
+      setGastos(gastos.filter(g => g.id !== id));
+      showToast('Gasto eliminado');
+    }
+  };
+
+  return (
+    <div className="space-y-6 animate-larry">
+      <div className="flex justify-between items-center">
+        <div><h1 className="text-3xl font-extrabold font-heading">Gastos</h1><p className="text-slate-500 text-xs">Administración de salidas de capital</p></div>
+        <button onClick={() => handleOpenModal()} className="px-6 py-3 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl flex items-center gap-2 font-bold transition-all shadow-lg shadow-rose-500/20"><Plus size={18}/> Registrar Gasto</button>
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+        <div className="xl:col-span-3 card-larry overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead className="bg-[#0d0d0d] text-[11px] uppercase tracking-widest text-slate-500 font-black border-b border-white/5">
+                <tr><th className="px-6 py-5">Descripción</th><th className="px-6 py-5">Categoría</th><th className="px-6 py-5">Fecha</th><th className="px-6 py-5 text-right">Monto</th><th className="px-6 py-5 text-right">Acciones</th></tr>
+              </thead>
+              <tbody className="divide-y divide-white/[0.03]">
+                {gastos.map(g => (
+                  <tr key={g.id} className="group hover:bg-white/[0.01]">
+                    <td className="px-6 py-4 font-bold text-sm text-white">{g.descripcion}</td>
+                    <td className="px-6 py-4"><span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/5 text-[10px] font-black uppercase text-slate-400">{g.categoria}</span></td>
+                    <td className="px-6 py-4 text-xs text-slate-500 font-bold uppercase">{g.fecha}</td>
+                    <td className="px-6 py-4 text-right font-black text-rose-400">Bs. {g.monto.toLocaleString()}</td>
+                    <td className="px-6 py-4 text-right space-x-2">
+                      <button onClick={() => handleOpenModal(g)} className="p-2 text-slate-600 hover:text-white rounded-lg transition-all"><Settings size={14}/></button>
+                      <button onClick={() => handleDelete(g.id)} className="p-2 text-slate-600 hover:text-rose-500 rounded-lg transition-all"><Trash2 size={14}/></button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div className="card-larry p-6 bg-rose-500/5 border border-rose-500/20">
+            <h3 className="text-xs font-black text-rose-400 uppercase tracking-widest mb-4">Total Gastos</h3>
+            <p className="text-3xl font-black text-white">Bs. {gastos.reduce((acc,g)=>acc+g.monto, 0).toLocaleString()}</p>
+            <p className="text-[10px] font-bold text-slate-500 mt-2 uppercase">Impacto en Utilidad: -{((gastos.reduce((acc,g)=>acc+g.monto, 0) / (statsMensuales.ingresos || 1)) * 100).toFixed(1)}%</p>
+          </div>
+        </div>
+      </div>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="bg-[#0a0a0a] border border-white/10 w-full max-w-md p-8 rounded-[2rem] shadow-2xl animate-larry">
+            <h2 className="text-2xl font-black font-heading mb-6">{editingGasto ? 'Editar Gasto' : 'Nuevo Gasto'}</h2>
+            <form onSubmit={handleSave} className="space-y-4">
+              <div className="space-y-1"><label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Descripción</label><input required type="text" value={formData.descripcion} onChange={e => setFormData({...formData, descripcion: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-violet-500 outline-none transition-all"/></div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1"><label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Monto (Bs.)</label><input required type="number" value={formData.monto} onChange={e => setFormData({...formData, monto: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-violet-500 outline-none transition-all"/></div>
+                <div className="space-y-1"><label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Categoría</label><select value={formData.categoria} onChange={e => setFormData({...formData, categoria: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-violet-500 outline-none transition-all appearance-none"><option value="Operación">Operación</option><option value="Personal">Personal</option><option value="Marketing">Marketing</option><option value="Local">Local</option></select></div>
+              </div>
+              <div className="space-y-1"><label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Fecha</label><input required type="date" value={formData.fecha} onChange={e => setFormData({...formData, fecha: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-violet-500 outline-none transition-all"/></div>
+              <div className="pt-6 flex gap-3"><button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-4 text-[11px] font-black uppercase text-slate-500 hover:text-white transition-all">Cancelar</button><button type="submit" className="flex-1 py-4 bg-rose-600 rounded-2xl text-[11px] font-black uppercase text-white hover:bg-rose-700 transition-all">Guardar Gasto</button></div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function JugadoresView({ topPlayers, showToast }) {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [importing, setImporting] = useState(false);
+  const [editingPlayer, setEditingPlayer] = useState<any>(null);
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImporting(true);
+    const reader = new FileReader();
+    reader.onload = async (evt) => {
+      try {
+        const bstr = evt.target?.result;
+        const wb = XLSX.read(bstr, { type: 'binary' });
+        const wsname = wb.SheetNames[0];
+        const ws = wb.Sheets[wsname];
+        const data = XLSX.utils.sheet_to_json(ws);
+        const playersToSync = data.map((item: any) => ({
+          nombre: item.Nombre || item.nombre || item.Name || item.PLAYER || item.Jugador || 'Sin Nombre',
+          ganadas: Number(item.Ganadas || item.Wins || item.Victorias || 0),
+          puntos: Number(item.Puntos || item.Points || 0),
+          telefono: item.Telefono || item.Phone || item.Celular || '',
+          ultima_partida: new Date().toISOString()
+        }));
+        await bulkInsertPlayers(playersToSync);
+        showToast(`¡Sincronización Exitosa! ${playersToSync.length} jugadores actualizados.`);
+      } catch (err) {
+        showToast('Error al procesar archivo');
+      } finally { setImporting(false); }
+    };
+    reader.readAsBinaryString(file);
+  };
+
+  const handleDelete = async (id: string, nombre: string) => {
+    if (confirm(`¿Estás seguro de eliminar a ${nombre}?`)) {
+      await deletePlayer(id);
+      showToast('Jugador eliminado');
+    }
+  };
+
+  const handleDeleteAll = async () => {
+    if (confirm('⚠️ ¿ESTÁS SEGURO DE ELIMINAR TODA LA BASE DE DATOS DE JUGADORES? Esta acción no se puede deshacer.')) {
+      await deleteAllPlayers();
+      showToast('Base de datos vaciada');
+    }
+  };
+
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await updatePlayer(editingPlayer.id, {
+      nombre: editingPlayer.nombre,
+      telefono: editingPlayer.telefono,
+      ganadas: Number(editingPlayer.ganadas),
+      puntos: Number(editingPlayer.puntos)
+    });
+    setEditingPlayer(null);
+    showToast('Jugador actualizado');
+  };
+
+  return (
+    <div className="space-y-6 animate-larry">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-black font-heading tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">Inteligencia de Jugadores</h1>
+          <p className="text-slate-500 text-xs font-medium uppercase tracking-[0.2em] mt-1">Gestión Centralizada y Sincronización</p>
+        </div>
+        <div className="flex gap-2 w-full md:w-auto">
+          <button onClick={handleDeleteAll} className="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-500 rounded-2xl hover:bg-rose-500 hover:text-white transition-all" title="Borrar Todo"><Trash2 size={18}/></button>
+          <label className={`flex-1 md:flex-none cursor-pointer flex items-center justify-center gap-2 px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all border ${importing ? 'bg-white/5 border-white/10 text-slate-500' : 'bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-500/50 shadow-lg shadow-emerald-500/20'}`}>
+            {importing ? 'Sincronizando...' : <><Download size={14}/> Importar Excel</>}
+            <input type="file" accept=".xlsx, .xls, .csv" className="hidden" onChange={handleFileUpload} disabled={importing} />
+          </label>
+        </div>
+      </div>
+
+      <div className="card-larry p-6">
+        <div className="flex flex-col md:flex-row gap-4 mb-8">
+          <div className="flex-1 relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18}/>
+            <input 
+              type="text" 
+              placeholder="Buscar por nombre o teléfono..." 
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              className="w-full bg-black/40 border border-white/5 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold text-white focus:border-violet-500 outline-none transition-all"
+            />
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-white/5">
+                <th className="text-left py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest">Jugador</th>
+                <th className="text-center py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest">Puntos</th>
+                <th className="text-center py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest">Victorias</th>
+                <th className="text-right py-4 px-6 text-[10px] font-black text-slate-500 uppercase tracking-widest">Acciones</th>
+              </tr>
             </thead>
-            <tbody className="divide-y divide-white/[0.03]">
-              {filtered.map((p,i) => (
-                <tr key={i} className="group hover:bg-white/[0.02] cursor-pointer">
-                  <td className="py-3 px-6"><div className="flex items-center gap-3"><div className="w-7 h-7 rounded-lg bg-violet-600/10 text-violet-500 flex items-center justify-center font-bold text-[13px]">{p.charAt(0)}</div><span className="font-bold text-xs">{p}</span></div></td>
-                  <td className="py-3 px-6 text-center"><span className={`px-2 py-0.5 rounded-md text-[11px] font-black uppercase tracking-tighter ${i%2===0?'bg-amber-500/10 text-amber-500':'bg-cyan-500/10 text-cyan-500'}`}>{i%2===0?'Pleno':'Línea'}</span></td>
-                  <td className="py-3 px-6 text-right text-emerald-400 font-black text-xs">Bs. {500+i*100}</td>
-                  <td className="py-3 px-6 text-[12px] text-slate-500 font-bold">#123{i} • #{45-i}</td>
-                  <td className="py-3 px-6 text-right text-slate-400 text-[12px] font-bold">20/03/24</td>
+            <tbody>
+              {topPlayers.filter(p => p.nombre.toLowerCase().includes(searchTerm.toLowerCase())).map((p) => (
+                <tr key={p.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors group">
+                  <td className="py-4 px-6">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500/20 to-cyan-500/20 border border-white/10 flex items-center justify-center text-xs font-black text-white">{p.nombre.substring(0,2).toUpperCase()}</div>
+                      <div>
+                        <p className="text-sm font-bold text-white">{p.nombre}</p>
+                        <p className="text-[10px] text-slate-500 font-medium">{p.telefono || 'Sin Teléfono'}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="py-4 px-6 text-center font-bold text-sm text-slate-300">{p.puntos || 0}</td>
+                  <td className="py-4 px-6 text-center font-bold text-sm text-amber-500">{p.ganadas || 0}</td>
+                  <td className="py-4 px-6 text-right space-x-2">
+                    <button onClick={() => setEditingPlayer(p)} className="p-2 text-slate-500 hover:text-violet-400 transition-colors opacity-0 group-hover:opacity-100"><Settings size={14}/></button>
+                    <button onClick={() => handleDelete(p.id, p.nombre)} className="p-2 text-slate-500 hover:text-rose-500 transition-colors opacity-0 group-hover:opacity-100"><Trash2 size={14}/></button>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        <div className="space-y-4">
-          <div className="card-larry p-5 bg-gradient-to-br from-violet-600/10 to-transparent border border-violet-500/20">
-            <h3 className="text-[12px] font-black text-violet-400 uppercase tracking-widest mb-4">Top Ganador</h3>
-            <div className="flex items-center gap-3 mb-4"><div className="w-10 h-10 rounded-full bg-amber-500 text-black flex items-center justify-center font-black text-sm">C</div><div><h4 className="text-sm font-black italic">Carlos López</h4><p className="text-amber-500 text-[11px] font-bold uppercase tracking-tighter">🏆 3 Bingos Ganados</p></div></div>
-            <div className="space-y-2"><div className="flex justify-between text-[11px] font-bold text-slate-500 uppercase"><span>Total</span><span>Bs. 4,500</span></div><div className="h-1 bg-white/5 rounded-full overflow-hidden"><div className="h-full bg-amber-500 w-[70%]"/></div></div>
+      </div>
+
+      {/* EDIT MODAL */}
+      {editingPlayer && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+          <div className="bg-[#0d0d0d] border border-white/10 w-full max-w-md p-8 rounded-3xl shadow-2xl animate-larry">
+            <h2 className="text-xl font-black font-heading mb-6 flex items-center gap-2"><User size={20} className="text-violet-500"/> Editar Jugador</h2>
+            <form onSubmit={handleUpdate} className="space-y-4">
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Nombre</label>
+                <input required type="text" value={editingPlayer.nombre} onChange={e => setEditingPlayer({...editingPlayer, nombre: e.target.value})} className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-sm font-bold text-white focus:border-violet-500 outline-none transition-all"/>
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Teléfono</label>
+                <input type="text" value={editingPlayer.telefono} onChange={e => setEditingPlayer({...editingPlayer, telefono: e.target.value})} className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-sm font-bold text-white focus:border-violet-500 outline-none transition-all"/>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Puntos</label>
+                  <input type="number" value={editingPlayer.puntos} onChange={e => setEditingPlayer({...editingPlayer, puntos: e.target.value})} className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-sm font-bold text-white focus:border-violet-500 outline-none transition-all"/>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Victorias</label>
+                  <input type="number" value={editingPlayer.ganadas} onChange={e => setEditingPlayer({...editingPlayer, ganadas: e.target.value})} className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-sm font-bold text-white focus:border-violet-500 outline-none transition-all"/>
+                </div>
+              </div>
+              <div className="pt-6 flex gap-3">
+                <button type="button" onClick={() => setEditingPlayer(null)} className="flex-1 py-4 text-xs font-black uppercase text-slate-500 hover:text-white transition-all">Cancelar</button>
+                <button type="submit" className="flex-2 py-4 bg-violet-600 rounded-2xl text-xs font-black uppercase text-white hover:bg-violet-700 transition-all shadow-lg shadow-violet-500/20">Guardar Cambios</button>
+              </div>
+            </form>
           </div>
         </div>
-      </div>
-    </div>
-  );
-}
-
-/* ─── JUGADORES ──────────────────────────────────────── */
-function JugadoresView({ topPlayers }) {
-  const [query, setQuery] = useState('');
-  const all = ['Juan Pérez','María Garcia','Carlos López','Ana Torres','Pedro Diaz','Luis Moreno','Carmen Vega','Roberto Díaz','Sandra Gil','Miguel Ruiz'];
-  const filtered = all.filter(n => n.toLowerCase().includes(query.toLowerCase()));
-  return (
-    <div className="space-y-6 animate-larry">
-      <div className="flex justify-between items-center">
-        <div><h1 className="text-3xl font-extrabold font-heading">Jugadores</h1><p className="text-slate-500 text-xs">Base de datos de participantes</p></div>
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14}/>
-          <input value={query} onChange={e=>setQuery(e.target.value)} type="text" placeholder="Buscar..." className="bg-white/5 border border-white/10 rounded-xl py-2 pl-9 pr-4 focus:outline-none focus:border-violet-500/50 text-[13px] w-48"/>
-        </div>
-      </div>
-      <div className="card-larry overflow-hidden">
-        <table className="w-full text-left">
-          <thead className="text-[12px] uppercase text-slate-500 font-black border-b border-white/5 bg-[#0d0d0d]">
-            <tr><th className="py-4 px-8">Jugador</th><th className="py-4 px-8 text-center">Victorias</th><th className="py-4 px-8 text-center">Partidas</th><th className="py-4 px-8 text-right">Registro</th></tr>
-          </thead>
-          <tbody className="divide-y divide-white/[0.03]">
-            {filtered.map((p,i) => (
-              <tr key={i} className="hover:bg-white/[0.02] transition-colors cursor-pointer group">
-                <td className="py-3 px-8"><div className="flex items-center gap-3"><div className="w-8 h-8 rounded-lg bg-violet-600/10 text-violet-400 font-bold flex items-center justify-center text-[13px]">{p.charAt(0)}</div><div><div className="font-bold text-xs">{p}</div><div className="text-[11px] text-slate-400">ID: #{1000+i}</div></div></div></td>
-                <td className="py-3 px-8 text-center"><span className="text-emerald-400 font-black text-lg">{Math.max(0, 10-i)}</span></td>
-                <td className="py-3 px-8 text-center text-slate-500 font-bold text-xs">{50 - i*3}</td>
-                <td className="py-3 px-8 text-right text-slate-500 text-[13px] font-bold italic">20/03/24</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      )}
     </div>
   );
 }
@@ -810,41 +1328,92 @@ function FinanzasView({ showToast, historicoSorteos, setHistoricoSorteos }) {
 }
 
 /* ─── ALERTAS ────────────────────────────────────────── */
-function AlertasView({ retentionPlayers, showToast }) {
+function AlertasView({ alertas, setAlertas, showToast }) {
   const [tab, setTab] = useState<'Activos'|'Historial'>('Activos');
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingAlert, setEditingAlert] = useState<any>(null);
+  
+  const [formData, setFormData] = useState({ name: '', detail: '', status: 'PENDIENTE' });
 
-  const activos = [
-    { icon: <Clock size={14}/>,       name: 'Juan Pérez',   detail: 'Deuda de Bs. 50 • 2024-03-20',  status: 'PENDIENTE', color: 'amber' as const },
-    { icon: <AlertCircle size={14}/>, name: 'Carlos Ruiz',  detail: 'Deuda de Bs. 120 • 2024-03-18', status: 'CRÍTICO',   color: 'rose' as const,  isBanned: false },
-    { icon: <Ban size={14}/>,         name: 'Maria T.',     detail: 'Baneado el 2024-03-15',          status: 'BANEADO',   color: 'slate' as const, isBanned: true },
-    { icon: <CheckCircle2 size={14}/>,name: 'Ana Lopez',    detail: 'Deuda de Bs. 20 • 2024-03-21',  status: 'PAGADO',    color: 'emerald' as const, isPaid: true },
-  ];
+  const stats = useMemo(() => ({
+    pendientes: alertas.filter(a => a.status === 'PENDIENTE').length,
+    criticos: alertas.filter(a => a.status === 'CRITICO').length,
+    baneados: alertas.filter(a => a.status === 'BANEADO').length,
+  }), [alertas]);
 
-  const historial = [
-    { icon: <CheckCircle2 size={14}/>,name: 'Roberto Diaz', detail: 'Deuda saldada Bs. 80 • 2024-03-01', status: 'RESUELTO', color: 'emerald' as const, isPaid: true },
-    { icon: <CheckCircle2 size={14}/>,name: 'Sandra Gil',   detail: 'Deuda saldada Bs. 30 • 2024-02-28', status: 'RESUELTO', color: 'emerald' as const, isPaid: true },
-  ];
-  const items = tab === 'Activos' ? activos : historial;
+  const openAdd = () => {
+    setEditingAlert(null);
+    setFormData({ name: '', detail: '', status: 'PENDIENTE' });
+    setModalOpen(true);
+  };
+
+  const openEdit = (alert: any) => {
+    setEditingAlert(alert);
+    setFormData({ name: alert.name, detail: alert.detail, status: alert.status });
+    setModalOpen(true);
+  };
+
+  const handleSave = (e: React.FormEvent) => {
+    e.preventDefault();
+    const colors: any = { 'PENDIENTE': 'amber', 'CRITICO': 'rose', 'BANEADO': 'slate', 'PAGADO': 'emerald' };
+    
+    if (editingAlert) {
+      setAlertas(alertas.map(a => a.id === editingAlert.id ? { ...a, ...formData, color: colors[formData.status] } : a));
+      showToast('Alerta actualizada');
+    } else {
+      const newAlert = {
+        id: Date.now().toString(),
+        ...formData,
+        color: colors[formData.status]
+      };
+      setAlertas([...alertas, newAlert]);
+      showToast('Nueva alerta creada');
+    }
+    setModalOpen(false);
+  };
+
+  const toggleStatus = (id: string) => {
+    const sequence: any = { 'PENDIENTE': 'CRITICO', 'CRITICO': 'BANEADO', 'BANEADO': 'PAGADO', 'PAGADO': 'PENDIENTE' };
+    const colors: any = { 'PENDIENTE': 'amber', 'CRITICO': 'rose', 'BANEADO': 'slate', 'PAGADO': 'emerald' };
+    setAlertas(alertas.map(a => {
+      if (a.id === id) {
+        const next = sequence[a.status];
+        return { ...a, status: next, color: colors[next] };
+      }
+      return a;
+    }));
+    showToast('Estado actualizado');
+  };
+
+  const deleteAlert = (id: string) => {
+    if (confirm('¿Eliminar esta alerta?')) {
+      setAlertas(alertas.filter(a => a.id !== id));
+      showToast('Alerta eliminada');
+    }
+  };
+
+  const items = tab === 'Activos' ? alertas.filter(a => a.status !== 'PAGADO') : alertas.filter(a => a.status === 'PAGADO');
 
   return (
     <div className="space-y-6 animate-larry">
-      <div className="flex justify-between items-center bg-white/5 p-6 rounded-[2rem] border border-white/5">
+      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center bg-white/5 p-8 rounded-[2.5rem] border border-white/5 gap-8">
         <div>
-          <h1 className="text-3xl font-extrabold font-heading">Alertas</h1>
-          <p className="text-slate-500 text-xs mt-0.5">Gestión de riesgos y deudas</p>
+          <h1 className="text-3xl font-black font-heading text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-amber-400">Control de Alertas</h1>
+          <p className="text-slate-500 text-xs mt-1.5 uppercase tracking-widest font-black opacity-60">SISTEMA DE SEGURIDAD Y DEUDAS</p>
+          <button onClick={openAdd} className="mt-6 flex items-center gap-2 px-6 py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-violet-500/20"><Plus size={14}/> Registrar Nueva Alerta</button>
         </div>
-        <div className="flex gap-10 pr-6">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500"><Clock size={18}/></div>
-            <div><p className="text-lg font-black leading-none">12</p><p className="text-[12px] font-bold text-slate-500 uppercase mt-1">Pendientes</p></div>
+        <div className="flex gap-8 w-full xl:w-auto xl:pr-6 overflow-x-auto pb-2 xl:pb-0">
+          <div className="flex items-center gap-4 min-w-max">
+            <div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500 border border-amber-500/20"><Clock size={20}/></div>
+            <div><p className="text-2xl font-black leading-none">{stats.pendientes}</p><p className="text-[10px] font-black text-slate-500 uppercase mt-1">Pendientes</p></div>
           </div>
-          <div className="flex items-center gap-3 border-x border-white/10 px-10">
-            <div className="w-10 h-10 rounded-xl bg-rose-500/10 flex items-center justify-center text-rose-500"><AlertCircle size={18}/></div>
-            <div><p className="text-lg font-black leading-none">5</p><p className="text-[12px] font-bold text-slate-500 uppercase mt-1">Críticos</p></div>
+          <div className="flex items-center gap-4 min-w-max border-x border-white/10 px-8">
+            <div className="w-12 h-12 rounded-2xl bg-rose-500/10 flex items-center justify-center text-rose-500 border border-rose-500/20"><AlertCircle size={20}/></div>
+            <div><p className="text-2xl font-black leading-none">{stats.criticos}</p><p className="text-[10px] font-black text-slate-500 uppercase mt-1">Críticos</p></div>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-slate-500/10 flex items-center justify-center text-slate-400"><Ban size={18}/></div>
-            <div><p className="text-lg font-black leading-none">3</p><p className="text-[12px] font-bold text-slate-500 uppercase mt-1">Baneados</p></div>
+          <div className="flex items-center gap-4 min-w-max">
+            <div className="w-12 h-12 rounded-2xl bg-slate-500/10 flex items-center justify-center text-slate-400 border border-white/10"><Ban size={20}/></div>
+            <div><p className="text-2xl font-black leading-none">{stats.baneados}</p><p className="text-[10px] font-black text-slate-500 uppercase mt-1">Baneados</p></div>
           </div>
         </div>
       </div>
@@ -852,17 +1421,87 @@ function AlertasView({ retentionPlayers, showToast }) {
       <div className="card-larry overflow-hidden">
         <div className="px-8 py-5 border-b border-white/5 flex justify-between items-center bg-[#0d0d0d]">
           <div className="flex gap-4">
-            <button onClick={()=>setTab('Activos')} className={`text-[13px] font-black uppercase tracking-widest px-4 py-2 rounded-lg transition-all ${tab==='Activos'?'bg-violet-600 text-white shadow-lg shadow-violet-500/20':'text-slate-500 hover:text-white'}`}>Activos</button>
-            <button onClick={()=>setTab('Historial')} className={`text-[13px] font-black uppercase tracking-widest px-4 py-2 rounded-lg transition-all ${tab==='Historial'?'bg-violet-600 text-white shadow-lg shadow-violet-500/20':'text-slate-500 hover:text-white'}`}>Historial</button>
+            <button onClick={()=>setTab('Activos')} className={`text-[11px] font-black uppercase tracking-widest px-6 py-2.5 rounded-xl transition-all ${tab==='Activos'?'bg-violet-600 text-white shadow-lg shadow-violet-500/20':'text-slate-500 hover:text-white hover:bg-white/5'}`}>Activos</button>
+            <button onClick={()=>setTab('Historial')} className={`text-[11px] font-black uppercase tracking-widest px-6 py-2.5 rounded-xl transition-all ${tab==='Historial'?'bg-violet-600 text-white shadow-lg shadow-violet-500/20':'text-slate-500 hover:text-white hover:bg-white/5'}`}>Resueltos</button>
           </div>
-          <button onClick={()=>showToast('Filtros aplicados')} className="text-slate-500 hover:text-white text-[13px] font-bold uppercase tracking-widest flex items-center gap-2 px-4 py-2 border border-white/5 rounded-xl"><Filter size={14}/> Filtrar</button>
         </div>
         <div className="divide-y divide-white/[0.03]">
-          {items.map((item, i) => (
-            <AlertItem key={i} {...item}/>
+          {items.map((item) => (
+            <div key={item.id} className="px-8 py-6 flex items-center justify-between hover:bg-white/[0.02] transition-all group">
+              <div className="flex items-center gap-5">
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border transition-all 
+                  ${item.status === 'CRITICO' ? 'bg-rose-500/10 border-rose-500/20 text-rose-500' : 
+                    item.status === 'PAGADO' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' : 
+                    item.status === 'BANEADO' ? 'bg-slate-500/10 border-white/10 text-slate-400' : 'bg-amber-500/10 border-amber-500/20 text-amber-500'}`}>
+                  {item.status === 'CRITICO' ? <AlertCircle size={20}/> : item.status === 'BANEADO' ? <Ban size={20}/> : item.status === 'PAGADO' ? <CheckCircle2 size={20}/> : <Clock size={20}/>}
+                </div>
+                <div>
+                  <h4 className="text-sm font-black text-white leading-none">{item.name}</h4>
+                  <p className="text-[12px] font-bold mt-1.5 text-slate-500 uppercase tracking-wider">{item.detail}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={() => toggleStatus(item.id)}
+                  className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-[0.1em] border transition-all active:scale-95 shadow-sm
+                    ${item.status === 'CRITICO' ? 'bg-rose-500/10 border-rose-500/30 text-rose-500 hover:bg-rose-500 hover:text-white' : 
+                      item.status === 'PAGADO' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500 hover:bg-emerald-500 hover:text-white' : 
+                      item.status === 'BANEADO' ? 'bg-slate-500/10 border-white/10 text-slate-400 hover:bg-slate-700 hover:text-white' : 
+                      'bg-amber-500/10 border-amber-500/30 text-amber-500 hover:bg-amber-500 hover:text-white'}`}
+                >
+                  {item.status}
+                </button>
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button onClick={() => openEdit(item)} className="p-2 text-slate-600 hover:text-violet-400 transition-colors"><Settings size={14}/></button>
+                  <button onClick={() => deleteAlert(item.id)} className="p-2 text-slate-600 hover:text-rose-500 transition-colors"><Trash2 size={14}/></button>
+                </div>
+              </div>
+            </div>
           ))}
+          {items.length === 0 && (
+            <div className="py-20 text-center text-slate-600 font-black uppercase text-[10px] tracking-widest italic">
+              No hay alertas en esta categoría
+            </div>
+          )}
         </div>
       </div>
+
+      {/* MODAL ALERTA */}
+      {modalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+          <div className="bg-[#0d0d0d] border border-white/10 w-full max-w-md p-8 rounded-[2.5rem] shadow-2xl animate-larry">
+            <h2 className="text-xl font-black font-heading mb-6 flex items-center gap-2">
+              <AlertCircle size={20} className="text-rose-500"/> 
+              {editingAlert ? 'Editar Alerta' : 'Nueva Alerta'}
+            </h2>
+            <form onSubmit={handleSave} className="space-y-4">
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Nombre del Jugador</label>
+                <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-sm font-bold text-white focus:border-violet-500 outline-none transition-all"/>
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Detalle / Motivo</label>
+                <input required type="text" value={formData.detail} onChange={e => setFormData({...formData, detail: e.target.value})} className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-sm font-bold text-white focus:border-violet-500 outline-none transition-all" placeholder="Ej: Deuda de Bs. 50"/>
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Estado Inicial</label>
+                <select value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})} className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-sm font-bold text-white focus:border-violet-500 outline-none transition-all">
+                  <option value="PENDIENTE">PENDIENTE</option>
+                  <option value="CRITICO">CRÍTICO</option>
+                  <option value="BANEADO">BANEADO</option>
+                  <option value="PAGADO">PAGADO</option>
+                </select>
+              </div>
+              <div className="pt-6 flex gap-3">
+                <button type="button" onClick={() => setModalOpen(false)} className="flex-1 py-4 text-xs font-black uppercase text-slate-500 hover:text-white transition-all">Cancelar</button>
+                <button type="submit" className="flex-2 py-4 bg-violet-600 rounded-2xl text-xs font-black uppercase text-white hover:bg-violet-700 transition-all shadow-lg shadow-violet-500/20">
+                  {editingAlert ? 'Guardar Cambios' : 'Crear Alerta'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1193,3 +1832,64 @@ function GestionUsuariosView({ showToast }: { showToast: (m: string) => void }) 
     </div>
   );
 }
+
+const GlobalStyles = () => (
+  <style jsx global>{`
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Outfit:wght@700;900&display=swap');
+    
+    :root {
+      --violet-glow: 0 0 20px rgba(139, 92, 246, 0.3);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #020202;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    .font-heading { font-family: 'Outfit', sans-serif; }
+
+    .card-larry {
+      @apply bg-white/[0.03] border border-white/[0.06] rounded-[2rem] backdrop-blur-xl transition-all duration-500;
+    }
+    .card-larry:hover {
+      @apply border-white/20 bg-white/[0.05] shadow-2xl shadow-black/60;
+      transform: translateY(-2px);
+    }
+
+    .animate-larry {
+      animation: larrySlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes larrySlideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(139,92,246,0.5); }
+
+    /* Mobile Adjustments */
+    @media (max-width: 640px) {
+      .card-larry { @apply rounded-[1.5rem] p-5; }
+      .p-8 { @apply p-5 !important; }
+      .p-12 { @apply p-6 !important; }
+    }
+
+    input, select, button {
+      @apply transition-all duration-300;
+    }
+    
+    .recharts-responsive-container {
+      @apply transition-opacity duration-700;
+    }
+
+    .glass-header {
+      @apply bg-black/80 backdrop-blur-xl border-b border-white/5;
+    }
+  `}</style>
+);
+

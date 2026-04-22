@@ -128,3 +128,21 @@ export const validateLogin = async (user: string, pass: string) => {
   
   return { data, error };
 };
+
+export const bulkInsertPlayers = async (players: any[]) => {
+  if (supabaseUrl === 'https://placeholder.supabase.co') return { error: 'No env vars' };
+  // Using upsert to update existing players (matching by name or id) or insert new ones
+  return await supabase.from('jugadores').upsert(players, { onConflict: 'nombre' });
+};
+
+export const deletePlayer = async (id: string) => {
+  return await supabase.from('jugadores').delete().eq('id', id);
+};
+
+export const deleteAllPlayers = async () => {
+  return await supabase.from('jugadores').delete().neq('id', 'placeholder-uuid-to-delete-all'); // Using a dummy filter to avoid full table delete error if safe mode is on, but in Supabase simple delete() works if no filter is provided on some configs, however common practice is .neq('id', '0') or similar. Actually, supabase delete without filter is allowed if not restricted.
+};
+
+export const updatePlayer = async (id: string, data: any) => {
+  return await supabase.from('jugadores').update(data).eq('id', id);
+};
