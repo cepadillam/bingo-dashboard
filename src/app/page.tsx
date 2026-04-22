@@ -1038,31 +1038,31 @@ function JugadoresView({ topPlayers, showToast }) {
   };
 
   return (
-    <div className="space-y-4 md:space-y-6 animate-larry">
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+    <div className="space-y-4 animate-larry">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div>
-          <h1 className="text-xl md:text-4xl font-black font-heading bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">Jugadores</h1>
-          <p className="text-[9px] md:text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Gestión centralizada</p>
+          <h1 className="text-lg md:text-4xl font-black font-heading bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">Jugadores</h1>
+          <p className="text-[8px] md:text-xs text-slate-500 font-bold uppercase tracking-widest mt-0.5">Gestión centralizada</p>
         </div>
-        <div className="flex gap-2 w-full sm:w-auto">
-          <button onClick={handleDeleteAll} className="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-500 rounded-2xl hover:bg-rose-500 hover:text-white transition-all" title="Borrar Todo"><Trash2 size={18}/></button>
-          <label className={`flex-1 sm:flex-none cursor-pointer flex items-center justify-center gap-2 px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all border ${importing ? 'bg-white/5 border-white/10 text-slate-500' : 'bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-500/50 shadow-lg shadow-emerald-500/20'}`}>
-            {importing ? 'Sincronizando...' : <><Download size={14}/> Importar Excel</>}
+        <div className="flex gap-2">
+          <button onClick={handleDeleteAll} className="p-2 bg-rose-500/10 border border-rose-500/20 text-rose-500 rounded-xl hover:bg-rose-500 hover:text-white transition-all" title="Borrar Todo"><Trash2 size={14}/></button>
+          <label className={`cursor-pointer flex items-center justify-center gap-2 px-4 py-2 rounded-xl font-black text-[9px] uppercase tracking-widest transition-all border ${importing ? 'bg-white/5 border-white/10 text-slate-500' : 'bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-500/50 shadow-lg shadow-emerald-500/20'}`}>
+            {importing ? '...' : <><Download size={12}/> Importar</>}
             <input type="file" accept=".xlsx, .xls, .csv" className="hidden" onChange={handleFileUpload} disabled={importing} />
           </label>
         </div>
       </div>
 
       <div className="card-larry p-6">
-        <div className="flex flex-col md:flex-row gap-4 mb-8">
+        <div className="flex flex-col md:flex-row gap-4 mb-4">
           <div className="flex-1 relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18}/>
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={14}/>
             <input 
               type="text" 
-              placeholder="Buscar por nombre o teléfono..." 
+              placeholder="Buscar..." 
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              className="w-full bg-black/40 border border-white/5 rounded-2xl pl-12 pr-6 py-4 text-sm font-bold text-white focus:border-violet-500 outline-none transition-all"
+              className="w-full bg-black/40 border border-white/5 rounded-xl pl-10 pr-4 py-2.5 text-[11px] font-bold text-white focus:border-violet-500 outline-none transition-all"
             />
           </div>
         </div>
@@ -1873,18 +1873,19 @@ const GlobalStyles = () => (
 
     @media (max-width: 768px) {
       .card-larry {
-        border-radius: 1rem;
-        padding: 0.75rem !important;
+        border-radius: 0.75rem;
+        padding: 0.5rem !important;
       }
-      h1 { font-size: 1.25rem !important; }
-      h2 { font-size: 1.1rem !important; }
-      h3 { font-size: 1rem !important; }
-      p, span, div, button { font-size: 0.75rem !important; }
-      .text-[10px], .text-[11px], .text-xs { font-size: 0.65rem !important; }
-      .p-10, .p-8, .p-6 { padding: 0.75rem !important; }
-      .gap-8, .gap-6, .gap-4 { gap: 0.5rem !important; }
-      .px-8, .px-6 { padding-left: 0.5rem !important; padding-right: 0.5rem !important; }
-      table th, table td { padding: 0.5rem 0.25rem !important; font-size: 0.7rem !important; }
+      h1 { font-size: 1.1rem !important; }
+      h2 { font-size: 1rem !important; }
+      h3 { font-size: 0.9rem !important; }
+      p, span, div, button, input { font-size: 0.7rem !important; }
+      .text-[10px], .text-[11px], .text-xs { font-size: 0.6rem !important; }
+      .p-10, .p-8, .p-6 { padding: 0.5rem !important; }
+      .md:p-10 { padding: 0.5rem !important; }
+      .gap-8, .gap-6, .gap-4 { gap: 0.4rem !important; }
+      .px-8, .px-6 { padding-left: 0.4rem !important; padding-right: 0.4rem !important; }
+      table th, table td { padding: 0.4rem 0.2rem !important; font-size: 0.65rem !important; }
     }
 
     .animate-larry {
