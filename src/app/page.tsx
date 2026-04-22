@@ -316,7 +316,7 @@ function DashboardContent({ user, onLogout }: { user: any; onLogout: () => void 
           </div>
         </header>
 
-        <div className="max-w-[1600px] mx-auto p-4 md:p-10 space-y-8 overflow-hidden">
+        <div className="max-w-[1600px] mx-auto p-4 md:p-10 space-y-6 md:space-y-8 overflow-hidden">
           {activeView === 'Resumen'       && <ResumenView {...viewProps} user={user} handleQuickSale={handleQuickSale} saleAmount={saleAmount} setSaleAmount={setSaleAmount} isSubmitting={isSubmitting} />}
           {activeView === 'Sorteo'        && <FinanzasView {...viewProps} />}
           {activeView === 'Ganancias'     && <GananciasView {...viewProps} />}
@@ -489,7 +489,7 @@ function ResumenView({ session, topPlayers, handleQuickSale, saleAmount, setSale
         <TabGroup tabs={periods} active={period} onChange={setPeriod} />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 md:gap-4">
         <KPICard 
           icon={<DollarSign size={16}/>} 
           label="Ingresos"           
@@ -1870,6 +1870,18 @@ const GlobalStyles = () => (
       border-radius: 2rem;
       backdrop-filter: blur(16px);
       transition: all 0.5s ease;
+    }
+
+    @media (max-width: 768px) {
+      .card-larry {
+        border-radius: 1.25rem;
+        padding: 1rem !important;
+      }
+      .text-3xl { font-size: 1.5rem !important; }
+      .text-2xl { font-size: 1.25rem !important; }
+      .p-10 { padding: 1.25rem !important; }
+      .p-8 { padding: 1rem !important; }
+      .gap-8 { gap: 1rem !important; }
     }
 
     .animate-larry {
