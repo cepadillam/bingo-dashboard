@@ -1412,14 +1412,14 @@ function AlertasView({ alertas, setAlertas, showToast }) {
   const items = tab === 'Activos' ? alertas.filter(a => a.status !== 'PAGADO') : alertas.filter(a => a.status === 'PAGADO');
 
   return (
-    <div className="space-y-6 animate-larry">
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-white/5 p-8 rounded-[2.5rem] border border-white/5">
+    <div className="space-y-4 md:space-y-6 animate-larry">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 md:gap-6 bg-white/5 p-4 md:p-8 rounded-[1.5rem] md:rounded-[2.5rem] border border-white/5">
         <div>
-          <h1 className="text-2xl md:text-4xl font-black font-heading bg-gradient-to-r from-rose-400 to-orange-400 bg-clip-text text-transparent">Control de Alertas</h1>
-          <p className="text-slate-500 text-[10px] md:text-xs font-bold uppercase tracking-widest mt-1">Sistema de seguridad y deudas</p>
-          <button onClick={openAdd} className="mt-6 flex items-center gap-2 px-6 py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-violet-500/20"><Plus size={14}/> Registrar Nueva Alerta</button>
+          <h1 className="text-lg md:text-4xl font-black font-heading bg-gradient-to-r from-rose-400 to-orange-400 bg-clip-text text-transparent">Control de Alertas</h1>
+          <p className="text-[9px] md:text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Seguridad y deudas</p>
+          <button onClick={openAdd} className="mt-4 md:mt-6 flex items-center gap-2 px-4 md:px-6 py-2.5 md:py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-xl md:rounded-2xl font-black text-[9px] md:text-[10px] uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-violet-500/20"><Plus size={14}/> Nueva Alerta</button>
         </div>
-        <div className="flex gap-8 w-full lg:w-auto lg:pr-6 overflow-x-auto pb-2 lg:pb-0">
+        <div className="flex gap-4 md:gap-8 w-full lg:w-auto lg:pr-6 overflow-x-auto pb-2 lg:pb-0">
           <div className="flex items-center gap-4 min-w-max">
             <div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500 border border-amber-500/20"><Clock size={20}/></div>
             <div><p className="text-2xl font-black leading-none">{stats.pendientes}</p><p className="text-[10px] font-black text-slate-500 uppercase mt-1">Pendientes</p></div>
@@ -1436,28 +1436,28 @@ function AlertasView({ alertas, setAlertas, showToast }) {
       </div>
 
       <div className="card-larry overflow-hidden">
-        <div className="px-8 py-5 border-b border-white/5 flex justify-between items-center bg-[#0d0d0d]">
-          <div className="flex gap-4">
-            <button onClick={()=>setTab('Activos')} className={`text-[11px] font-black uppercase tracking-widest px-6 py-2.5 rounded-xl transition-all ${tab==='Activos'?'bg-violet-600 text-white shadow-lg shadow-violet-500/20':'text-slate-500 hover:text-white hover:bg-white/5'}`}>Activos</button>
-            <button onClick={()=>setTab('Historial')} className={`text-[11px] font-black uppercase tracking-widest px-6 py-2.5 rounded-xl transition-all ${tab==='Historial'?'bg-violet-600 text-white shadow-lg shadow-violet-500/20':'text-slate-500 hover:text-white hover:bg-white/5'}`}>Resueltos</button>
+        <div className="px-4 md:px-8 py-4 md:py-5 border-b border-white/5 flex justify-between items-center bg-[#0d0d0d]">
+          <div className="flex gap-2 md:gap-4">
+            <button onClick={()=>setTab('Activos')} className={`text-[9px] md:text-[11px] font-black uppercase tracking-widest px-4 md:px-6 py-2 md:py-2.5 rounded-lg md:rounded-xl transition-all ${tab==='Activos'?'bg-violet-600 text-white shadow-lg shadow-violet-500/20':'text-slate-500 hover:text-white hover:bg-white/5'}`}>Activos</button>
+            <button onClick={()=>setTab('Historial')} className={`text-[9px] md:text-[11px] font-black uppercase tracking-widest px-4 md:px-6 py-2 md:py-2.5 rounded-lg md:rounded-xl transition-all ${tab==='Historial'?'bg-violet-600 text-white shadow-lg shadow-violet-500/20':'text-slate-500 hover:text-white hover:bg-white/5'}`}>Resueltos</button>
           </div>
         </div>
         <div className="divide-y divide-white/[0.03]">
           {items.map((item) => (
-            <div key={item.id} className="px-8 py-6 flex items-center justify-between hover:bg-white/[0.02] transition-all group">
-              <div className="flex items-center gap-5">
-                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border transition-all 
+            <div key={item.id} className="px-4 md:px-8 py-4 md:py-6 flex items-center justify-between hover:bg-white/[0.02] transition-all group">
+              <div className="flex items-center gap-3 md:gap-5">
+                <div className={`w-8 h-8 md:w-12 md:h-12 rounded-lg md:rounded-2xl flex items-center justify-center border transition-all 
                   ${item.status === 'CRITICO' ? 'bg-rose-500/10 border-rose-500/20 text-rose-500' : 
                     item.status === 'PAGADO' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' : 
                     item.status === 'BANEADO' ? 'bg-slate-500/10 border-white/10 text-slate-400' : 'bg-amber-500/10 border-amber-500/20 text-amber-500'}`}>
-                  {item.status === 'CRITICO' ? <AlertCircle size={20}/> : item.status === 'BANEADO' ? <Ban size={20}/> : item.status === 'PAGADO' ? <CheckCircle2 size={20}/> : <Clock size={20}/>}
+                  {item.status === 'CRITICO' ? <AlertCircle size={16}/> : item.status === 'BANEADO' ? <Ban size={16}/> : item.status === 'PAGADO' ? <CheckCircle2 size={16}/> : <Clock size={16}/>}
                 </div>
                 <div>
-                  <h4 className="text-sm font-black text-white leading-none">{item.name}</h4>
-                  <p className="text-[12px] font-bold mt-1.5 text-slate-500 uppercase tracking-wider">{item.detail}</p>
+                  <h4 className="text-xs md:text-sm font-black text-white leading-none">{item.name}</h4>
+                  <p className="text-[10px] md:text-[12px] font-bold mt-1 md:mt-1.5 text-slate-500 uppercase tracking-wider">{item.detail}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 md:gap-3">
                 <button 
                   onClick={() => toggleStatus(item.id)}
                   className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-[0.1em] border transition-all active:scale-95 shadow-sm
