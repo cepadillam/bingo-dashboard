@@ -233,14 +233,14 @@ function DashboardContent({ user, onLogout }: { user: any; onLogout: () => void 
       {/* Sidebar Mobile Overlay */}
       {isMobileMenuOpen && (
         <div 
-          className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] transition-opacity"
+          className="lg:hidden fixed inset-0 bg-black/40 backdrop-blur-[2px] z-[60] transition-opacity"
           onClick={closeMobileMenu}
         />
       )}
 
       {/* Sidebar */}
       <aside className={`
-        w-60 border-r border-white/5 flex flex-col fixed inset-y-0 bg-black z-50 transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] lg:translate-x-0
+        w-60 border-r border-white/5 flex flex-col fixed inset-y-0 bg-black z-[70] transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] lg:translate-x-0
         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <div className="p-8">
