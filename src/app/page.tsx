@@ -1762,8 +1762,8 @@ function GestionUsuariosView({ showToast }: { showToast: (m: string) => void }) 
         </button>
       </div>
 
-      {/* Desktop Table */}
-      <div className="hidden md:block card-larry overflow-hidden">
+      {/* Table - Hidden on all mobile/small tablets */}
+      <div className="hidden lg:block card-larry overflow-hidden">
         <table className="w-full text-left">
           <thead className="bg-white/[0.02] text-[12px] uppercase tracking-widest text-slate-500 font-black border-b border-white/5">
             <tr>
@@ -1775,7 +1775,9 @@ function GestionUsuariosView({ showToast }: { showToast: (m: string) => void }) 
             </tr>
           </thead>
           <tbody className="divide-y divide-white/[0.03]">
-            {users.map(u => (
+            {users.length === 0 ? (
+              <tr><td colSpan={5} className="px-8 py-20 text-center text-slate-600 font-bold uppercase tracking-widest text-xs">No hay usuarios registrados</td></tr>
+            ) : users.map(u => (
               <tr key={u.id} className="group hover:bg-white/[0.01] transition-colors">
                 <td className="px-8 py-4">
                   <div className="flex items-center gap-3">
@@ -1814,9 +1816,11 @@ function GestionUsuariosView({ showToast }: { showToast: (m: string) => void }) 
         </table>
       </div>
 
-      {/* Mobile Cards */}
-      <div className="grid grid-cols-1 gap-4 md:hidden">
-        {users.map(u => (
+      {/* Cards - Visible on Mobile and Tablets */}
+      <div className="grid grid-cols-1 gap-4 lg:hidden">
+        {users.length === 0 ? (
+          <div className="card-larry p-12 text-center text-slate-600 font-black uppercase tracking-widest text-[10px]">No hay usuarios registrados</div>
+        ) : users.map(u => (
           <div key={u.id} className="card-larry p-5 space-y-4 relative overflow-hidden">
             <div className="flex justify-between items-start">
               <div className="flex items-center gap-3">
