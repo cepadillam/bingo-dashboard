@@ -576,12 +576,15 @@ function GananciasView({ showToast, statsMensuales }) {
   };
 
   return (
-    <div className="space-y-6 animate-larry">
-      <div className="flex justify-between items-center">
-        <div><h1 className="text-3xl font-extrabold font-heading">Ganancias</h1><p className="text-slate-500 text-xs">Análisis de rentabilidad por sorteo</p></div>
-        <div className="flex items-center gap-3">
+    <div className="space-y-4 md:space-y-6 animate-larry">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-xl md:text-3xl font-black font-heading text-white">Ganancias</h1>
+          <p className="text-[10px] md:text-xs text-slate-500 font-bold uppercase tracking-widest">Análisis de rentabilidad</p>
+        </div>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           <TabGroup tabs={periods} active={period} onChange={setPeriod} />
-          <button onClick={handleDownload} className="p-2.5 bg-white/5 rounded-xl border border-white/10 text-slate-400 hover:text-white transition-all active:scale-95"><Download size={14}/></button>
+          <button onClick={handleDownload} className="p-2 bg-white/5 rounded-xl border border-white/10 text-slate-400"><Download size={14}/></button>
         </div>
       </div>
 
@@ -1035,13 +1038,13 @@ function JugadoresView({ topPlayers, showToast }) {
   };
 
   return (
-    <div className="space-y-6 animate-larry">
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+    <div className="space-y-4 md:space-y-6 animate-larry">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div>
-          <h1 className="text-2xl md:text-4xl font-black font-heading bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">Inteligencia de Jugadores</h1>
-          <p className="text-slate-500 text-[10px] md:text-xs font-bold uppercase tracking-widest mt-1">Gestión centralizada y sincronización</p>
+          <h1 className="text-xl md:text-4xl font-black font-heading bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">Jugadores</h1>
+          <p className="text-[9px] md:text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Gestión centralizada</p>
         </div>
-        <div className="flex gap-3 w-full sm:w-auto">
+        <div className="flex gap-2 w-full sm:w-auto">
           <button onClick={handleDeleteAll} className="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-500 rounded-2xl hover:bg-rose-500 hover:text-white transition-all" title="Borrar Todo"><Trash2 size={18}/></button>
           <label className={`flex-1 sm:flex-none cursor-pointer flex items-center justify-center gap-2 px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all border ${importing ? 'bg-white/5 border-white/10 text-slate-500' : 'bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-500/50 shadow-lg shadow-emerald-500/20'}`}>
             {importing ? 'Sincronizando...' : <><Download size={14}/> Importar Excel</>}
@@ -1745,11 +1748,11 @@ function GestionUsuariosView({ showToast }: { showToast: (m: string) => void }) 
   };
 
   return (
-    <div className="space-y-6 md:space-y-10 animate-larry">
+    <div className="space-y-4 md:space-y-10 animate-larry">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl md:text-5xl font-extrabold tracking-tight font-heading">Usuarios</h1>
-          <p className="text-slate-500 text-[10px] md:text-base mt-1 md:mt-2 font-medium">Gestiona accesos, roles y permisos</p>
+          <h1 className="text-xl md:text-5xl font-black font-heading text-white">Usuarios</h1>
+          <p className="text-[9px] md:text-base text-slate-500 font-bold uppercase tracking-widest mt-1">Accesos y permisos</p>
         </div>
         <button 
           onClick={() => setIsModalOpen(true)}
@@ -1870,14 +1873,18 @@ const GlobalStyles = () => (
 
     @media (max-width: 768px) {
       .card-larry {
-        border-radius: 1.25rem;
-        padding: 1rem !important;
+        border-radius: 1rem;
+        padding: 0.75rem !important;
       }
-      .text-3xl { font-size: 1.5rem !important; }
-      .text-2xl { font-size: 1.25rem !important; }
-      .p-10 { padding: 1.25rem !important; }
-      .p-8 { padding: 1rem !important; }
-      .gap-8 { gap: 1rem !important; }
+      h1 { font-size: 1.25rem !important; }
+      h2 { font-size: 1.1rem !important; }
+      h3 { font-size: 1rem !important; }
+      p, span, div, button { font-size: 0.75rem !important; }
+      .text-[10px], .text-[11px], .text-xs { font-size: 0.65rem !important; }
+      .p-10, .p-8, .p-6 { padding: 0.75rem !important; }
+      .gap-8, .gap-6, .gap-4 { gap: 0.5rem !important; }
+      .px-8, .px-6 { padding-left: 0.5rem !important; padding-right: 0.5rem !important; }
+      table th, table td { padding: 0.5rem 0.25rem !important; font-size: 0.7rem !important; }
     }
 
     .animate-larry {
