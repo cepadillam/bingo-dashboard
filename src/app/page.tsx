@@ -19,7 +19,8 @@ import {
   bulkInsertPlayers, deletePlayer, updatePlayer, deleteAllPlayers,
   useGastos, addGasto, deleteGasto, updateGasto,
   useGanadores, addGanador, updateGanador, deleteGanador,
-  useAlertas, addAlerta, updateAlerta, deleteAlerta
+  useAlertas, addAlerta, updateAlerta, deleteAlerta,
+  useHistoricoSorteos, addSorteo, updateSorteo, deleteSorteo
 } from './supabase-hooks';
 
 /* ─── Toast Notification ─────────────────────────────── */
@@ -178,13 +179,7 @@ function DashboardContent({ user, onLogout }: { user: any; onLogout: () => void 
   const gastos = useGastos();
   const ganadores = useGanadores();
   const alertas = useAlertas();
-
-  const [historicoSorteos, setHistoricoSorteos] = useState<any[]>([
-    { id: '1', nombre: 'Sorteo 1', fecha: '2024-03-05', vendidos: 120, regalados: 5, repartidos: 150, precio: 10, premios: 400 },
-    { id: '2', nombre: 'Sorteo 2', fecha: '2024-03-12', vendidos: 180, regalados: 10, repartidos: 200, precio: 10, premios: 600 },
-    { id: '3', nombre: 'Sorteo 3', fecha: '2024-03-19', vendidos: 210, regalados: 15, repartidos: 250, precio: 10, premios: 800 },
-    { id: '4', nombre: 'Sorteo 4', fecha: '2024-03-26', vendidos: 155, regalados: 8, repartidos: 180, precio: 10, premios: 500 },
-  ]);
+  const historicoSorteos = useHistoricoSorteos();
 
   const statsMensuales = useMemo(() => {
     const totalVendido = historicoSorteos.reduce((acc, s) => acc + (s.vendidos * s.precio), 0);
@@ -218,7 +213,7 @@ function DashboardContent({ user, onLogout }: { user: any; onLogout: () => void 
     finally { setIsSubmitting(false); }
   };
 
-  const viewProps = { session, topPlayers, retentionPlayers, showToast, historicoSorteos, setHistoricoSorteos, statsMensuales, alertas, ganadores, gastos };
+  const viewProps = { session, topPlayers, retentionPlayers, showToast, historicoSorteos, statsMensuales, alertas, ganadores, gastos };
 
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
@@ -385,31 +380,19 @@ function InteractiveChart({ data: rawData, period }: { data: any[], period: stri
 }
 
 /* ─── GANANCIAS MASTER CHART (Recharts) ─────────────── */
-function MasterFlowChart({ period }: { period: string }) {
-  const dataMap: Record<string, any[]> = {
-    Sorteo: [
-      { n:'S1', ventas:38000, premios:12000 }, { n:'S2', ventas:26000, premios:9000  },
-      { n:'S3', ventas:41000, premios:15000 }, { n:'S4', ventas:32000, premios:11000 },
-      { n:'S5', ventas:48000, premios:18000 }, { n:'S6', ventas:35000, premios:13000 },
-      { n:'S7', ventas:43000, premios:16000 }, { n:'S8', ventas:51000, premios:20000 },
-      { n:'S9', ventas:39000, premios:14000 }, { n:'S10',ventas:44000, premios:17000 },
-      { n:'S11',ventas:56000, premios:22000 }, { n:'S12',ventas:47000, premios:18000 },
-      { n:'S13',ventas:60000, premios:24000 }, { n:'S14',ventas:52000, premios:21000 },
-    ],
-    Diario: [
-      { n:'Lun', ventas:12500, premios:4200 }, { n:'Mar', ventas:9800,  premios:3100 },
-      { n:'Mie', ventas:15200, premios:5800 }, { n:'Jue', ventas:11000, premios:3900 },
-      { n:'Vie', ventas:18400, premios:7200 }, { n:'Sab', ventas:22000, premios:9500 },
-      { n:'Dom', ventas:14600, premios:5100 },
-    ],
-    Semanal: [
-      { n:'Sem 1', ventas:68000, premios:24000 }, { n:'Sem 2', ventas:82000, premios:31000 },
-      { n:'Sem 3', ventas:75000, premios:27000 }, { n:'Sem 4', ventas:91000, premios:38000 },
-      { n:'Sem 5', ventas:88000, premios:35000 }, { n:'Sem 6', ventas:104000, premios:42000 },
-      { n:'Sem 7', ventas:96000, premios:39000 }, { n:'Sem 8', ventas:115000, premios:48000 },
-    ],
-  };
-  const data = dataMap[period] || dataMap['Diario'];
+function MasterFlowChart({ period, historicoSorteos }: { period: string, historicoSorteos: any[] }) {
+  const data = useMemo(() => {
+    if (!historicoSorteos || historicoSorteos.length === 0) return [];
+    
+    // Simplification for now: we show the actual draws, sorted chronologically
+    const sorted = [...historicoSorteos].sort((a,b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime());
+    
+    return sorted.map((s, i) => ({
+      n: s.nombre || `S${i+1}`,
+      ventas: (s.vendidos || 0) * (s.precio || 0),
+      premios: s.premios || 0
+    }));
+  }, [historicoSorteos]);
 
   return (
     <ResponsiveContainer width="100%" height={420}>
@@ -563,7 +546,7 @@ function ResumenView({ session, topPlayers, handleQuickSale, saleAmount, setSale
 }
 
 /* ─── GANANCIAS ──────────────────────────────────────── */
-function GananciasView({ showToast, statsMensuales }) {
+function GananciasView({ showToast, statsMensuales, historicoSorteos }) {
   const [period, setPeriod] = useState('Diario');
   const periods = ['Sorteo','Diario','Semanal'];
 
@@ -599,7 +582,7 @@ function GananciasView({ showToast, statsMensuales }) {
           </div>
         </div>
         <div className="flex-1">
-          <MasterFlowChart period={period} />
+          {historicoSorteos.length > 0 ? <MasterFlowChart period={period} historicoSorteos={historicoSorteos} /> : <div className="h-full flex items-center justify-center text-slate-500 font-bold uppercase text-[10px] tracking-widest italic pt-20">Esperando datos reales de sorteos...</div>}
         </div>
       </div>
     </div>
@@ -1133,7 +1116,7 @@ function JugadoresView({ topPlayers, showToast }) {
 }
 
 /* ─── FINANZAS ───────────────────────────────────────── */
-function FinanzasView({ showToast, historicoSorteos, setHistoricoSorteos }) {
+function FinanzasView({ showToast, historicoSorteos }) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [sorteo, setSorteo] = useState('Sorteo Especial');
   const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0]);
@@ -1149,14 +1132,14 @@ function FinanzasView({ showToast, historicoSorteos, setHistoricoSorteos }) {
   const totalRecaudado = vendidos * precio;
   const ganancia = totalRecaudado - premios;
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    const data = { nombre: sorteo, fecha, vendidos, regalados, repartidos, precio, premios };
     if (editingId) {
-      setHistoricoSorteos(historicoSorteos.map(s => s.id === editingId ? { ...s, nombre: sorteo, fecha, vendidos, regalados, repartidos, precio, premios } : s));
+      await updateSorteo(editingId, data);
       setEditingId(null);
       showToast('Sorteo actualizado');
     } else {
-      const nuevo = { id: Date.now().toString(), nombre: sorteo, fecha, vendidos, regalados, repartidos, precio, premios };
-      setHistoricoSorteos([...historicoSorteos, nuevo]);
+      await addSorteo(data);
       showToast('Sorteo registrado');
     }
   };
@@ -1173,9 +1156,9 @@ function FinanzasView({ showToast, historicoSorteos, setHistoricoSorteos }) {
     showToast('Cargando detalles...');
   };
 
-  const handleDelete = (id: string, e: React.MouseEvent) => {
+  const handleDelete = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setHistoricoSorteos(historicoSorteos.filter(s => s.id !== id));
+    await deleteSorteo(id);
     if (editingId === id) setEditingId(null);
     showToast('Sorteo eliminado');
   };

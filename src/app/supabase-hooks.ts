@@ -236,3 +236,33 @@ export const updateAlerta = async (id: string, data: any) => {
 export const deleteAlerta = async (id: string) => {
   return await supabase.from('alertas').delete().eq('id', id);
 };
+
+/* ─── HISTORICO SORTEOS ──────────────────────────────── */
+export const useHistoricoSorteos = () => {
+  const [sorteos, setSorteos] = useState<any[]>([]);
+  useEffect(() => {
+    if (supabaseUrl === 'https://placeholder.supabase.co') return;
+    const fetchSorteos = async () => {
+      const { data } = await supabase.from('historico_sorteos').select('*').order('fecha', { ascending: false });
+      setSorteos(data || []);
+    };
+    fetchSorteos();
+    const channel = supabase.channel('realtime_sorteos')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'historico_sorteos' }, () => fetchSorteos())
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+  return sorteos;
+};
+
+export const addSorteo = async (sorteo: any) => {
+  return await supabase.from('historico_sorteos').insert([sorteo]);
+};
+
+export const updateSorteo = async (id: string, data: any) => {
+  return await supabase.from('historico_sorteos').update(data).eq('id', id);
+};
+
+export const deleteSorteo = async (id: string) => {
+  return await supabase.from('historico_sorteos').delete().eq('id', id);
+};
