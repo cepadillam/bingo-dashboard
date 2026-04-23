@@ -764,7 +764,7 @@ function GanadoresView({ ganadores, showToast }) {
       {/* MODAL GANADORES */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-[#0a0a0a] border border-white/10 w-full max-w-md p-8 rounded-[2rem] shadow-2xl animate-larry">
+          <div className="bg-[#0a0a0a] border border-white/10 w-full max-w-md p-8 rounded-[2rem] shadow-2xl animate-larry max-h-[90vh] overflow-y-auto custom-scrollbar">
             <h2 className="text-2xl font-black font-heading mb-6">{editingGanador ? 'Editar Ganador' : 'Registrar Ganador'}</h2>
             <form onSubmit={handleSave} className="space-y-4">
               <div className="space-y-1">
