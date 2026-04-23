@@ -606,7 +606,7 @@ function GananciasView({ showToast, historicoSorteos, gastos, globalMonth, globa
         const diff = today.getTime() - d.getTime();
         return diff >= 0 && diff <= 7 * 24 * 60 * 60 * 1000;
       }
-      return d.getMonth() === selectedMonth && d.getFullYear() === selectedYear;
+      return d.getMonth() === globalMonth && d.getFullYear() === globalYear;
     });
 
     const totalVendido = filteredSorteos.reduce((acc, s) => acc + (s.vendidos * (s.precio || 0)), 0);
@@ -623,7 +623,7 @@ function GananciasView({ showToast, historicoSorteos, gastos, globalMonth, globa
         const diff = today.getTime() - d.getTime();
         return diff >= 0 && diff <= 7 * 24 * 60 * 60 * 1000;
       }
-      return d.getMonth() === selectedMonth && d.getFullYear() === selectedYear;
+      return d.getMonth() === globalMonth && d.getFullYear() === globalYear;
     });
 
     const totalGastos = filteredGastos.reduce((acc, g) => acc + (g.monto || 0), 0);
