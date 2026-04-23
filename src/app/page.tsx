@@ -432,7 +432,8 @@ function ResumenView({ session, topPlayers, handleQuickSale, saleAmount, setSale
   const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
   const statsPeriod = useMemo(() => {
-    const todayStr = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD local
+    const n = new Date();
+    const todayStr = `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, '0')}-${String(n.getDate()).padStart(2, '0')}`;
     const now = new Date();
 
     const filtered = historicoSorteos.filter(s => {
