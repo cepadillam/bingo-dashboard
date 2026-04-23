@@ -2006,6 +2006,10 @@ const GlobalStyles = () => (
       transition: background 0.5s ease;
     }
 
+    select {
+      color-scheme: dark;
+    }
+
     select option {
       background-color: #0a0a0a !important;
       color: #ffffff !important;
