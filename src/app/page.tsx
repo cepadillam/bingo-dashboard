@@ -135,8 +135,8 @@ export default function BingoDashboard() {
       const savedUser = localStorage.getItem('bingo_user');
       if (savedUser) setUser(JSON.parse(savedUser));
 
-      if (localStorage.getItem('bingo_theme') === 'light-dark') {
-        document.body.classList.add('light-dark');
+      if (localStorage.getItem('bingo_theme') === 'light-mode' || localStorage.getItem('bingo_theme') === 'light-dark') {
+        document.body.classList.add('light-mode');
       }
       if (localStorage.getItem('bingo_anim') === 'reduced') {
         document.body.classList.add('reduced-animations');
@@ -1534,7 +1534,10 @@ function AlertasView({ alertas, setAlertas, showToast }) {
 function ConfiguracionView({ showToast }) {
   const [activeSection, setActiveSection] = useState('General');
   const [darkMode, setDarkMode] = useState(() => {
-    if (typeof window !== 'undefined') return localStorage.getItem('bingo_theme') !== 'light-dark';
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('bingo_theme');
+      return saved !== 'light-mode' && saved !== 'light-dark';
+    }
     return true;
   });
   const [reducedAnim, setReducedAnim] = useState(() => {
@@ -1548,11 +1551,11 @@ function ConfiguracionView({ showToast }) {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     if (darkMode) {
-      document.body.classList.remove('light-dark');
+      document.body.classList.remove('light-mode');
       localStorage.setItem('bingo_theme', 'blackout');
     } else {
-      document.body.classList.add('light-dark');
-      localStorage.setItem('bingo_theme', 'light-dark');
+      document.body.classList.add('light-mode');
+      localStorage.setItem('bingo_theme', 'light-mode');
     }
   }, [darkMode]);
 
@@ -1944,20 +1947,58 @@ const GlobalStyles = () => (
       transition: background 0.5s ease;
     }
 
-    body.light-dark .bg-black {
-      background-color: #0f1115 !important;
+    body.light-mode {
+      background-color: #f1f5f9 !important;
+      color: #0f172a !important;
     }
-    body.light-dark .bg-\\[\\#080808\\] {
-      background-color: #15181e !important;
+
+    body.light-mode .bg-black,
+    body.light-mode .bg-\\[\\#080808\\],
+    body.light-mode .bg-\\[\\#0d0d0d\\],
+    body.light-mode .bg-\\[\\#0a0a0a\\],
+    body.light-mode .bg-\\[\\#0c0c0c\\],
+    body.light-mode .bg-\\[\\#121212\\],
+    body.light-mode .bg-\\[\\#1a1a1c\\] {
+      background-color: #ffffff !important;
     }
-    body.light-dark .bg-\\[\\#0d0d0d\\] {
-      background-color: #1a1d24 !important;
+
+    body.light-mode .bg-white\\/5 { background-color: rgba(0,0,0,0.03) !important; }
+    body.light-mode .bg-white\\/10 { background-color: rgba(0,0,0,0.06) !important; }
+    body.light-mode .bg-white\\/\\[0\\.02\\] { background-color: rgba(0,0,0,0.02) !important; }
+    body.light-mode .bg-white\\/\\[0\\.03\\] { background-color: rgba(0,0,0,0.03) !important; }
+    
+    body.light-mode .text-white { color: #0f172a !important; }
+    body.light-mode .text-slate-300 { color: #334155 !important; }
+    body.light-mode .text-slate-400 { color: #475569 !important; }
+    body.light-mode .text-slate-500 { color: #64748b !important; }
+    
+    body.light-mode .border-white\\/5 { border-color: rgba(0,0,0,0.08) !important; }
+    body.light-mode .border-white\\/10 { border-color: rgba(0,0,0,0.12) !important; }
+    
+    body.light-mode input, body.light-mode select {
+      background-color: #ffffff !important;
+      color: #0f172a !important;
+      border-color: rgba(0,0,0,0.15) !important;
     }
-    body.light-dark .bg-\\[\\#0a0a0a\\] {
-      background-color: #1a1d24 !important;
+    body.light-mode input::placeholder { color: #94a3b8 !important; }
+
+    body.light-mode .from-\\[\\#0d0d0d\\], body.light-mode .to-black, body.light-mode .bg-gradient-to-br, body.light-mode .bg-gradient-to-b {
+      background: #ffffff !important;
     }
-    body.light-dark .bg-\\[\\#1a1a1c\\] {
-      background-color: #1f222b !important;
+
+    body.light-mode .divide-white\\/\\[0\\.03\\] > :not([hidden]) ~ :not([hidden]) {
+      border-color: rgba(0,0,0,0.06) !important;
+    }
+    
+    body.light-mode tr.hover\\:bg-white\\/\\[0\\.02\\]:hover,
+    body.light-mode tr.hover\\:bg-white\\/\\[0\\.01\\]:hover {
+      background-color: rgba(0,0,0,0.03) !important;
+    }
+
+    body.light-mode .card-larry {
+      background: #ffffff !important;
+      border: 1px solid rgba(0,0,0,0.06) !important;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.02) !important;
     }
 
     body.reduced-animations *,
