@@ -1948,7 +1948,7 @@ const GlobalStyles = () => (
     }
 
     body.light-mode {
-      background-color: #f1f5f9 !important;
+      background-color: #e0f7fa !important; /* Azul turquesa muy claro */
       color: #0f172a !important;
     }
 
@@ -1969,10 +1969,10 @@ const GlobalStyles = () => (
     body.light-mode [class~="bg-black/50"] { background-color: rgba(255,255,255,0.5) !important; }
     body.light-mode [class~="bg-black/40"] { background-color: rgba(255,255,255,0.4) !important; }
 
-    body.light-mode [class~="bg-white/5"] { background-color: rgba(0,0,0,0.03) !important; }
-    body.light-mode [class~="bg-white/10"] { background-color: rgba(0,0,0,0.06) !important; }
-    body.light-mode [class~="bg-white/[0.02]"] { background-color: rgba(0,0,0,0.02) !important; }
-    body.light-mode [class~="bg-white/[0.03]"] { background-color: rgba(0,0,0,0.03) !important; }
+    body.light-mode [class~="bg-white/5"] { background-color: rgba(6,182,212,0.05) !important; }
+    body.light-mode [class~="bg-white/10"] { background-color: rgba(6,182,212,0.1) !important; }
+    body.light-mode [class~="bg-white/[0.02]"] { background-color: rgba(6,182,212,0.03) !important; }
+    body.light-mode [class~="bg-white/[0.03]"] { background-color: rgba(6,182,212,0.05) !important; }
     
     body.light-mode [class~="text-white"] { color: #000000 !important; }
     
@@ -1986,33 +1986,33 @@ const GlobalStyles = () => (
     body.light-mode [class~="text-slate-400"] { color: #334155 !important; }
     body.light-mode [class~="text-slate-500"] { color: #475569 !important; }
     
-    body.light-mode [class~="border-white/5"] { border-color: rgba(0,0,0,0.08) !important; }
-    body.light-mode [class~="border-white/10"] { border-color: rgba(0,0,0,0.12) !important; }
+    body.light-mode [class~="border-white/5"] { border-color: rgba(6,182,212,0.15) !important; }
+    body.light-mode [class~="border-white/10"] { border-color: rgba(6,182,212,0.25) !important; }
     
     body.light-mode input, body.light-mode select {
-      background-color: #ffffff !important;
+      background-color: #f0fcfd !important;
       color: #000000 !important;
-      border-color: rgba(0,0,0,0.15) !important;
+      border-color: rgba(6,182,212,0.3) !important;
     }
-    body.light-mode input::placeholder { color: #94a3b8 !important; }
+    body.light-mode input::placeholder { color: #0891b2 !important; opacity: 0.6 !important; }
 
     body.light-mode [class~="from-[#0d0d0d]"], body.light-mode [class~="to-black"], body.light-mode [class~="bg-gradient-to-br"], body.light-mode [class~="bg-gradient-to-b"] {
       background: #ffffff !important;
     }
 
     body.light-mode [class~="divide-white/[0.03]"] > :not([hidden]) ~ :not([hidden]) {
-      border-color: rgba(0,0,0,0.06) !important;
+      border-color: rgba(6,182,212,0.15) !important;
     }
     
-    body.light-mode tr.hover\\:bg-white\\/\\[0\\.02\\]:hover,
-    body.light-mode tr.hover\\:bg-white\\/\\[0\\.01\\]:hover {
-      background-color: rgba(0,0,0,0.03) !important;
+    body.light-mode [class~="hover:bg-white/[0.02]"]:hover,
+    body.light-mode [class~="hover:bg-white/[0.01]"]:hover {
+      background-color: rgba(6,182,212,0.08) !important;
     }
 
     body.light-mode .card-larry {
       background: #ffffff !important;
-      border: 1px solid rgba(0,0,0,0.06) !important;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.02) !important;
+      border: 1px solid rgba(6,182,212,0.2) !important;
+      box-shadow: 0 4px 24px rgba(6,182,212,0.05) !important;
     }
 
     body.reduced-animations *,
