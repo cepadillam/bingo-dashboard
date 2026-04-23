@@ -1879,10 +1879,13 @@ function GestionUsuariosView({ showToast }: { showToast: (m: string) => void }) 
     e.preventDefault();
     const { error } = await createSystemUser(newUser.usuario, newUser.clave, newUser.rol);
     if (!error) {
-      showToast('Usuario creado correctamente');
+      showToast('✓ Usuario creado correctamente');
       setIsModalOpen(false);
       setNewUser({ usuario: '', clave: '', rol: 'invitado' });
-    } else showToast('Error al crear usuario');
+    } else {
+      console.error(error);
+      showToast(`Error: ${error.message || 'No se pudo crear'}`);
+    }
   };
 
   const handleUpdateStatus = async (id: string, status: string) => {
