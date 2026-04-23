@@ -314,16 +314,16 @@ function DashboardContent({ user, onLogout }: { user: any; onLogout: () => void 
                   <select 
                     value={globalMonth} 
                     onChange={e => setGlobalMonth(Number(e.target.value))}
-                    className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest text-slate-300 outline-none cursor-pointer"
+                    className="bg-black/50 border border-white/10 text-white rounded-lg text-[10px] font-black uppercase tracking-widest outline-none cursor-pointer px-2 py-1 hover:border-violet-500 transition-all"
                   >
-                    {meses.map((m, i) => <option key={i} value={i} className="bg-black">{m}</option>)}
+                    {meses.map((m, i) => <option key={i} value={i} className="bg-[#0a0a0a] text-white">{m}</option>)}
                   </select>
                   <select 
                     value={globalYear} 
                     onChange={e => setGlobalYear(Number(e.target.value))}
-                    className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest text-slate-300 outline-none cursor-pointer"
+                    className="bg-black/50 border border-white/10 text-white rounded-lg text-[10px] font-black uppercase tracking-widest outline-none cursor-pointer px-2 py-1 hover:border-violet-500 transition-all"
                   >
-                    {[2024, 2025, 2026].map(y => <option key={y} value={y} className="bg-black">{y}</option>)}
+                    {[2024, 2025, 2026].map(y => <option key={y} value={y} className="bg-[#0a0a0a] text-white">{y}</option>)}
                   </select>
                 </div>
               </div>
@@ -2004,6 +2004,11 @@ const GlobalStyles = () => (
       -webkit-font-smoothing: antialiased;
       overflow-x: hidden;
       transition: background 0.5s ease;
+    }
+
+    select option {
+      background-color: #0a0a0a !important;
+      color: #ffffff !important;
     }
 
     body.light-mode {
