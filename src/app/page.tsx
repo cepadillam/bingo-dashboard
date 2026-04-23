@@ -1976,11 +1976,18 @@ const GlobalStyles = () => (
     
     body.light-mode [class~="text-white"] { color: #000000 !important; }
     
-    /* Keep text white on primary colored buttons/blocks */
+    /* Keep text white on primary colored buttons/blocks, but ignore gradient text */
     body.light-mode [class*="bg-violet-600"], body.light-mode [class*="bg-violet-600"] * { color: #ffffff !important; }
     body.light-mode [class*="bg-rose-600"], body.light-mode [class*="bg-rose-600"] * { color: #ffffff !important; }
     body.light-mode [class*="bg-emerald-600"], body.light-mode [class*="bg-emerald-600"] * { color: #ffffff !important; }
-    body.light-mode [class*="bg-gradient-to-r"], body.light-mode [class*="bg-gradient-to-r"] * { color: #ffffff !important; }
+    body.light-mode [class*="bg-gradient-to-r"]:not([class~="bg-clip-text"]), body.light-mode [class*="bg-gradient-to-r"]:not([class~="bg-clip-text"]) * { color: #ffffff !important; }
+    
+    /* Darken text gradients for readability in light mode */
+    body.light-mode [class~="bg-clip-text"][class~="from-rose-400"] { --tw-gradient-from: #e11d48 !important; }
+    body.light-mode [class~="bg-clip-text"][class~="to-orange-400"] { --tw-gradient-to: #ea580c !important; }
+    body.light-mode [class~="bg-clip-text"][class~="from-violet-400"] { --tw-gradient-from: #7c3aed !important; }
+    body.light-mode [class~="bg-clip-text"][class~="to-cyan-400"] { --tw-gradient-to: #0891b2 !important; }
+    body.light-mode [class~="bg-clip-text"][class~="from-white"] { --tw-gradient-from: #1e293b !important; }
     
     body.light-mode [class~="text-slate-300"] { color: #1e293b !important; }
     body.light-mode [class~="text-slate-400"] { color: #334155 !important; }
