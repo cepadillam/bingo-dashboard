@@ -1322,7 +1322,7 @@ function FinanzasView({ showToast, historicoSorteos }) {
 }
 
 /* ─── ALERTAS ────────────────────────────────────────── */
-function AlertasView({ alertas, setAlertas, showToast }) {
+function AlertasView({ alertas, showToast }) {
   const [tab, setTab] = useState<'Activos'|'Historial'>('Activos');
   const [modalOpen, setModalOpen] = useState(false);
   const [editingAlert, setEditingAlert] = useState<any>(null);
