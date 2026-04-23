@@ -559,10 +559,10 @@ function GananciasView({ showToast, statsMensuales, historicoSorteos }) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <ReportCard label="Ingreso Total"     value={`Bs. ${statsMensuales.ingresos.toLocaleString()}`} color="emerald" trend="+12%"/>
-        <ReportCard label="Premios"           value={`Bs. ${statsMensuales.premios.toLocaleString()}`} color="rose"    trend="+5%"/>
-        <ReportCard label="Gastos"            value={`Bs. ${statsMensuales.gastos.toLocaleString()}`} color="rose"    trend="+2%"/>
-        <ReportCard label="Utilidad Neta"      value={`Bs. ${statsMensuales.ganancia.toLocaleString()}`} color="violet"  trend="+15%"/>
+        <ReportCard label="Ingreso Total"     value={`Bs. ${statsMensuales.ingresos.toLocaleString()}`} color="emerald" />
+        <ReportCard label="Premios"           value={`Bs. ${statsMensuales.premios.toLocaleString()}`} color="rose"    />
+        <ReportCard label="Gastos"            value={`Bs. ${statsMensuales.gastos.toLocaleString()}`} color="rose"    />
+        <ReportCard label="Utilidad Neta"      value={`Bs. ${statsMensuales.ganancia.toLocaleString()}`} color="violet"  />
       </div>
 
       <div className="card-larry p-8 flex flex-col overflow-hidden bg-gradient-to-b from-[#0d0d0d] to-black min-h-[500px]">
@@ -1657,13 +1657,13 @@ function KPICard({ icon, label, value, trend="", trendUp=false, sparkData=[], co
   );
 }
 
-function ReportCard({ label, value, color, trend }) {
+function ReportCard({ label, value, color, trend="" }: any) {
   const css = { emerald:'border-l-emerald-500 bg-emerald-500/5 text-emerald-500', rose:'border-l-rose-500 bg-rose-500/5 text-rose-500', violet:'border-l-violet-500 bg-violet-500/5 text-violet-500' };
   return (
     <div className={`card-larry py-5 px-6 border-l-4 ${css[color]}`}>
       <p className="text-[12px] font-black uppercase tracking-widest opacity-50 mb-1">{label}</p>
       <p className="text-2xl font-black text-white">{value}</p>
-      <p className="text-[11px] font-bold mt-1 text-slate-400 uppercase">{trend} vs anterior</p>
+      {trend && <p className="text-[11px] font-bold mt-1 text-slate-400 uppercase">{trend} vs anterior</p>}
     </div>
   );
 }
