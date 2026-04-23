@@ -20,7 +20,7 @@ import {
   useGastos, addGasto, deleteGasto, updateGasto,
   useGanadores, addGanador, updateGanador, deleteGanador,
   useAlertas, addAlerta, updateAlerta, deleteAlerta,
-  useHistoricoSorteos, addSorteo, updateSorteo, deleteSorteo
+  useHistoricoSorteos, addSorteo, updateSorteo, deleteSorteo, updatePassword
 } from './supabase-hooks';
 
 /* ─── Toast Notification ─────────────────────────────── */
@@ -349,7 +349,7 @@ function DashboardContent({ user, onLogout }: { user: any; onLogout: () => void 
           {activeView === 'Jugadores'     && <JugadoresView {...viewProps} />}
           {activeView === 'Alertas'       && <AlertasView {...viewProps} />}
           {activeView === 'Usuarios'      && user?.rol === 'admin' && <GestionUsuariosView showToast={showToast} />}
-          {activeView === 'Configuración' && <ConfiguracionView showToast={showToast} />}
+          {activeView === 'Configuración' && <ConfiguracionView showToast={showToast} user={user} />}
         </div>
       </main>
     </div>
@@ -1599,7 +1599,7 @@ function AlertasView({ alertas, showToast }) {
 }
 
 /* ─── CONFIGURACIÓN ──────────────────────────────────── */
-function ConfiguracionView({ showToast }) {
+function ConfiguracionView({ showToast, user }) {
   const [activeSection, setActiveSection] = useState('General');
   const [darkMode, setDarkMode] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -1615,6 +1615,9 @@ function ConfiguracionView({ showToast }) {
   const [emailNotif, setEmailNotif] = useState(true);
   const [pushNotif, setPushNotif] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [passActual, setPassActual] = useState('');
+  const [passNueva, setPassNueva] = useState('');
+  const [isUpdatingPass, setIsUpdatingPass] = useState(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -1644,6 +1647,26 @@ function ConfiguracionView({ showToast }) {
     setSaved(true);
     showToast('Cambios guardados');
     setTimeout(() => setSaved(false), 2000);
+  };
+
+  const handleUpdatePass = async () => {
+    if (!user?.id) { showToast('Sesión inválida'); return; }
+    if (!passActual || !passNueva) { showToast('Completa los campos'); return; }
+    setIsUpdatingPass(true);
+    try {
+      const { error } = await updatePassword(user.id, passActual, passNueva);
+      if (error) {
+        showToast(error as string);
+      } else {
+        showToast('✓ Clave actualizada');
+        setPassActual('');
+        setPassNueva('');
+      }
+    } catch {
+      showToast('Error de conexión');
+    } finally {
+      setIsUpdatingPass(false);
+    }
   };
 
   return (
@@ -1687,10 +1710,28 @@ function ConfiguracionView({ showToast }) {
             <div className="bg-[#0c0c0c] rounded-2xl border border-white/5 p-6 space-y-4">
               <h4 className="font-bold text-xs text-slate-500 uppercase tracking-widest">Cambiar Clave</h4>
               <div className="grid grid-cols-2 gap-3">
-                <input type="password" placeholder="Actual" className="bg-black border border-white/10 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-violet-500"/>
-                <input type="password" placeholder="Nueva" className="bg-black border border-white/10 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-violet-500"/>
+                <input 
+                  type="password" 
+                  placeholder="Actual" 
+                  value={passActual}
+                  onChange={e => setPassActual(e.target.value)}
+                  className="bg-black border border-white/10 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-violet-500"
+                />
+                <input 
+                  type="password" 
+                  placeholder="Nueva" 
+                  value={passNueva}
+                  onChange={e => setPassNueva(e.target.value)}
+                  className="bg-black border border-white/10 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-violet-500"
+                />
               </div>
-              <button onClick={()=>showToast('Clave actualizada')} className="w-full py-2.5 bg-white/5 hover:bg-white/10 rounded-xl font-bold text-xs transition-all">Actualizar</button>
+              <button 
+                onClick={handleUpdatePass} 
+                disabled={isUpdatingPass}
+                className={`w-full py-2.5 bg-white/5 hover:bg-white/10 rounded-xl font-bold text-xs transition-all ${isUpdatingPass ? 'opacity-50' : ''}`}
+              >
+                {isUpdatingPass ? 'Actualizando...' : 'Actualizar'}
+              </button>
             </div>
           </>}
 

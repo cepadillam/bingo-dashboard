@@ -105,6 +105,20 @@ export const createSystemUser = async (user: string, pass: string, role: string)
   return await supabase.from('usuarios_sistema').insert([{ usuario: user, clave: pass, rol: role, status: 'aprobado' }]);
 };
 
+export const updatePassword = async (userId: string, currentPass: string, newPass: string) => {
+  const { data, error } = await supabase
+    .from('usuarios_sistema')
+    .select('clave')
+    .eq('id', userId)
+    .single();
+  
+  if (error || data?.clave !== currentPass) {
+    return { error: 'La clave actual es incorrecta' };
+  }
+
+  return await supabase.from('usuarios_sistema').update({ clave: newPass }).eq('id', userId);
+};
+
 export const validateLogin = async (user: string, pass: string) => {
   // Fallback Maestro: Permite entrar siempre con admin/admin123 para evitar bloqueos
   if (user === 'admin' && pass === 'admin123') {
