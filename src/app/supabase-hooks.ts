@@ -146,3 +146,93 @@ export const deleteAllPlayers = async () => {
 export const updatePlayer = async (id: string, data: any) => {
   return await supabase.from('jugadores').update(data).eq('id', id);
 };
+
+/* ─── GASTOS ─────────────────────────────────────────── */
+export const useGastos = () => {
+  const [gastos, setGastos] = useState<any[]>([]);
+  useEffect(() => {
+    if (supabaseUrl === 'https://placeholder.supabase.co') return;
+    const fetchGastos = async () => {
+      const { data } = await supabase.from('gastos').select('*').order('created_at', { ascending: false });
+      setGastos(data || []);
+    };
+    fetchGastos();
+    const channel = supabase.channel('realtime_gastos')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'gastos' }, () => fetchGastos())
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+  return gastos;
+};
+
+export const addGasto = async (gasto: any) => {
+  return await supabase.from('gastos').insert([gasto]);
+};
+
+export const deleteGasto = async (id: string) => {
+  return await supabase.from('gastos').delete().eq('id', id);
+};
+
+export const updateGasto = async (id: string, data: any) => {
+  return await supabase.from('gastos').update(data).eq('id', id);
+};
+
+/* ─── GANADORES ──────────────────────────────────────── */
+export const useGanadores = () => {
+  const [ganadores, setGanadores] = useState<any[]>([]);
+  useEffect(() => {
+    if (supabaseUrl === 'https://placeholder.supabase.co') return;
+    const fetchGanadores = async () => {
+      const { data } = await supabase.from('ganadores').select('*').order('created_at', { ascending: false });
+      setGanadores(data || []);
+    };
+    fetchGanadores();
+    const channel = supabase.channel('realtime_ganadores')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'ganadores' }, () => fetchGanadores())
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+  return ganadores;
+};
+
+export const addGanador = async (ganador: any) => {
+  return await supabase.from('ganadores').insert([ganador]);
+};
+
+export const updateGanador = async (id: string, data: any) => {
+  return await supabase.from('ganadores').update(data).eq('id', id);
+};
+
+export const deleteGanador = async (id: string) => {
+  return await supabase.from('ganadores').delete().eq('id', id);
+};
+
+/* ─── ALERTAS ────────────────────────────────────────── */
+export const useAlertas = () => {
+  const [alertas, setAlertas] = useState<any[]>([]);
+  useEffect(() => {
+    if (supabaseUrl === 'https://placeholder.supabase.co') return;
+    const fetchAlertas = async () => {
+      const { data } = await supabase.from('alertas').select('*').order('created_at', { ascending: false });
+      setAlertas(data || []);
+    };
+    fetchAlertas();
+    const channel = supabase.channel('realtime_alertas')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'alertas' }, () => fetchAlertas())
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+  return alertas;
+};
+
+export const addAlerta = async (alerta: any) => {
+  return await supabase.from('alertas').insert([alerta]);
+};
+
+export const updateAlerta = async (id: string, data: any) => {
+  return await supabase.from('alertas').update(data).eq('id', id);
+};
+
+export const deleteAlerta = async (id: string) => {
+  return await supabase.from('alertas').delete().eq('id', id);
+};

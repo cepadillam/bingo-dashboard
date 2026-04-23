@@ -16,7 +16,10 @@ import * as XLSX from 'xlsx';
 import { 
   useActiveSession, useTopPlayers, useRetentionPlayers, registerSale, 
   validateLogin, useSystemUsers, updateSystemUser, deleteSystemUser, createSystemUser,
-  bulkInsertPlayers, deletePlayer, updatePlayer, deleteAllPlayers
+  bulkInsertPlayers, deletePlayer, updatePlayer, deleteAllPlayers,
+  useGastos, addGasto, deleteGasto, updateGasto,
+  useGanadores, addGanador, updateGanador, deleteGanador,
+  useAlertas, addAlerta, updateAlerta, deleteAlerta
 } from './supabase-hooks';
 
 /* ─── Toast Notification ─────────────────────────────── */
@@ -172,10 +175,10 @@ function DashboardContent({ user, onLogout }: { user: any; onLogout: () => void 
   const retentionPlayers = useRetentionPlayers();
 
   const [activeView, setActiveView] = useState('Resumen');
-  const [gastos, setGastos] = useState<any[]>([
-    { id: '1', descripcion: 'Pago de Personal', monto: 1200, fecha: '2024-03-15', categoria: 'Personal' },
-    { id: '2', descripcion: 'Publicidad Facebook', monto: 300, fecha: '2024-03-18', categoria: 'Marketing' },
-  ]);
+  const gastos = useGastos();
+  const ganadores = useGanadores();
+  const alertas = useAlertas();
+
   const [historicoSorteos, setHistoricoSorteos] = useState<any[]>([
     { id: '1', nombre: 'Sorteo 1', fecha: '2024-03-05', vendidos: 120, regalados: 5, repartidos: 150, precio: 10, premios: 400 },
     { id: '2', nombre: 'Sorteo 2', fecha: '2024-03-12', vendidos: 180, regalados: 10, repartidos: 200, precio: 10, premios: 600 },
@@ -202,20 +205,6 @@ function DashboardContent({ user, onLogout }: { user: any; onLogout: () => void 
   const [toast, setToast] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const [ganadores, setGanadores] = useState<any[]>([
-    { id: '1', nombre: 'Juan Pérez', tipo: 'VIP', monto: 500, cartones: 2, sorteo: '#100 • S1', fecha: '2024-03-20', pagado: true },
-    { id: '2', nombre: 'María Garcia', tipo: 'Nuevo', monto: 600, cartones: 1, sorteo: '#101 • S2', fecha: '2024-03-20', pagado: false },
-    { id: '3', nombre: 'Carlos López', tipo: 'Viejo', monto: 700, cartones: 3, sorteo: '#102 • S3', fecha: '2024-03-20', pagado: true },
-    { id: '4', nombre: 'Ana Torres', tipo: 'Nuevo', monto: 800, cartones: 1, sorteo: '#103 • S4', fecha: '2024-03-20', pagado: false },
-  ]);
-
-  const [alertas, setAlertas] = useState<any[]>([
-    { id: '1', name: 'Juan Pérez', detail: 'Deuda de Bs. 50 • 2024-03-20', status: 'PENDIENTE', color: 'amber' },
-    { id: '2', name: 'Carlos Ruiz', detail: 'Deuda de Bs. 120 • 2024-03-18', status: 'CRITICO', color: 'rose' },
-    { id: '3', name: 'Maria T.', detail: 'Baneado el 2024-03-15', status: 'BANEADO', color: 'slate' },
-    { id: '4', name: 'Ana Lopez', detail: 'Deuda de Bs. 20 • 2024-03-21', status: 'PAGADO', color: 'emerald' },
-  ]);
-
   const showToast = (msg: string) => setToast(msg);
 
   const handleQuickSale = async (e: React.FormEvent) => {
@@ -229,7 +218,7 @@ function DashboardContent({ user, onLogout }: { user: any; onLogout: () => void 
     finally { setIsSubmitting(false); }
   };
 
-  const viewProps = { session, topPlayers, retentionPlayers, showToast, historicoSorteos, setHistoricoSorteos, statsMensuales, alertas, setAlertas, ganadores, setGanadores, gastos, setGastos };
+  const viewProps = { session, topPlayers, retentionPlayers, showToast, historicoSorteos, setHistoricoSorteos, statsMensuales, alertas, ganadores, gastos };
 
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
@@ -617,7 +606,7 @@ function GananciasView({ showToast, statsMensuales }) {
   );
 }
 
-function GanadoresView({ ganadores, setGanadores, showToast }) {
+function GanadoresView({ ganadores, showToast }) {
   const [query, setQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingGanador, setEditingGanador] = useState<any>(null);
@@ -645,35 +634,34 @@ function GanadoresView({ ganadores, setGanadores, showToast }) {
     setIsModalOpen(true);
   };
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     const newGanador = {
       ...formData,
-      id: editingGanador ? editingGanador.id : Date.now().toString(),
       monto: Number(formData.monto),
-      cartones: Number(formData.cartones),
-      fecha: new Date().toLocaleDateString()
+      cartones: Number(formData.cartones)
     };
 
     if (editingGanador) {
-      setGanadores(ganadores.map(g => g.id === editingGanador.id ? newGanador : g));
+      await updateGanador(editingGanador.id, newGanador);
       showToast('Ganador actualizado');
     } else {
-      setGanadores([newGanador, ...ganadores]);
+      await addGanador({ ...newGanador, fecha: new Date().toLocaleDateString() });
       showToast('Ganador registrado');
     }
     setIsModalOpen(false);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm('¿Eliminar este registro?')) {
-      setGanadores(ganadores.filter(g => g.id !== id));
+      await deleteGanador(id);
       showToast('Registro eliminado');
     }
   };
 
-  const togglePago = (id: string) => {
-    setGanadores(ganadores.map(g => g.id === id ? { ...g, pagado: !g.pagado } : g));
+  const togglePago = async (id: string) => {
+    const g = ganadores.find(x => x.id === id);
+    if(g) await updateGanador(id, { pagado: !g.pagado });
   };
 
   return (
@@ -883,7 +871,7 @@ function GanadoresView({ ganadores, setGanadores, showToast }) {
 }
 
 /* ─── GASTOS ────────────────────────────────────────── */
-function GastosView({ gastos, setGastos, showToast, statsMensuales }) {
+function GastosView({ gastos, showToast, statsMensuales }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingGasto, setEditingGasto] = useState<any>(null);
   const [formData, setFormData] = useState({ descripcion: '', monto: '', categoria: 'Operación', fecha: new Date().toISOString().split('T')[0] });
@@ -899,27 +887,26 @@ function GastosView({ gastos, setGastos, showToast, statsMensuales }) {
     setIsModalOpen(true);
   };
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     const newGasto = {
       ...formData,
-      id: editingGasto ? editingGasto.id : Date.now().toString(),
       monto: Number(formData.monto)
     };
 
     if (editingGasto) {
-      setGastos(gastos.map(g => g.id === editingGasto.id ? newGasto : g));
+      await updateGasto(editingGasto.id, newGasto);
       showToast('Gasto actualizado');
     } else {
-      setGastos([newGasto, ...gastos]);
+      await addGasto(newGasto);
       showToast('Gasto registrado');
     }
     setIsModalOpen(false);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm('¿Eliminar este gasto?')) {
-      setGastos(gastos.filter(g => g.id !== id));
+      await deleteGasto(id);
       showToast('Gasto eliminado');
     }
   };
@@ -1377,46 +1364,43 @@ function AlertasView({ alertas, setAlertas, showToast }) {
     setModalOpen(true);
   };
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     const colors: any = { 'PENDIENTE': 'amber', 'CRITICO': 'rose', 'BANEADO': 'slate', 'PAGADO': 'emerald' };
     
     if (editingAlert) {
-      setAlertas(alertas.map(a => a.id === editingAlert.id ? { ...a, ...formData, color: colors[formData.status] } : a));
+      await updateAlerta(editingAlert.id, { ...formData, color: colors[formData.status] });
       showToast('Alerta actualizada');
     } else {
-      const newAlert = {
-        id: Date.now().toString(),
-        ...formData,
+      await addAlerta({
+        titulo: formData.name,
+        detalle: formData.detail,
+        estado: formData.status,
         color: colors[formData.status]
-      };
-      setAlertas([...alertas, newAlert]);
+      });
       showToast('Nueva alerta creada');
     }
     setModalOpen(false);
   };
 
-  const toggleStatus = (id: string) => {
+  const toggleStatus = async (id: string) => {
+    const alert = alertas.find(a => a.id === id);
+    if (!alert) return;
     const sequence: any = { 'PENDIENTE': 'CRITICO', 'CRITICO': 'BANEADO', 'BANEADO': 'PAGADO', 'PAGADO': 'PENDIENTE' };
     const colors: any = { 'PENDIENTE': 'amber', 'CRITICO': 'rose', 'BANEADO': 'slate', 'PAGADO': 'emerald' };
-    setAlertas(alertas.map(a => {
-      if (a.id === id) {
-        const next = sequence[a.status];
-        return { ...a, status: next, color: colors[next] };
-      }
-      return a;
-    }));
+    const next = sequence[alert.estado || alert.status];
+    await updateAlerta(id, { estado: next, status: next, color: colors[next] });
     showToast('Estado actualizado');
   };
 
-  const deleteAlert = (id: string) => {
+  const deleteAlert = async (id: string) => {
     if (confirm('¿Eliminar esta alerta?')) {
-      setAlertas(alertas.filter(a => a.id !== id));
+      await deleteAlerta(id);
       showToast('Alerta eliminada');
     }
   };
 
-  const items = tab === 'Activos' ? alertas.filter(a => a.status !== 'PAGADO') : alertas.filter(a => a.status === 'PAGADO');
+  const items = tab === 'Activos' ? alertas.filter(a => a.estado !== 'PAGADO' && a.status !== 'PAGADO') : alertas.filter(a => a.estado === 'PAGADO' || a.status === 'PAGADO');
 
   return (
     <div className="space-y-4 md:space-y-6 animate-larry">
@@ -1454,26 +1438,26 @@ function AlertasView({ alertas, setAlertas, showToast }) {
             <div key={item.id} className="px-4 md:px-8 py-4 md:py-6 flex items-center justify-between hover:bg-white/[0.02] transition-all group">
               <div className="flex items-center gap-3 md:gap-5">
                 <div className={`w-8 h-8 md:w-12 md:h-12 rounded-lg md:rounded-2xl flex items-center justify-center border transition-all 
-                  ${item.status === 'CRITICO' ? 'bg-rose-500/10 border-rose-500/20 text-rose-500' : 
-                    item.status === 'PAGADO' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' : 
-                    item.status === 'BANEADO' ? 'bg-slate-500/10 border-white/10 text-slate-400' : 'bg-amber-500/10 border-amber-500/20 text-amber-500'}`}>
-                  {item.status === 'CRITICO' ? <AlertCircle size={16}/> : item.status === 'BANEADO' ? <Ban size={16}/> : item.status === 'PAGADO' ? <CheckCircle2 size={16}/> : <Clock size={16}/>}
+                  ${(item.estado || item.status) === 'CRITICO' ? 'bg-rose-500/10 border-rose-500/20 text-rose-500' : 
+                    (item.estado || item.status) === 'PAGADO' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' : 
+                    (item.estado || item.status) === 'BANEADO' ? 'bg-slate-500/10 border-white/10 text-slate-400' : 'bg-amber-500/10 border-amber-500/20 text-amber-500'}`}>
+                  {(item.estado || item.status) === 'CRITICO' ? <AlertCircle size={16}/> : (item.estado || item.status) === 'BANEADO' ? <Ban size={16}/> : (item.estado || item.status) === 'PAGADO' ? <CheckCircle2 size={16}/> : <Clock size={16}/>}
                 </div>
                 <div>
-                  <h4 className="text-xs md:text-sm font-black text-white leading-none">{item.name}</h4>
-                  <p className="text-[10px] md:text-[12px] font-bold mt-1 md:mt-1.5 text-slate-500 uppercase tracking-wider">{item.detail}</p>
+                  <h4 className="text-xs md:text-sm font-black text-white leading-none">{item.titulo || item.name}</h4>
+                  <p className="text-[10px] md:text-[12px] font-bold mt-1 md:mt-1.5 text-slate-500 uppercase tracking-wider">{item.detalle || item.detail}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2 md:gap-3">
                 <button 
                   onClick={() => toggleStatus(item.id)}
                   className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-[0.1em] border transition-all active:scale-95 shadow-sm
-                    ${item.status === 'CRITICO' ? 'bg-rose-500/10 border-rose-500/30 text-rose-500 hover:bg-rose-500 hover:text-white' : 
-                      item.status === 'PAGADO' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500 hover:bg-emerald-500 hover:text-white' : 
-                      item.status === 'BANEADO' ? 'bg-slate-500/10 border-white/10 text-slate-400 hover:bg-slate-700 hover:text-white' : 
+                    ${(item.estado || item.status) === 'CRITICO' ? 'bg-rose-500/10 border-rose-500/30 text-rose-500 hover:bg-rose-500 hover:text-white' : 
+                      (item.estado || item.status) === 'PAGADO' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500 hover:bg-emerald-500 hover:text-white' : 
+                      (item.estado || item.status) === 'BANEADO' ? 'bg-slate-500/10 border-white/10 text-slate-400 hover:bg-slate-700 hover:text-white' : 
                       'bg-amber-500/10 border-amber-500/30 text-amber-500 hover:bg-amber-500 hover:text-white'}`}
                 >
-                  {item.status}
+                  {item.estado || item.status}
                 </button>
                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button onClick={() => openEdit(item)} className="p-2 text-slate-600 hover:text-violet-400 transition-colors"><Settings size={14}/></button>
