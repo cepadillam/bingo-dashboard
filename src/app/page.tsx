@@ -1641,7 +1641,7 @@ function ConfiguracionView({ showToast, user }) {
     }
   }, [reducedAnim]);
 
-  const sections = ['General','Cuenta','Notificaciones','Seguridad'];
+  const sections = ['General','Cuenta','Seguridad'];
 
   const handleSave = () => {
     setSaved(true);
@@ -1682,7 +1682,7 @@ function ConfiguracionView({ showToast, user }) {
         <div className="md:col-span-1 space-y-1">
           {sections.map((s,i) => (
             <button key={s} onClick={()=>setActiveSection(s)} className={`w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-xs transition-all ${activeSection===s?'bg-white/10 text-white':'text-slate-400 hover:text-white hover:bg-white/5'}`}>
-              {i===0?<Monitor size={14}/>:i===1?<User size={14}/>:i===2?<Bell size={14}/>:<Lock size={14}/>}
+              {s === 'General' ? <Monitor size={14}/> : s === 'Cuenta' ? <User size={14}/> : <Lock size={14}/>}
               {s}
             </button>
           ))}
@@ -1697,13 +1697,6 @@ function ConfiguracionView({ showToast, user }) {
             </div>
           </>}
 
-          {activeSection === 'Notificaciones' && <>
-            <SectionTitle icon={<Bell size={16}/>} title="Alertas" color="amber"/>
-            <div className="grid gap-3">
-              <ToggleItem label="Email" description="Resúmenes diarios" active={emailNotif} onToggle={()=>setEmailNotif(v=>!v)}/>
-              <ToggleItem label="Push" description="Tiempo real" active={pushNotif} onToggle={()=>setPushNotif(v=>!v)}/>
-            </div>
-          </>}
 
           {activeSection === 'Seguridad' && <>
             <SectionTitle icon={<Lock size={16}/>} title="Seguridad" color="rose"/>
