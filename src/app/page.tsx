@@ -181,10 +181,26 @@ function DashboardContent({ user, onLogout }: { user: any; onLogout: () => void 
   const alertas = useAlertas();
   const historicoSorteos = useHistoricoSorteos();
 
+  const [globalMonth, setGlobalMonth] = useState(new Date().getMonth());
+  const [globalYear, setGlobalYear] = useState(new Date().getFullYear());
+  const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
   const statsMensuales = useMemo(() => {
-    const totalVendido = historicoSorteos.reduce((acc, s) => acc + (s.vendidos * s.precio), 0);
-    const totalPremios = historicoSorteos.reduce((acc, s) => acc + s.premios, 0);
-    const totalGastos = gastos.reduce((acc, g) => acc + g.monto, 0);
+    const totalVendido = historicoSorteos.filter(s => {
+      const d = new Date(s.fecha + 'T00:00:00');
+      return d.getMonth() === globalMonth && d.getFullYear() === globalYear;
+    }).reduce((acc, s) => acc + (s.vendidos * s.precio), 0);
+    
+    const totalPremios = historicoSorteos.filter(s => {
+      const d = new Date(s.fecha + 'T00:00:00');
+      return d.getMonth() === globalMonth && d.getFullYear() === globalYear;
+    }).reduce((acc, s) => acc + s.premios, 0);
+    
+    const totalGastos = gastos.filter(g => {
+      const d = new Date(g.fecha + 'T00:00:00');
+      return d.getMonth() === globalMonth && d.getFullYear() === globalYear;
+    }).reduce((acc, g) => acc + g.monto, 0);
+    
     return {
       ingresos: totalVendido,
       premios: totalPremios,
@@ -192,7 +208,7 @@ function DashboardContent({ user, onLogout }: { user: any; onLogout: () => void 
       ganancia: totalVendido - totalPremios - totalGastos,
       volumen: historicoSorteos.reduce((acc, s) => acc + s.vendidos, 0)
     };
-  }, [historicoSorteos, gastos]);
+  }, [historicoSorteos, gastos, globalMonth, globalYear]);
 
   const [saleAmount, setSaleAmount] = useState<number>(1);
   const [salePrice, setSalePrice] = useState<number>(session?.precio_carton || 10);
@@ -213,7 +229,7 @@ function DashboardContent({ user, onLogout }: { user: any; onLogout: () => void 
     finally { setIsSubmitting(false); }
   };
 
-  const viewProps = { session, topPlayers, retentionPlayers, showToast, historicoSorteos, statsMensuales, alertas, ganadores, gastos };
+  const viewProps = { session, topPlayers, retentionPlayers, showToast, historicoSorteos, statsMensuales, alertas, ganadores, gastos, globalMonth, globalYear };
 
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
@@ -290,9 +306,26 @@ function DashboardContent({ user, onLogout }: { user: any; onLogout: () => void 
               <h2 className="text-[10px] font-black text-violet-500 uppercase tracking-[0.3em] leading-none mb-1">
                 {activeView}
               </h2>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <span className="text-sm font-black text-white lg:hidden">BINGO <span className="text-violet-500">PRO</span></span>
                 <p className="text-[10px] text-slate-500 font-bold uppercase hidden lg:block tracking-[0.2em]">Administración Central</p>
+                <div className="flex items-center gap-1 bg-white/5 border border-white/10 rounded-xl p-1 px-2 ml-4">
+                  <Calendar size={12} className="text-violet-500" />
+                  <select 
+                    value={globalMonth} 
+                    onChange={e => setGlobalMonth(Number(e.target.value))}
+                    className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest text-slate-300 outline-none cursor-pointer"
+                  >
+                    {meses.map((m, i) => <option key={i} value={i} className="bg-black">{m}</option>)}
+                  </select>
+                  <select 
+                    value={globalYear} 
+                    onChange={e => setGlobalYear(Number(e.target.value))}
+                    className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest text-slate-300 outline-none cursor-pointer"
+                  >
+                    {[2024, 2025, 2026].map(y => <option key={y} value={y} className="bg-black">{y}</option>)}
+                  </select>
+                </div>
               </div>
             </div>
           </div>
@@ -423,11 +456,8 @@ function MasterFlowChart({ period, historicoSorteos }: { period: string, histori
   );
 }
 
-function ResumenView({ session, topPlayers, handleQuickSale, saleAmount, setSaleAmount, isSubmitting, showToast, user, historicoSorteos, gastos }) {
+function ResumenView({ session, topPlayers, handleQuickSale, saleAmount, setSaleAmount, isSubmitting, showToast, user, historicoSorteos, gastos, globalMonth, globalYear }) {
   const [period, setPeriod] = useState('Hoy');
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  
   const periods = ['Hoy', 'Semana', 'Mes'];
   const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
@@ -447,7 +477,7 @@ function ResumenView({ session, topPlayers, handleQuickSale, saleAmount, setSale
         return diff >= 0 && diff <= 7 * 24 * 60 * 60 * 1000;
       }
       
-      return d.getMonth() === selectedMonth && d.getFullYear() === selectedYear;
+      return d.getMonth() === globalMonth && d.getFullYear() === globalYear;
     });
 
     const totalVendido = filtered.reduce((acc, s) => acc + (s.vendidos * (s.precio || 0)), 0);
@@ -463,7 +493,7 @@ function ResumenView({ session, topPlayers, handleQuickSale, saleAmount, setSale
         const diff = today.getTime() - d.getTime();
         return diff >= 0 && diff <= 7 * 24 * 60 * 60 * 1000;
       }
-      return d.getMonth() === selectedMonth && d.getFullYear() === selectedYear;
+      return d.getMonth() === globalMonth && d.getFullYear() === globalYear;
     }).reduce((acc, g) => acc + (g.monto || 0), 0);
     
     return {
@@ -474,7 +504,7 @@ function ResumenView({ session, topPlayers, handleQuickSale, saleAmount, setSale
       volumen: filtered.reduce((acc, s) => acc + (s.vendidos || 0), 0),
       data: filtered
     };
-  }, [historicoSorteos, period, gastos, selectedMonth, selectedYear]);
+  }, [historicoSorteos, period, gastos, globalMonth, globalYear]);
 
   return (
     <div className="space-y-6 animate-larry">
@@ -484,24 +514,6 @@ function ResumenView({ session, topPlayers, handleQuickSale, saleAmount, setSale
           <p className="text-slate-500 text-xs font-medium uppercase tracking-widest mt-1">Análisis de rendimiento: {period}</p>
         </div>
         <div className="flex flex-col md:flex-row items-center gap-4">
-          {period === 'Mes' && (
-            <div className="flex gap-2">
-              <select 
-                value={selectedMonth} 
-                onChange={e => setSelectedMonth(Number(e.target.value))}
-                className="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs font-bold focus:border-violet-500 outline-none transition-all appearance-none"
-              >
-                {meses.map((m, i) => <option key={i} value={i}>{m}</option>)}
-              </select>
-              <select 
-                value={selectedYear} 
-                onChange={e => setSelectedYear(Number(e.target.value))}
-                className="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs font-bold focus:border-violet-500 outline-none transition-all appearance-none"
-              >
-                {[2024, 2025, 2026].map(y => <option key={y} value={y}>{y}</option>)}
-              </select>
-            </div>
-          )}
           <TabGroup tabs={periods} active={period} onChange={setPeriod} />
         </div>
       </div>
@@ -575,17 +587,13 @@ function ResumenView({ session, topPlayers, handleQuickSale, saleAmount, setSale
 }
 
 /* ─── GANANCIAS ──────────────────────────────────────── */
-function GananciasView({ showToast, historicoSorteos, gastos }) {
+function GananciasView({ showToast, historicoSorteos, gastos, globalMonth, globalYear }) {
   const [period, setPeriod] = useState('Sorteo');
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  
   const periods = ['Sorteo','Diario','Semana','Mes'];
   const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
   const statsPeriod = useMemo(() => {
-    const n = new Date();
-    const todayStr = `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, '0')}-${String(n.getDate()).padStart(2, '0')}`;
+    const todayStr = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(new Date().getDate()).padStart(2, '0')}`;
 
     const filteredSorteos = historicoSorteos.filter(s => {
       if (!s.fecha) return false;
@@ -627,7 +635,7 @@ function GananciasView({ showToast, historicoSorteos, gastos }) {
       ganancia: totalVendido - totalPremios - totalGastos,
       sorteos: filteredSorteos
     };
-  }, [historicoSorteos, period, gastos, selectedMonth, selectedYear]);
+  }, [historicoSorteos, period, gastos, globalMonth, globalYear]);
 
   const handleDownload = () => {
     showToast('Reporte generado exitosamente');
@@ -641,24 +649,6 @@ function GananciasView({ showToast, historicoSorteos, gastos }) {
           <p className="text-[10px] md:text-xs text-slate-500 font-bold uppercase tracking-widest">Análisis de rentabilidad</p>
         </div>
         <div className="flex flex-col md:flex-row items-center gap-2 w-full sm:w-auto">
-          {period === 'Mes' && (
-            <div className="flex gap-2">
-              <select 
-                value={selectedMonth} 
-                onChange={e => setSelectedMonth(Number(e.target.value))}
-                className="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs font-bold focus:border-violet-500 outline-none transition-all appearance-none"
-              >
-                {meses.map((m, i) => <option key={i} value={i}>{m}</option>)}
-              </select>
-              <select 
-                value={selectedYear} 
-                onChange={e => setSelectedYear(Number(e.target.value))}
-                className="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs font-bold focus:border-violet-500 outline-none transition-all appearance-none"
-              >
-                {[2024, 2025, 2026].map(y => <option key={y} value={y}>{y}</option>)}
-              </select>
-            </div>
-          )}
           <div className="flex items-center gap-2">
             <TabGroup tabs={periods} active={period} onChange={setPeriod} />
             <button onClick={handleDownload} className="p-2 bg-white/5 rounded-xl border border-white/10 text-slate-400"><Download size={14}/></button>
