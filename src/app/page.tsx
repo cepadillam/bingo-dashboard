@@ -456,7 +456,7 @@ function MasterFlowChart({ period, historicoSorteos }: { period: string, histori
   );
 }
 
-function ResumenView({ session, topPlayers, handleQuickSale, saleAmount, setSaleAmount, isSubmitting, showToast, user, historicoSorteos, gastos, globalMonth, globalYear }) {
+function ResumenView({ session, topPlayers, ganadores, handleQuickSale, saleAmount, setSaleAmount, isSubmitting, showToast, user, historicoSorteos, gastos, globalMonth, globalYear }) {
   const [period, setPeriod] = useState('Hoy');
   const periods = ['Hoy', 'Semana', 'Mes'];
   const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
@@ -570,15 +570,24 @@ function ResumenView({ session, topPlayers, handleQuickSale, saleAmount, setSale
         <div className="card-larry p-6 flex flex-col h-[380px]">
           <h3 className="text-sm font-bold mb-6 flex items-center gap-2 font-heading tracking-widest uppercase"><Trophy size={16} className="text-amber-500"/> Últimos Ganadores</h3>
           <div className="space-y-4 flex-1 overflow-y-auto pr-2 custom-scrollbar">
-            {(topPlayers.length > 0 ? topPlayers.slice(0,5) : [1,2,3,4,5]).map((p, i) => (
-              <div key={i} className="flex items-center justify-between group cursor-pointer">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-slate-900 border border-white/5 flex items-center justify-center text-[13px] font-bold text-amber-500">#{i+1}</div>
-                  <div><h4 className="font-bold text-xs text-white">{typeof p === 'object' ? p.nombre : `Jugador 100${i+1}`}</h4><p className="text-[12px] text-slate-500">Bs. 500 • Premio Mayor</p></div>
+            {ganadores.length > 0 ? (
+              ganadores.slice(0, 10).map((g, i) => (
+                <div key={i} className="flex items-center justify-between group cursor-pointer">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-slate-900 border border-white/5 flex items-center justify-center text-[13px] font-bold text-amber-500">#{i+1}</div>
+                    <div>
+                      <h4 className="font-bold text-xs text-white">{g.nombre}</h4>
+                      <p className="text-[12px] text-slate-500">Bs. {(g.monto || 0).toLocaleString()} • {g.tipo || 'Ganador'}</p>
+                    </div>
+                  </div>
+                  <ChevronRight size={12} className="text-slate-800 group-hover:text-violet-500 transition-colors"/>
                 </div>
-                <ChevronRight size={12} className="text-slate-800 group-hover:text-violet-500 transition-colors"/>
+              ))
+            ) : (
+              <div className="h-full flex items-center justify-center text-slate-500 text-[10px] font-bold uppercase tracking-widest italic opacity-50">
+                No hay ganadores registrados aún
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>
