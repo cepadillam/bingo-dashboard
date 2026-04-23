@@ -473,7 +473,6 @@ function ResumenView({ session, topPlayers, handleQuickSale, saleAmount, setSale
           icon={<DollarSign size={16}/>} 
           label="Ingresos"           
           value={`Bs. ${statsPeriod.ingresos.toLocaleString()}`} 
-          trend={period === 'Hoy' ? 'Hoy' : '+15.2%'} 
           trendUp 
           sparkData={[3000, 4500, 3200, 6000, 5500, 8000, statsPeriod.ingresos/4]}
           color="#8b5cf6"
@@ -482,8 +481,6 @@ function ResumenView({ session, topPlayers, handleQuickSale, saleAmount, setSale
           icon={<Users size={16}/>}      
           label="Vendidos"         
           value={`${statsPeriod.volumen}`}  
-          trend="+8.1%"  
-          trendUp 
           sparkData={[200, 300, 250, 400, 350, 500, statsPeriod.volumen/4]}
           color="#10b981"
         />
@@ -491,8 +488,6 @@ function ResumenView({ session, topPlayers, handleQuickSale, saleAmount, setSale
           icon={<CreditCard size={16}/>}      
           label="Gastos"         
           value={`Bs. ${statsPeriod.gastos.toLocaleString()}`}  
-          trend={period === 'Hoy' ? 'Hoy' : '-2.4%'}  
-          trendUp={false} 
           sparkData={[500, 800, 600, 1000, 900, 1200, statsPeriod.gastos/4]}
           color="#f43f5e"
         />
@@ -500,8 +495,6 @@ function ResumenView({ session, topPlayers, handleQuickSale, saleAmount, setSale
           icon={<Trophy size={16}/>}     
           label="Ganancia"            
           value={`Bs. ${statsPeriod.ganancia.toLocaleString()}`} 
-          trend="+12.4%" 
-          trendUp
           sparkData={[1000, 1500, 1200, 2000, 1800, 2500, statsPeriod.ganancia/4]}
           color="#f59e0b"
         />
@@ -509,8 +502,6 @@ function ResumenView({ session, topPlayers, handleQuickSale, saleAmount, setSale
           icon={<TrendingUp size={16}/>} 
           label="Margen"      
           value={`${((statsPeriod.ganancia / (statsPeriod.ingresos || 1)) * 100).toFixed(1)}%`} 
-          trend="Saludable" 
-          trendUp 
           sparkData={[60, 65, 62, 70, 68, 72, 70]}
           color="#ec4899"
         />
@@ -1626,7 +1617,7 @@ function TabGroup({ tabs, active, onChange }: { tabs: string[], active: string, 
   );
 }
 
-function KPICard({ icon, label, value, trend, trendUp=false, sparkData=[], color="#8b5cf6" }) {
+function KPICard({ icon, label, value, trend="", trendUp=false, sparkData=[], color="#8b5cf6" }: any) {
   return (
     <div className="card-larry p-5 bg-[#0d0d0d] flex flex-col gap-4 group overflow-hidden relative">
       <div className="flex items-center gap-4 relative z-10">
@@ -1635,7 +1626,7 @@ function KPICard({ icon, label, value, trend, trendUp=false, sparkData=[], color
           <p className="text-[12px] font-bold text-slate-500 uppercase tracking-widest">{label}</p>
           <div className="flex items-baseline gap-2 mt-0.5">
             <p className="text-xl font-black text-white">{value}</p>
-            <span className={`text-[11px] font-bold ${trendUp?'text-emerald-500':'text-rose-500'}`}>{trend}</span>
+            {trend && <span className={`text-[11px] font-bold ${trendUp?'text-emerald-500':'text-rose-500'}`}>{trend}</span>}
           </div>
         </div>
       </div>
