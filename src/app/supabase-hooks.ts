@@ -153,7 +153,7 @@ export const useGastos = () => {
   useEffect(() => {
     if (supabaseUrl === 'https://placeholder.supabase.co') return;
     const fetchGastos = async () => {
-      const { data } = await supabase.from('gastos').select('*').order('created_at', { ascending: false });
+      const { data } = await supabase.from('gastos').select('*').order('created_at', { ascending: false }).limit(300);
       setGastos(data || []);
     };
     fetchGastos();
@@ -183,7 +183,7 @@ export const useGanadores = () => {
   useEffect(() => {
     if (supabaseUrl === 'https://placeholder.supabase.co') return;
     const fetchGanadores = async () => {
-      const { data } = await supabase.from('ganadores').select('*').order('created_at', { ascending: false });
+      const { data } = await supabase.from('ganadores').select('*').order('created_at', { ascending: false }).limit(300);
       setGanadores(data || []);
     };
     fetchGanadores();
@@ -213,7 +213,7 @@ export const useAlertas = () => {
   useEffect(() => {
     if (supabaseUrl === 'https://placeholder.supabase.co') return;
     const fetchAlertas = async () => {
-      const { data } = await supabase.from('alertas').select('*').order('created_at', { ascending: false });
+      const { data } = await supabase.from('alertas').select('*').order('created_at', { ascending: false }).limit(300);
       setAlertas(data || []);
     };
     fetchAlertas();
@@ -243,7 +243,7 @@ export const useHistoricoSorteos = () => {
   useEffect(() => {
     if (supabaseUrl === 'https://placeholder.supabase.co') return;
     const fetchSorteos = async () => {
-      const { data } = await supabase.from('historico_sorteos').select('*').order('fecha', { ascending: false });
+      const { data } = await supabase.from('historico_sorteos').select('*').order('fecha', { ascending: false }).limit(300);
       setSorteos(data || []);
     };
     fetchSorteos();
