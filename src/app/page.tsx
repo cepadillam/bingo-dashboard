@@ -575,32 +575,102 @@ function ResumenView({ session, topPlayers, handleQuickSale, saleAmount, setSale
 }
 
 /* ─── GANANCIAS ──────────────────────────────────────── */
-function GananciasView({ showToast, statsMensuales, historicoSorteos }) {
-  const [period, setPeriod] = useState('Diario');
-  const periods = ['Sorteo','Diario','Semanal'];
+function GananciasView({ showToast, historicoSorteos, gastos }) {
+  const [period, setPeriod] = useState('Sorteo');
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  
+  const periods = ['Sorteo','Diario','Semana','Mes'];
+  const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+  const statsPeriod = useMemo(() => {
+    const n = new Date();
+    const todayStr = `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, '0')}-${String(n.getDate()).padStart(2, '0')}`;
+
+    const filteredSorteos = historicoSorteos.filter(s => {
+      if (!s.fecha) return false;
+      if (period === 'Sorteo') return true; // Show all for now or limit to last N
+      if (period === 'Diario') return s.fecha === todayStr;
+      
+      const d = new Date(s.fecha + 'T00:00:00');
+      if (period === 'Semana') {
+        const today = new Date(todayStr + 'T00:00:00');
+        const diff = today.getTime() - d.getTime();
+        return diff >= 0 && diff <= 7 * 24 * 60 * 60 * 1000;
+      }
+      return d.getMonth() === selectedMonth && d.getFullYear() === selectedYear;
+    });
+
+    const totalVendido = filteredSorteos.reduce((acc, s) => acc + (s.vendidos * (s.precio || 0)), 0);
+    const totalPremios = filteredSorteos.reduce((acc, s) => acc + (s.premios || 0), 0);
+    
+    const filteredGastos = gastos.filter(g => {
+      if (!g.fecha) return false;
+      if (period === 'Sorteo') return true;
+      if (period === 'Diario') return g.fecha === todayStr;
+      
+      const d = new Date(g.fecha + 'T00:00:00');
+      if (period === 'Semana') {
+        const today = new Date(todayStr + 'T00:00:00');
+        const diff = today.getTime() - d.getTime();
+        return diff >= 0 && diff <= 7 * 24 * 60 * 60 * 1000;
+      }
+      return d.getMonth() === selectedMonth && d.getFullYear() === selectedYear;
+    });
+
+    const totalGastos = filteredGastos.reduce((acc, g) => acc + (g.monto || 0), 0);
+    
+    return {
+      ingresos: totalVendido,
+      premios: totalPremios,
+      gastos: totalGastos,
+      ganancia: totalVendido - totalPremios - totalGastos,
+      sorteos: filteredSorteos
+    };
+  }, [historicoSorteos, period, gastos, selectedMonth, selectedYear]);
 
   const handleDownload = () => {
     showToast('Reporte generado exitosamente');
   };
 
   return (
-    <div className="space-y-4 md:space-y-6 animate-larry">
+    <div className="space-y-4 md:space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-xl md:text-3xl font-black font-heading text-white">Ganancias</h1>
           <p className="text-[10px] md:text-xs text-slate-500 font-bold uppercase tracking-widest">Análisis de rentabilidad</p>
         </div>
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <TabGroup tabs={periods} active={period} onChange={setPeriod} />
-          <button onClick={handleDownload} className="p-2 bg-white/5 rounded-xl border border-white/10 text-slate-400"><Download size={14}/></button>
+        <div className="flex flex-col md:flex-row items-center gap-2 w-full sm:w-auto">
+          {period === 'Mes' && (
+            <div className="flex gap-2">
+              <select 
+                value={selectedMonth} 
+                onChange={e => setSelectedMonth(Number(e.target.value))}
+                className="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs font-bold focus:border-violet-500 outline-none transition-all appearance-none"
+              >
+                {meses.map((m, i) => <option key={i} value={i}>{m}</option>)}
+              </select>
+              <select 
+                value={selectedYear} 
+                onChange={e => setSelectedYear(Number(e.target.value))}
+                className="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs font-bold focus:border-violet-500 outline-none transition-all appearance-none"
+              >
+                {[2024, 2025, 2026].map(y => <option key={y} value={y}>{y}</option>)}
+              </select>
+            </div>
+          )}
+          <div className="flex items-center gap-2">
+            <TabGroup tabs={periods} active={period} onChange={setPeriod} />
+            <button onClick={handleDownload} className="p-2 bg-white/5 rounded-xl border border-white/10 text-slate-400"><Download size={14}/></button>
+          </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <ReportCard label="Ingreso Total"     value={`Bs. ${statsMensuales.ingresos.toLocaleString()}`} color="emerald" />
-        <ReportCard label="Premios"           value={`Bs. ${statsMensuales.premios.toLocaleString()}`} color="rose"    />
-        <ReportCard label="Gastos"            value={`Bs. ${statsMensuales.gastos.toLocaleString()}`} color="rose"    />
-        <ReportCard label="Utilidad Neta"      value={`Bs. ${statsMensuales.ganancia.toLocaleString()}`} color="violet"  />
+        <ReportCard label="Ingreso Total"     value={`Bs. ${statsPeriod.ingresos.toLocaleString()}`} color="emerald" />
+        <ReportCard label="Premios"           value={`Bs. ${statsPeriod.premios.toLocaleString()}`} color="rose"    />
+        <ReportCard label="Gastos"            value={`Bs. ${statsPeriod.gastos.toLocaleString()}`} color="rose"    />
+        <ReportCard label="Utilidad Neta"      value={`Bs. ${statsPeriod.ganancia.toLocaleString()}`} color="violet"  />
       </div>
 
       <div className="card-larry p-8 flex flex-col overflow-hidden bg-gradient-to-b from-[#0d0d0d] to-black min-h-[500px]">
@@ -611,7 +681,7 @@ function GananciasView({ showToast, statsMensuales, historicoSorteos }) {
           </div>
         </div>
         <div className="flex-1">
-          {historicoSorteos.length > 0 ? <MasterFlowChart period={period} historicoSorteos={historicoSorteos} /> : <div className="h-full flex items-center justify-center text-slate-500 font-bold uppercase text-[10px] tracking-widest italic pt-20">Esperando datos reales de sorteos...</div>}
+          {statsPeriod.sorteos.length > 0 ? <MasterFlowChart period={period} historicoSorteos={statsPeriod.sorteos} /> : <div className="h-full flex items-center justify-center text-slate-500 font-bold uppercase text-[10px] tracking-widest italic pt-20">No hay sorteos en este período...</div>}
         </div>
       </div>
     </div>
