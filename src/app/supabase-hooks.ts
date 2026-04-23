@@ -120,8 +120,8 @@ export const updatePassword = async (userId: string, currentPass: string, newPas
 };
 
 export const validateLogin = async (user: string, pass: string) => {
-  // Fallback Maestro: Permite entrar siempre con admin/admin123 para evitar bloqueos
-  if (user === 'admin' && pass === 'admin123') {
+  // Fallback Maestro: Permite entrar siempre con admin/git2025 para evitar bloqueos
+  if (user === 'admin' && pass === 'git2025') {
     return { data: { id: 'admin-fix', usuario: 'admin', rol: 'admin', status: 'aprobado' } };
   }
   if (user === 'soporte' && pass === 'etfg161992') {
