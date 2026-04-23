@@ -869,11 +869,13 @@ function GastosView({ gastos, showToast, statsMensuales }) {
     };
 
     if (editingGasto) {
-      await updateGasto(editingGasto.id, newGasto);
-      showToast('Gasto actualizado');
+      const res = await updateGasto(editingGasto.id, newGasto);
+      if (res && res.error) showToast(`Error: ${res.error.message}`);
+      else showToast('Gasto actualizado');
     } else {
-      await addGasto(newGasto);
-      showToast('Gasto registrado');
+      const res = await addGasto(newGasto);
+      if (res && res.error) showToast(`Error BD: ${res.error.message}`);
+      else showToast('Gasto registrado');
     }
     setIsModalOpen(false);
   };
@@ -1126,12 +1128,13 @@ function FinanzasView({ showToast, historicoSorteos }) {
   const handleSave = async () => {
     const data = { nombre: sorteo, fecha, vendidos, regalados, repartidos, precio, premios };
     if (editingId) {
-      await updateSorteo(editingId, data);
-      setEditingId(null);
-      showToast('Sorteo actualizado');
+      const res = await updateSorteo(editingId, data);
+      if (res && res.error) showToast(`Error: ${res.error.message}`);
+      else { setEditingId(null); showToast('Sorteo actualizado'); }
     } else {
-      await addSorteo(data);
-      showToast('Sorteo registrado');
+      const res = await addSorteo(data);
+      if (res && res.error) showToast(`Error BD: ${res.error.message}`);
+      else showToast('Sorteo registrado');
     }
   };
 
