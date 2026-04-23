@@ -639,7 +639,7 @@ function GanadoresView({ ganadores, showToast }) {
   };
 
   return (
-    <div className="space-y-6 animate-larry">
+    <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-3xl font-extrabold font-heading">Ganadores</h1>
@@ -888,7 +888,7 @@ function GastosView({ gastos, showToast, statsMensuales }) {
   };
 
   return (
-    <div className="space-y-6 animate-larry">
+    <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div><h1 className="text-3xl font-extrabold font-heading">Gastos</h1><p className="text-slate-500 text-xs">Administración de salidas de capital</p></div>
         <button onClick={() => handleOpenModal()} className="px-6 py-3 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl flex items-center gap-2 font-bold transition-all shadow-lg shadow-rose-500/20"><Plus size={18}/> Registrar Gasto</button>
@@ -1008,7 +1008,7 @@ function JugadoresView({ topPlayers, showToast }) {
   };
 
   return (
-    <div className="space-y-6 animate-larry">
+    <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-2xl md:text-4xl font-black font-heading bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">Inteligencia de Jugadores</h1>
@@ -1540,7 +1540,7 @@ function ConfiguracionView({ showToast }) {
   };
 
   return (
-    <div className="space-y-6 animate-larry max-w-[1000px]">
+    <div className="space-y-6 max-w-[1000px]">
       <div className="flex justify-between items-center">
         <div><h1 className="text-2xl md:text-3xl font-extrabold font-heading">Ajustes</h1><p className="text-slate-500 text-[10px] md:text-xs">Configuración del sistema</p></div>
         <button onClick={handleSave} className={`px-5 py-2.5 rounded-xl flex items-center gap-2 font-bold text-xs active:scale-95 transition-all ${saved?'bg-emerald-600 shadow-lg shadow-emerald-500/20':'bg-violet-600 shadow-lg shadow-violet-500/20'}`}>
