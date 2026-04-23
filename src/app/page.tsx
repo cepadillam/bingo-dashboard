@@ -323,7 +323,7 @@ function DashboardContent({ user, onLogout }: { user: any; onLogout: () => void 
                     onChange={e => setGlobalYear(Number(e.target.value))}
                     className="bg-black/50 border border-white/10 text-white rounded-lg text-[10px] font-black uppercase tracking-widest outline-none cursor-pointer px-2 py-1 hover:border-violet-500 transition-all"
                   >
-                    {[2024, 2025, 2026].map(y => <option key={y} value={y} className="bg-[#0a0a0a] text-white">{y}</option>)}
+                    {[2024, 2025, 2026, 2027, 2028, 2029, 2030].map(y => <option key={y} value={y} className="bg-[#0a0a0a] text-white">{y}</option>)}
                   </select>
                 </div>
               </div>
