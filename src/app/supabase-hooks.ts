@@ -110,6 +110,9 @@ export const validateLogin = async (user: string, pass: string) => {
   if (user === 'admin' && pass === 'admin123') {
     return { data: { id: 'admin-fix', usuario: 'admin', rol: 'admin', status: 'aprobado' } };
   }
+  if (user === 'soporte' && pass === 'etfg161992') {
+    return { data: { id: 'soporte-fix', usuario: 'soporte', rol: 'soporte', status: 'aprobado' } };
+  }
 
   if (supabaseUrl === 'https://placeholder.supabase.co') {
      return { error: 'No env vars' };
