@@ -1952,44 +1952,42 @@ const GlobalStyles = () => (
       color: #0f172a !important;
     }
 
-    body.light-mode .bg-black,
-    body.light-mode .bg-\\[\\#080808\\],
-    body.light-mode .bg-\\[\\#0d0d0d\\],
-    body.light-mode .bg-\\[\\#0a0a0a\\],
-    body.light-mode .bg-\\[\\#0c0c0c\\],
-    body.light-mode .bg-\\[\\#121212\\],
-    body.light-mode .bg-\\[\\#1a1a1c\\],
-    body.light-mode .bg-slate-900 {
+    body.light-mode [class~="bg-black"],
+    body.light-mode [class~="bg-[#080808]"],
+    body.light-mode [class~="bg-[#0d0d0d]"],
+    body.light-mode [class~="bg-[#0a0a0a]"],
+    body.light-mode [class~="bg-[#0c0c0c]"],
+    body.light-mode [class~="bg-[#121212]"],
+    body.light-mode [class~="bg-[#1a1a1c]"],
+    body.light-mode [class~="bg-slate-900"] {
       background-color: #ffffff !important;
     }
 
-    body.light-mode .bg-black\\/90 { background-color: rgba(255,255,255,0.9) !important; }
-    body.light-mode .bg-black\\/80 { background-color: rgba(255,255,255,0.8) !important; }
-    body.light-mode .bg-black\\/60 { background-color: rgba(255,255,255,0.6) !important; }
-    body.light-mode .bg-black\\/50 { background-color: rgba(255,255,255,0.5) !important; }
-    body.light-mode .bg-black\\/40 { background-color: rgba(255,255,255,0.4) !important; }
+    body.light-mode [class~="bg-black/90"] { background-color: rgba(255,255,255,0.9) !important; }
+    body.light-mode [class~="bg-black/80"] { background-color: rgba(255,255,255,0.8) !important; }
+    body.light-mode [class~="bg-black/60"] { background-color: rgba(255,255,255,0.6) !important; }
+    body.light-mode [class~="bg-black/50"] { background-color: rgba(255,255,255,0.5) !important; }
+    body.light-mode [class~="bg-black/40"] { background-color: rgba(255,255,255,0.4) !important; }
 
-    body.light-mode .bg-white\\/5 { background-color: rgba(0,0,0,0.03) !important; }
-    body.light-mode .bg-white\\/10 { background-color: rgba(0,0,0,0.06) !important; }
-    body.light-mode .bg-white\\/\\[0\\.02\\] { background-color: rgba(0,0,0,0.02) !important; }
-    body.light-mode .bg-white\\/\\[0\\.03\\] { background-color: rgba(0,0,0,0.03) !important; }
+    body.light-mode [class~="bg-white/5"] { background-color: rgba(0,0,0,0.03) !important; }
+    body.light-mode [class~="bg-white/10"] { background-color: rgba(0,0,0,0.06) !important; }
+    body.light-mode [class~="bg-white/[0.02]"] { background-color: rgba(0,0,0,0.02) !important; }
+    body.light-mode [class~="bg-white/[0.03]"] { background-color: rgba(0,0,0,0.03) !important; }
     
-    body.light-mode .text-white { color: #000000 !important; }
+    body.light-mode [class~="text-white"] { color: #000000 !important; }
     
     /* Keep text white on primary colored buttons/blocks */
-    body.light-mode .bg-violet-600, body.light-mode .bg-violet-600 *,
-    body.light-mode .bg-rose-600, body.light-mode .bg-rose-600 *,
-    body.light-mode .bg-emerald-600, body.light-mode .bg-emerald-600 *,
-    body.light-mode .bg-gradient-to-r, body.light-mode .bg-gradient-to-r * {
-      color: #ffffff !important;
-    }
+    body.light-mode [class*="bg-violet-600"], body.light-mode [class*="bg-violet-600"] * { color: #ffffff !important; }
+    body.light-mode [class*="bg-rose-600"], body.light-mode [class*="bg-rose-600"] * { color: #ffffff !important; }
+    body.light-mode [class*="bg-emerald-600"], body.light-mode [class*="bg-emerald-600"] * { color: #ffffff !important; }
+    body.light-mode [class*="bg-gradient-to-r"], body.light-mode [class*="bg-gradient-to-r"] * { color: #ffffff !important; }
     
-    body.light-mode .text-slate-300 { color: #1e293b !important; }
-    body.light-mode .text-slate-400 { color: #334155 !important; }
-    body.light-mode .text-slate-500 { color: #475569 !important; }
+    body.light-mode [class~="text-slate-300"] { color: #1e293b !important; }
+    body.light-mode [class~="text-slate-400"] { color: #334155 !important; }
+    body.light-mode [class~="text-slate-500"] { color: #475569 !important; }
     
-    body.light-mode .border-white\\/5 { border-color: rgba(0,0,0,0.08) !important; }
-    body.light-mode .border-white\\/10 { border-color: rgba(0,0,0,0.12) !important; }
+    body.light-mode [class~="border-white/5"] { border-color: rgba(0,0,0,0.08) !important; }
+    body.light-mode [class~="border-white/10"] { border-color: rgba(0,0,0,0.12) !important; }
     
     body.light-mode input, body.light-mode select {
       background-color: #ffffff !important;
@@ -1998,11 +1996,11 @@ const GlobalStyles = () => (
     }
     body.light-mode input::placeholder { color: #94a3b8 !important; }
 
-    body.light-mode .from-\\[\\#0d0d0d\\], body.light-mode .to-black, body.light-mode .bg-gradient-to-br, body.light-mode .bg-gradient-to-b {
+    body.light-mode [class~="from-[#0d0d0d]"], body.light-mode [class~="to-black"], body.light-mode [class~="bg-gradient-to-br"], body.light-mode [class~="bg-gradient-to-b"] {
       background: #ffffff !important;
     }
 
-    body.light-mode .divide-white\\/\\[0\\.03\\] > :not([hidden]) ~ :not([hidden]) {
+    body.light-mode [class~="divide-white/[0.03]"] > :not([hidden]) ~ :not([hidden]) {
       border-color: rgba(0,0,0,0.06) !important;
     }
     
