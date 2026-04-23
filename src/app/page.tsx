@@ -40,9 +40,32 @@ function LoginPage({ onLogin }: { onLogin: (user: any) => void }) {
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [verified, setVerified] = useState(false);
+
+  useEffect(() => {
+    // Inject Turnstile script
+    const script = document.createElement('script');
+    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+    script.async = true;
+    script.defer = true;
+    document.head.appendChild(script);
+
+    // Turnstile Callback
+    (window as any).onTurnstileSuccess = (token: string) => {
+      setVerified(true);
+    };
+
+    return () => {
+      document.head.removeChild(script);
+    };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!verified) {
+      showToast('Por favor verifica que no eres un robot');
+      return;
+    }
     setLoading(true);
     const { data, error } = await validateLogin(user, pass);
     if (!error && data) {
@@ -105,15 +128,24 @@ function LoginPage({ onLogin }: { onLogin: (user: any) => void }) {
             </button>
           </div>
 
+          <div className="flex justify-center py-2">
+            <div 
+              className="cf-turnstile" 
+              data-sitekey="1x00000000000000000000AA" 
+              data-callback="onTurnstileSuccess"
+              data-theme="dark"
+            ></div>
+          </div>
+
           <button 
             type="submit"
-            disabled={loading}
+            disabled={loading || !verified}
             className={`w-full h-14 rounded-2xl font-black text-white transition-all active:scale-95 shadow-xl shadow-rose-500/10 uppercase tracking-widest text-xs
               ${error ? 'bg-rose-700 animate-shake' : 'bg-[#fe3962] hover:bg-[#ff4d73]'}
-              ${loading ? 'opacity-50 cursor-not-allowed' : ''}
+              ${(loading || !verified) ? 'opacity-50 cursor-not-allowed' : ''}
             `}
           >
-            {loading ? 'Validando...' : error ? 'Credenciales Incorrectas' : 'Entrar al Panel'}
+            {loading ? 'Validando...' : error ? 'Credenciales Incorrectas' : verified ? 'Entrar al Panel' : 'Verifica el CAPTCHA'}
           </button>
         </form>
 
