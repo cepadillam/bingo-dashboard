@@ -424,39 +424,56 @@ function MasterFlowChart({ period, historicoSorteos }: { period: string, histori
 }
 
 function ResumenView({ session, topPlayers, handleQuickSale, saleAmount, setSaleAmount, isSubmitting, showToast, user, historicoSorteos, gastos }) {
-  const [period, setPeriod] = useState('Mes');
+  const [period, setPeriod] = useState('Hoy');
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  
   const periods = ['Hoy', 'Semana', 'Mes'];
+  const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
   const statsPeriod = useMemo(() => {
+    const todayStr = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD local
     const now = new Date();
+
     const filtered = historicoSorteos.filter(s => {
-      const d = new Date(s.fecha);
-      if (period === 'Hoy') return d.toDateString() === now.toDateString();
+      if (!s.fecha) return false;
+      if (period === 'Hoy') return s.fecha === todayStr;
+      
+      const d = new Date(s.fecha + 'T00:00:00');
       if (period === 'Semana') {
-        const diff = now.getTime() - d.getTime();
+        const today = new Date(todayStr + 'T00:00:00');
+        const diff = today.getTime() - d.getTime();
         return diff >= 0 && diff <= 7 * 24 * 60 * 60 * 1000;
       }
-      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+      
+      return d.getMonth() === selectedMonth && d.getFullYear() === selectedYear;
     });
 
-    const totalVendido = filtered.reduce((acc, s) => acc + (s.vendidos * s.precio), 0);
-    const totalPremios = filtered.reduce((acc, s) => acc + s.premios, 0);
+    const totalVendido = filtered.reduce((acc, s) => acc + (s.vendidos * (s.precio || 0)), 0);
+    const totalPremios = filtered.reduce((acc, s) => acc + (s.premios || 0), 0);
+    
     const totalGastos = gastos.filter(g => {
-      const d = new Date(g.fecha);
-      if (period === 'Hoy') return d.toDateString() === now.toDateString();
-      if (period === 'Semana') return (now.getTime() - d.getTime()) <= 7 * 24 * 60 * 60 * 1000;
-      return d.getMonth() === now.getMonth();
-    }).reduce((acc, g) => acc + g.monto, 0);
+      if (!g.fecha) return false;
+      if (period === 'Hoy') return g.fecha === todayStr;
+      
+      const d = new Date(g.fecha + 'T00:00:00');
+      if (period === 'Semana') {
+        const today = new Date(todayStr + 'T00:00:00');
+        const diff = today.getTime() - d.getTime();
+        return diff >= 0 && diff <= 7 * 24 * 60 * 60 * 1000;
+      }
+      return d.getMonth() === selectedMonth && d.getFullYear() === selectedYear;
+    }).reduce((acc, g) => acc + (g.monto || 0), 0);
     
     return {
       ingresos: totalVendido,
       premios: totalPremios,
       gastos: totalGastos,
       ganancia: totalVendido - totalPremios - totalGastos,
-      volumen: filtered.reduce((acc, s) => acc + s.vendidos, 0),
+      volumen: filtered.reduce((acc, s) => acc + (s.vendidos || 0), 0),
       data: filtered
     };
-  }, [historicoSorteos, period, gastos]);
+  }, [historicoSorteos, period, gastos, selectedMonth, selectedYear]);
 
   return (
     <div className="space-y-6 animate-larry">
@@ -465,7 +482,27 @@ function ResumenView({ session, topPlayers, handleQuickSale, saleAmount, setSale
           <h1 className="text-3xl font-extrabold tracking-tight font-heading">Panel de Resumen</h1>
           <p className="text-slate-500 text-xs font-medium uppercase tracking-widest mt-1">Análisis de rendimiento: {period}</p>
         </div>
-        <TabGroup tabs={periods} active={period} onChange={setPeriod} />
+        <div className="flex flex-col md:flex-row items-center gap-4">
+          {period === 'Mes' && (
+            <div className="flex gap-2">
+              <select 
+                value={selectedMonth} 
+                onChange={e => setSelectedMonth(Number(e.target.value))}
+                className="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs font-bold focus:border-violet-500 outline-none transition-all appearance-none"
+              >
+                {meses.map((m, i) => <option key={i} value={i}>{m}</option>)}
+              </select>
+              <select 
+                value={selectedYear} 
+                onChange={e => setSelectedYear(Number(e.target.value))}
+                className="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs font-bold focus:border-violet-500 outline-none transition-all appearance-none"
+              >
+                {[2024, 2025, 2026].map(y => <option key={y} value={y}>{y}</option>)}
+              </select>
+            </div>
+          )}
+          <TabGroup tabs={periods} active={period} onChange={setPeriod} />
+        </div>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 md:gap-4">
