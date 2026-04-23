@@ -870,11 +870,11 @@ function GastosView({ gastos, showToast, statsMensuales }) {
 
     if (editingGasto) {
       const res = await updateGasto(editingGasto.id, newGasto);
-      if (res && res.error) showToast(`Error: ${res.error.message}`);
+      if (res && res.error) { showToast(`Error: ${res.error.message}`); return; }
       else showToast('Gasto actualizado');
     } else {
       const res = await addGasto(newGasto);
-      if (res && res.error) showToast(`Error BD: ${res.error.message}`);
+      if (res && res.error) { showToast(`Error BD: ${res.error.message}`); return; }
       else showToast('Gasto registrado');
     }
     setIsModalOpen(false);
@@ -930,7 +930,7 @@ function GastosView({ gastos, showToast, statsMensuales }) {
 
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-[#0a0a0a] border border-white/10 w-full max-w-md p-8 rounded-[2rem] shadow-2xl animate-larry">
+          <div className="bg-[#0a0a0a] border border-white/10 w-full max-w-md p-6 md:p-8 rounded-[2rem] shadow-2xl animate-larry max-h-[90vh] overflow-y-auto custom-scrollbar">
             <h2 className="text-2xl font-black font-heading mb-6">{editingGasto ? 'Editar Gasto' : 'Nuevo Gasto'}</h2>
             <form onSubmit={handleSave} className="space-y-4">
               <div className="space-y-1"><label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Descripción</label><input required type="text" value={formData.descripcion} onChange={e => setFormData({...formData, descripcion: e.target.value})} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-violet-500 outline-none transition-all"/></div>
