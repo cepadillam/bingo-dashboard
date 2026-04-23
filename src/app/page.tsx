@@ -134,6 +134,13 @@ export default function BingoDashboard() {
     try {
       const savedUser = localStorage.getItem('bingo_user');
       if (savedUser) setUser(JSON.parse(savedUser));
+
+      if (localStorage.getItem('bingo_theme') === 'light-dark') {
+        document.body.classList.add('light-dark');
+      }
+      if (localStorage.getItem('bingo_anim') === 'reduced') {
+        document.body.classList.add('reduced-animations');
+      }
     } catch (e) { console.error(e); }
     setIsFinishingAuth(false);
   }, []);
@@ -1526,11 +1533,39 @@ function AlertasView({ alertas, setAlertas, showToast }) {
 /* ─── CONFIGURACIÓN ──────────────────────────────────── */
 function ConfiguracionView({ showToast }) {
   const [activeSection, setActiveSection] = useState('General');
-  const [darkMode, setDarkMode] = useState(true);
-  const [reducedAnim, setReducedAnim] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => {
+    if (typeof window !== 'undefined') return localStorage.getItem('bingo_theme') !== 'light-dark';
+    return true;
+  });
+  const [reducedAnim, setReducedAnim] = useState(() => {
+    if (typeof window !== 'undefined') return localStorage.getItem('bingo_anim') === 'reduced';
+    return false;
+  });
   const [emailNotif, setEmailNotif] = useState(true);
   const [pushNotif, setPushNotif] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (darkMode) {
+      document.body.classList.remove('light-dark');
+      localStorage.setItem('bingo_theme', 'blackout');
+    } else {
+      document.body.classList.add('light-dark');
+      localStorage.setItem('bingo_theme', 'light-dark');
+    }
+  }, [darkMode]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (reducedAnim) {
+      document.body.classList.add('reduced-animations');
+      localStorage.setItem('bingo_anim', 'reduced');
+    } else {
+      document.body.classList.remove('reduced-animations');
+      localStorage.setItem('bingo_anim', 'normal');
+    }
+  }, [reducedAnim]);
 
   const sections = ['General','Cuenta','Notificaciones','Seguridad'];
 
@@ -1906,6 +1941,32 @@ const GlobalStyles = () => (
       background: #000000;
       -webkit-font-smoothing: antialiased;
       overflow-x: hidden;
+      transition: background 0.5s ease;
+    }
+
+    body.light-dark .bg-black {
+      background-color: #0f1115 !important;
+    }
+    body.light-dark .bg-\\[\\#080808\\] {
+      background-color: #15181e !important;
+    }
+    body.light-dark .bg-\\[\\#0d0d0d\\] {
+      background-color: #1a1d24 !important;
+    }
+    body.light-dark .bg-\\[\\#0a0a0a\\] {
+      background-color: #1a1d24 !important;
+    }
+    body.light-dark .bg-\\[\\#1a1a1c\\] {
+      background-color: #1f222b !important;
+    }
+
+    body.reduced-animations *,
+    body.reduced-animations *::before,
+    body.reduced-animations *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
     }
 
     .font-heading { font-family: 'Outfit', sans-serif; }
