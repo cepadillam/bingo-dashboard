@@ -1641,7 +1641,7 @@ function ConfiguracionView({ showToast, user }) {
     }
   }, [reducedAnim]);
 
-  const sections = ['General','Cuenta','Seguridad'];
+  const sections = ['General','Seguridad'];
 
   const handleSave = () => {
     setSaved(true);
@@ -1682,7 +1682,7 @@ function ConfiguracionView({ showToast, user }) {
         <div className="md:col-span-1 space-y-1">
           {sections.map((s,i) => (
             <button key={s} onClick={()=>setActiveSection(s)} className={`w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-xs transition-all ${activeSection===s?'bg-white/10 text-white':'text-slate-400 hover:text-white hover:bg-white/5'}`}>
-              {s === 'General' ? <Monitor size={14}/> : s === 'Cuenta' ? <User size={14}/> : <Lock size={14}/>}
+              {s === 'General' ? <Monitor size={14}/> : <Lock size={14}/>}
               {s}
             </button>
           ))}
@@ -1728,13 +1728,6 @@ function ConfiguracionView({ showToast, user }) {
             </div>
           </>}
 
-          {activeSection === 'Cuenta' && <>
-            <SectionTitle icon={<User size={16}/>} title="Perfil" color="cyan"/>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5"><label className="text-[12px] font-black text-slate-400 uppercase tracking-widest ml-1">Nombre</label><input defaultValue="Admin Larry" className="w-full bg-black border border-white/10 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-violet-500"/></div>
-              <div className="space-y-1.5"><label className="text-[12px] font-black text-slate-400 uppercase tracking-widest ml-1">Email</label><input defaultValue="admin@bingo.com" className="w-full bg-black border border-white/10 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-violet-500"/></div>
-            </div>
-          </>}
         </div>
       </div>
     </div>
