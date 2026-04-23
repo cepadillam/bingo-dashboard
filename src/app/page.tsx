@@ -2007,10 +2007,19 @@ const GlobalStyles = () => (
     }
 
     select {
-      color-scheme: dark;
+      color-scheme: dark !important;
+      background-color: #0a0a0a !important;
+      color: #ffffff !important;
     }
 
     select option {
+      background-color: #1a1a1a !important;
+      color: #ffffff !important;
+    }
+
+    /* Fix for some browsers that force white backgrounds */
+    select:-webkit-autofill,
+    select:focus {
       background-color: #0a0a0a !important;
       color: #ffffff !important;
     }
